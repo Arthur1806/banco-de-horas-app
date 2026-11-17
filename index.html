@@ -267,6 +267,43 @@ a { color: var(--accent); }
 .sw.rest { background: var(--track); border: 1px solid var(--border-2); }
 .hero-foot { display: flex; gap: 10px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); flex-wrap: wrap; }
 
+/* DESTAQUE: ÍNDICE DE CONCLUSÃO DA META */
+.goal-banner {
+  display: flex; align-items: center; gap: 22px; padding: 20px 24px; margin-bottom: 16px; overflow: hidden;
+  background: linear-gradient(120deg, color-mix(in srgb, var(--accent) 17%, var(--surface)), var(--surface) 72%);
+  border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+  animation: rise .5s var(--ease) both;
+}
+.goal-banner.complete {
+  background: linear-gradient(120deg, color-mix(in srgb, var(--success) 17%, var(--surface)), var(--surface) 72%);
+  border-color: color-mix(in srgb, var(--success) 35%, transparent);
+}
+.goal-ring { position: relative; width: 104px; height: 104px; flex: none; }
+.goal-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; }
+.goal-ring .rt { fill: none; stroke: var(--track); stroke-width: 9; }
+.goal-ring .rp { fill: none; stroke: var(--accent); stroke-width: 9; stroke-linecap: round; transition: stroke-dashoffset 1.1s var(--ease); }
+.goal-banner.complete .goal-ring .rp { stroke: var(--success); }
+.goal-ring .rc { position: absolute; inset: 0; display: grid; place-items: center; color: var(--accent); }
+.goal-banner.complete .goal-ring .rc { color: var(--success); }
+.goal-ring .rc .i { width: 26px; height: 26px; }
+.goal-main { flex: 1; min-width: 0; }
+.goal-eyebrow { font-size: 12.5px; font-weight: 560; color: var(--text-2); text-transform: uppercase; letter-spacing: .05em; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.goal-pct { font-size: 46px; font-weight: 700; letter-spacing: -.05em; line-height: 1.05; margin-top: 4px; }
+.goal-pct small { font-size: 16px; font-weight: 560; color: var(--text-2); letter-spacing: -.01em; margin-left: 8px; }
+.goal-sub { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; font-size: 13px; color: var(--text-2); }
+.goal-sub b { color: var(--text); font-weight: 600; }
+.goal-side { display: grid; gap: 8px; justify-items: end; text-align: right; flex: none; }
+.goal-side .gs-l { font-size: 12px; color: var(--text-3); }
+.goal-side .gs-v { font-size: 20px; font-weight: 650; letter-spacing: -.03em; }
+@media (max-width: 720px) {
+  .goal-banner { gap: 16px; padding: 16px; margin-bottom: 12px; }
+  .goal-ring { width: 82px; height: 82px; }
+  .goal-pct { font-size: 36px; }
+  .goal-pct small { display: block; margin: 2px 0 0; font-size: 13px; }
+  .goal-side { display: none; }
+}
+@media (max-width: 380px) { .goal-ring { width: 68px; height: 68px; } .goal-pct { font-size: 30px; } }
+
 /* CARD HOJE */
 .today-card { display: flex; flex-direction: column; }
 .today-date { font-size: 12.5px; color: var(--text-3); }
@@ -835,6 +872,7 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
   <main class="container">
     <!-- VISÃO GERAL -->
     <section class="view active" id="view-overview" aria-label="Visão geral">
+      <div class="card goal-banner" id="goalBanner" role="region" aria-label="Índice de conclusão da meta"></div>
       <div id="alerts" class="alerts"></div>
       <div class="kpis stagger" id="kpis"></div>
       <div class="grid-hero">
@@ -1907,6 +1945,7 @@ function renderAll() {
   const t = today();
   const d = Core.derive(state, t);
   renderHeader(d, t);
+  renderGoalBanner(d, t);
   renderAlerts(d, t);
   renderKpis(d);
   renderHero(d, t);
@@ -1980,6 +2019,34 @@ function renderKpis(d) {
     kpi('Progresso', 'trend', d.goalReached ? 'success' : 'info', count('k-pct', d.pct, 'pct'), d.goalReached ? 'Concluído' : `${fmtDur(d.bal)} de ${fmtDur(d.goal)}`),
     kpi('Dias disponíveis', 'calendar', '', `${count('k-days', d.availableDays, 'int')}<small>${d.availableDays === 1 ? 'dia' : 'dias'}</small>`, nextOpen ? `próximo: ${wdShort(nextOpen)}, ${fmtDateShort(nextOpen)}` : (d.goalReached ? 'nenhum necessário' : 'sem dias restantes'))
   ].join('');
+}
+
+/* ---------- Destaque: índice de conclusão da meta ---------- */
+let lastGoalFrac = 0;
+function renderGoalBanner(d, t) {
+  const S = state.settings;
+  const frac = Math.max(0, Math.min(1, d.pct));
+  const C = 2 * Math.PI * 42;
+  const paceTxt = { reached: ['t-success', 'Meta concluída'], ahead: ['t-success', `Adiantado ${fmtDur(d.delta, { sign: true })}`], behind: ['t-danger', `Atrasado ${fmtDur(d.delta)}`], ontrack: ['t-accent', 'Dentro do planejado'] }[d.pace];
+  const fc = d.goalReached ? null : d.feasible && d.forecast ? `${wdShort(d.forecast)}, ${fmtDateShort(d.forecast)}` : d.deadlinePassed ? 'prazo encerrado' : 'não atingível';
+  const el = $('#goalBanner');
+  el.classList.toggle('complete', d.goalReached);
+  el.innerHTML = `
+    <div class="goal-ring" aria-hidden="true">
+      <svg viewBox="0 0 100 100"><circle class="rt" cx="50" cy="50" r="42"/><circle class="rp" cx="50" cy="50" r="42" stroke-dasharray="${C.toFixed(2)}" stroke-dashoffset="${(C * (1 - lastGoalFrac)).toFixed(2)}"/></svg>
+      <div class="rc">${icon(d.goalReached ? 'trophy' : 'target')}</div>
+    </div>
+    <div class="goal-main">
+      <div class="goal-eyebrow">Índice de conclusão da meta <span class="badge ${paceTxt[0]}" style="text-transform:none;letter-spacing:0">${paceTxt[1]}</span></div>
+      <div class="goal-pct" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(d.pct * 100)}" aria-label="Índice de conclusão da meta">${count('g-pct', Math.min(d.pct, 9.99), 'pct')}<small class="num">${fmtDur(d.bal)} de ${fmtDur(d.goal)}</small></div>
+      <div class="goal-sub">${d.goalReached ? `<span>Objetivo alcançado${d.bal > d.goal ? ` · excedente <b class="num">${fmtDur(d.bal - d.goal)}</b>` : ''}</span>` : `<span>Faltam <b class="num">${fmtDur(d.R)}</b></span><span>Prazo <b class="num">${fmtDate(S.endDate)}</b></span>`}</div>
+    </div>
+    <div class="goal-side">
+      ${d.goalReached ? '' : `<div><div class="gs-l">Previsão de conclusão</div><div class="gs-v">${fc}</div></div>`}
+      ${!d.goalReached && d.availableDays ? `<div><div class="gs-l">Média necessária</div><div class="gs-v num">${fmtDur(d.avgNeeded)}<span class="faint" style="font-size:13px;font-weight:500">/dia</span></div></div>` : ''}
+    </div>`;
+  lastGoalFrac = frac;
+  requestAnimationFrame(() => requestAnimationFrame(() => { const rp = $('.rp', el); if (rp) rp.style.strokeDashoffset = (C * (1 - frac)).toFixed(2); }));
 }
 
 let lastHeroWidths = null;
