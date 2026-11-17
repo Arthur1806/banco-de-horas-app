@@ -1,0 +1,2779 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<title>Banco de Horas — Meta Novembro 2026</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236866f2'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='white' stroke-width='2.5'/%3E%3Cpath d='M16 11v5l3 2' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<script>
+/* Aplica o tema salvo antes da primeira pintura (evita "flash" de tema). */
+(function () {
+  try {
+    var s = JSON.parse(localStorage.getItem('bancoHoras.v1') || 'null');
+    if (s && s.theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  } catch (e) {}
+})();
+</script>
+<style>
+/* =====================================================================
+   TOKENS DE DESIGN
+   ===================================================================== */
+:root {
+  --font: "Inter var", "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", system-ui, sans-serif;
+  --mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r-xl: 18px; --r-lg: 14px; --r: 10px; --r-sm: 7px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --nav-h: 64px;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #08090b;
+  --bg-glow: rgba(118, 116, 255, .13);
+  --surface: #0f1014;
+  --surface-2: #14161b;
+  --surface-3: #1a1d23;
+  --hover: rgba(255, 255, 255, .035);
+  --border: rgba(255, 255, 255, .065);
+  --border-2: rgba(255, 255, 255, .11);
+  --text: #eeeff2;
+  --text-2: #a3a7b0;
+  --text-3: #6c717b;
+  --accent: #7f7dff;
+  --accent-strong: #6866f2;
+  --accent-soft: rgba(127, 125, 255, .14);
+  --accent-ink: #ffffff;
+  --success: #3dd598;
+  --success-soft: rgba(61, 213, 152, .13);
+  --warning: #f5b342;
+  --warning-soft: rgba(245, 179, 66, .13);
+  --danger: #f6727b;
+  --danger-soft: rgba(246, 114, 123, .13);
+  --rose: #f17bbf;
+  --rose-soft: rgba(241, 123, 191, .13);
+  --info: #64a8ff;
+  --info-soft: rgba(100, 168, 255, .13);
+  --neutral-soft: rgba(255, 255, 255, .05);
+  --shadow: inset 0 1px 0 rgba(255, 255, 255, .035), 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -18px rgba(0, 0, 0, .8);
+  --shadow-lg: 0 30px 80px -20px rgba(0, 0, 0, .75), 0 0 0 1px rgba(255, 255, 255, .06);
+  --overlay: rgba(4, 5, 7, .62);
+  --track: rgba(255, 255, 255, .06);
+}
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f5f5f7;
+  --bg-glow: rgba(104, 102, 242, .10);
+  --surface: #ffffff;
+  --surface-2: #fafafb;
+  --surface-3: #f2f2f5;
+  --hover: rgba(16, 17, 20, .035);
+  --border: rgba(16, 17, 20, .075);
+  --border-2: rgba(16, 17, 20, .13);
+  --text: #111217;
+  --text-2: #555963;
+  --text-3: #8a8e98;
+  --accent: #5f5de8;
+  --accent-strong: #4d4adb;
+  --accent-soft: rgba(95, 93, 232, .10);
+  --accent-ink: #ffffff;
+  --success: #0e9b6b;
+  --success-soft: rgba(14, 155, 107, .10);
+  --warning: #b8780a;
+  --warning-soft: rgba(214, 145, 20, .12);
+  --danger: #d9434e;
+  --danger-soft: rgba(217, 67, 78, .10);
+  --rose: #c93d8d;
+  --rose-soft: rgba(201, 61, 141, .10);
+  --info: #2f7fe0;
+  --info-soft: rgba(47, 127, 224, .10);
+  --neutral-soft: rgba(16, 17, 20, .045);
+  --shadow: 0 1px 2px rgba(16, 17, 20, .05), 0 10px 30px -20px rgba(16, 17, 20, .22);
+  --shadow-lg: 0 30px 80px -20px rgba(16, 17, 20, .3), 0 0 0 1px rgba(16, 17, 20, .07);
+  --overlay: rgba(20, 22, 28, .34);
+  --track: rgba(16, 17, 20, .07);
+}
+
+/* =====================================================================
+   BASE
+   ===================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+  font-family: var(--font); font-size: 14px; line-height: 1.5; letter-spacing: -.006em;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  transition: background-color .3s var(--ease), color .3s var(--ease);
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto 0; height: 560px; pointer-events: none; z-index: 0;
+  background: radial-gradient(55% 70% at 50% -20%, var(--bg-glow), transparent 70%);
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--accent); }
+.num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "cv11" 1; }
+.i { width: 16px; height: 16px; flex: none; display: inline-block; vertical-align: middle; }
+.i-sm { width: 14px; height: 14px; }
+.i-lg { width: 20px; height: 20px; }
+.muted { color: var(--text-2); }
+.faint { color: var(--text-3); }
+.hidden { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+::selection { background: var(--accent-soft); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+/* =====================================================================
+   LAYOUT GERAL
+   ===================================================================== */
+.app { position: relative; z-index: 1; }
+.container { max-width: 1240px; margin: 0 auto; padding: 0 24px 56px; }
+.topbar { position: relative; z-index: 20; }
+.topbar-inner {
+  max-width: 1240px; margin: 0 auto; padding: 20px 24px 14px;
+  display: flex; align-items: center; gap: 16px;
+}
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.brand-mark {
+  width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; flex: none;
+  background: linear-gradient(140deg, #8d8bff, #5a57e6 60%, #4440c9);
+  color: #fff; box-shadow: 0 6px 18px -6px rgba(104, 102, 242, .7), inset 0 1px 0 rgba(255, 255, 255, .25);
+}
+.brand-mark .i { width: 19px; height: 19px; }
+.brand-title { font-weight: 650; font-size: 15px; letter-spacing: -.015em; }
+.brand-sub { font-size: 12.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.top-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.today-chip {
+  display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text-2); font-size: 12.5px; white-space: nowrap;
+}
+.today-chip .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 3px var(--success-soft); }
+.today-chip.sim .dot { background: var(--warning); box-shadow: 0 0 0 3px var(--warning-soft); }
+
+.tabbar {
+  position: sticky; top: 0; z-index: 15;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter: saturate(160%) blur(14px); -webkit-backdrop-filter: saturate(160%) blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+.tabbar-inner { max-width: 1240px; margin: 0 auto; padding: 0 24px; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.tabbar-inner::-webkit-scrollbar { display: none; }
+.tab {
+  position: relative; display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 12px;
+  border: 0; background: none; color: var(--text-3); font-weight: 520; font-size: 13.5px; white-space: nowrap;
+  transition: color .2s var(--ease);
+}
+.tab:hover { color: var(--text-2); }
+.tab.active { color: var(--text); }
+.tab::after {
+  content: ""; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 2px; border-radius: 2px;
+  background: var(--accent); transform: scaleX(0); transition: transform .3s var(--ease);
+}
+.tab.active::after { transform: scaleX(1); }
+.tab .count { font-size: 11px; padding: 1px 6px; border-radius: 999px; background: var(--neutral-soft); color: var(--text-2); }
+
+.view { display: none; padding-top: 24px; }
+.view.active { display: block; animation: viewIn .45s var(--ease); }
+@keyframes viewIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.view-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+.view-title { font-size: 22px; font-weight: 650; letter-spacing: -.025em; margin: 0; }
+.view-desc { color: var(--text-2); margin: 4px 0 0; font-size: 13.5px; }
+.view-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.grid { display: grid; gap: 16px; }
+.kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.grid-hero { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: 16px; margin-bottom: 16px; }
+.grid-2 { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; }
+.grid-entries { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.grid-settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+
+/* =====================================================================
+   CARDS
+   ===================================================================== */
+.card {
+  position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl);
+  box-shadow: var(--shadow); padding: 20px; min-width: 0;
+  transition: border-color .25s var(--ease), background-color .3s var(--ease), transform .25s var(--ease);
+}
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.card-title { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; letter-spacing: -.01em; margin: 0; }
+.card-title .i { color: var(--text-3); }
+.card-sub { color: var(--text-3); font-size: 12.5px; }
+.stagger > * { animation: rise .5s var(--ease) both; }
+.stagger > *:nth-child(2) { animation-delay: .04s; } .stagger > *:nth-child(3) { animation-delay: .08s; }
+.stagger > *:nth-child(4) { animation-delay: .12s; } .stagger > *:nth-child(5) { animation-delay: .16s; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* KPI */
+.kpi { padding: 16px 16px 15px; overflow: hidden; }
+.kpi:hover { border-color: var(--border-2); transform: translateY(-1px); }
+.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.kpi-label { color: var(--text-2); font-size: 12.5px; font-weight: 500; }
+.kpi-icon { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--neutral-soft); color: var(--text-2); }
+.kpi-icon.accent { background: var(--accent-soft); color: var(--accent); }
+.kpi-icon.success { background: var(--success-soft); color: var(--success); }
+.kpi-icon.warning { background: var(--warning-soft); color: var(--warning); }
+.kpi-icon.info { background: var(--info-soft); color: var(--info); }
+.kpi-value { font-size: 28px; font-weight: 650; letter-spacing: -.035em; line-height: 1.1; }
+.kpi-value small { font-size: 15px; font-weight: 550; color: var(--text-3); letter-spacing: -.01em; margin-left: 2px; }
+.kpi-foot { margin-top: 6px; font-size: 12px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* HERO / PROGRESSO */
+.hero { padding: 24px; overflow: hidden; }
+.hero::after {
+  content: ""; position: absolute; right: -80px; top: -120px; width: 320px; height: 320px; border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-soft), transparent 65%); pointer-events: none;
+}
+.hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.hero-eyebrow { font-size: 12.5px; color: var(--text-2); font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.hero-value { font-size: 52px; font-weight: 680; letter-spacing: -.05em; line-height: 1; margin-top: 10px; }
+.hero-value .of { font-size: 22px; color: var(--text-3); font-weight: 560; letter-spacing: -.02em; margin-left: 6px; }
+.hero-pct { text-align: right; }
+.hero-pct .big { font-size: 30px; font-weight: 650; letter-spacing: -.04em; line-height: 1; }
+.hero-pct .lbl { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+.progress { position: relative; margin: 26px 0 12px; }
+.progress-track {
+  position: relative; height: 14px; border-radius: 999px; background: var(--track); overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .15);
+}
+.progress-seg { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 999px; transition: width 1.1s var(--ease), left 1.1s var(--ease); }
+.progress-seg.initial { background: color-mix(in srgb, var(--accent) 45%, var(--surface-3)); z-index: 2; }
+.progress-seg.done {
+  background: linear-gradient(90deg, var(--accent-strong), var(--accent)); z-index: 1;
+  box-shadow: 0 0 16px -2px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+.progress-seg.done::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .28), transparent);
+  background-size: 200% 100%; animation: shimmer 2.8s linear infinite;
+}
+.progress-seg.today {
+  z-index: 0; border-radius: 999px;
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--accent) 35%, transparent) 0 4px, transparent 4px 8px);
+}
+.progress.complete .progress-seg.done { background: linear-gradient(90deg, #22b07d, var(--success)); box-shadow: 0 0 16px -2px var(--success); }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.progress-ticks { position: relative; height: 18px; margin-top: 8px; font-size: 11px; color: var(--text-3); }
+.progress-ticks span { position: absolute; transform: translateX(-50%); }
+.progress-ticks span:first-child { transform: none; }
+.progress-ticks span:last-child { transform: translateX(-100%); }
+.progress-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; }
+.lg { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-2); }
+.lg b { color: var(--text); font-weight: 600; }
+.sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.sw.initial { background: color-mix(in srgb, var(--accent) 45%, var(--surface-3)); }
+.sw.done { background: var(--accent); }
+.sw.today { background: repeating-linear-gradient(135deg, var(--accent) 0 2px, transparent 2px 4px); border: 1px solid var(--accent-soft); }
+.sw.rest { background: var(--track); border: 1px solid var(--border-2); }
+.hero-foot { display: flex; gap: 10px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+
+/* CARD HOJE */
+.today-card { display: flex; flex-direction: column; }
+.today-date { font-size: 12.5px; color: var(--text-3); }
+.today-big { display: flex; align-items: baseline; gap: 8px; margin: 14px 0 4px; }
+.today-big .v { font-size: 36px; font-weight: 660; letter-spacing: -.045em; line-height: 1; }
+.today-big .u { color: var(--text-3); font-size: 13px; }
+.today-meter { margin: 14px 0 6px; }
+.today-rows { display: grid; gap: 8px; margin-top: 12px; }
+.today-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-2); }
+.today-row b { color: var(--text); font-weight: 600; }
+.suggest {
+  margin-top: 16px; padding: 12px 14px; border-radius: var(--r); background: var(--surface-2); border: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+}
+.suggest .i { color: var(--accent); }
+.suggest-t { font-size: 12px; color: var(--text-3); }
+.suggest-v { font-weight: 600; font-size: 14px; }
+.today-card .spacer { flex: 1; }
+.today-card .btn { margin-top: 16px; width: 100%; justify-content: center; }
+
+/* JORNADA DE HOJE (ponto) */
+.clock-card { margin-bottom: 16px; }
+.clock-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; align-items: start; margin-top: 16px; }
+.clock-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; }
+.clock-inputs .field > label { justify-content: space-between; }
+.clock-now { font: inherit; font-size: 12px; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; border-radius: 4px; }
+.clock-now:hover { text-decoration: underline; }
+.clock-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; font-size: 12.5px; color: var(--text-3); }
+.clock-result { padding: 16px 18px; border-radius: var(--r); background: var(--surface-2); border: 1px solid var(--border); display: grid; gap: 10px; }
+.clock-result .lbl { font-size: 12.5px; color: var(--text-3); }
+.clock-big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.clock-big .v { font-size: 40px; font-weight: 660; letter-spacing: -.045em; line-height: 1; }
+.clock-lines { display: grid; gap: 7px; margin-top: 4px; padding-top: 12px; border-top: 1px solid var(--border); }
+.clock-lines .today-row { font-size: 13px; }
+.clock-msgs { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 12.5px; }
+.clock-msgs li { display: flex; gap: 8px; align-items: flex-start; color: var(--text-2); }
+.clock-msgs li.err { color: var(--danger); }
+.clock-msgs li.warn .i { color: var(--warning); }
+.clock-result .btn { justify-content: center; }
+@media (max-width: 720px) { .clock-grid { grid-template-columns: 1fr; gap: 16px; } .clock-big .v { font-size: 34px; } }
+
+/* =====================================================================
+   BOTÕES / INPUTS
+   ===================================================================== */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 9px;
+  border: 1px solid var(--border-2); background: var(--surface-2); color: var(--text); font-weight: 540; font-size: 13px;
+  transition: background-color .15s var(--ease), border-color .15s var(--ease), transform .12s var(--ease), box-shadow .2s var(--ease);
+  white-space: nowrap; user-select: none;
+}
+.btn:hover { background: var(--surface-3); border-color: var(--border-2); }
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .45; pointer-events: none; }
+.btn-primary {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 92%, #fff 8%), var(--accent-strong));
+  border-color: transparent; color: var(--accent-ink);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .18) inset, 0 6px 16px -8px var(--accent-strong);
+}
+.btn-primary:hover { background: linear-gradient(180deg, var(--accent), var(--accent-strong)); box-shadow: 0 1px 0 rgba(255, 255, 255, .18) inset, 0 8px 22px -8px var(--accent-strong); }
+.btn-danger { color: var(--danger); }
+.btn-danger:hover { background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
+.btn-danger-solid { background: var(--danger); color: #fff; border-color: transparent; }
+.btn-danger-solid:hover { background: color-mix(in srgb, var(--danger) 88%, #000); }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--text-2); }
+.btn-ghost:hover { background: var(--hover); color: var(--text); }
+.btn-sm { height: 28px; padding: 0 10px; font-size: 12.5px; border-radius: 8px; }
+.btn kbd {
+  font-family: var(--font); font-size: 11px; line-height: 1; padding: 3px 5px; border-radius: 5px;
+  background: rgba(255, 255, 255, .16); color: inherit; opacity: .85;
+}
+.icon-btn {
+  width: 32px; height: 32px; display: inline-grid; place-items: center; border-radius: 9px; flex: none;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text-2);
+  transition: background-color .15s var(--ease), color .15s var(--ease), transform .12s var(--ease);
+}
+.icon-btn:hover { background: var(--surface-3); color: var(--text); }
+.icon-btn:active { transform: scale(.94); }
+.icon-btn.ghost { border-color: transparent; background: transparent; }
+.icon-btn.ghost:hover { background: var(--hover); }
+.icon-btn.danger:hover { color: var(--danger); background: var(--danger-soft); }
+
+.field { display: grid; gap: 6px; min-width: 0; }
+.field > label, .label { font-size: 12.5px; font-weight: 520; color: var(--text-2); display: flex; align-items: center; gap: 6px; }
+.opt { font-weight: 450; color: var(--text-3); font-size: 11.5px; }
+.input, .field input, .field select, .field textarea {
+  width: 100%; height: 38px; padding: 0 12px; border-radius: 9px; border: 1px solid var(--border-2);
+  background: var(--surface-2); color: var(--text); outline: none; font-size: 14px;
+  transition: border-color .15s var(--ease), box-shadow .15s var(--ease), background-color .15s var(--ease);
+}
+.field textarea { height: auto; min-height: 64px; padding: 9px 12px; resize: vertical; line-height: 1.45; }
+.field input:hover, .field select:hover, .field textarea:hover { border-color: color-mix(in srgb, var(--text-3) 60%, transparent); }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); background: var(--surface); }
+.field input.invalid { border-color: var(--danger); box-shadow: 0 0 0 3px var(--danger-soft); }
+.field input[type="date"], .field input[type="time"] { font-variant-numeric: tabular-nums; }
+.field input::-webkit-calendar-picker-indicator { opacity: .55; cursor: pointer; }
+html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter: invert(1); }
+.field .hint { font-size: 12px; color: var(--text-3); }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.input-suffix { position: relative; }
+.input-suffix input { padding-right: 44px; }
+.input-suffix span { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-3); font-size: 12.5px; pointer-events: none; }
+.form-stack { display: grid; gap: 14px; }
+
+/* Controle segmentado */
+.seg { display: inline-flex; padding: 3px; border-radius: 10px; background: var(--surface-3); border: 1px solid var(--border); gap: 2px; width: 100%; }
+.seg button {
+  flex: 1; height: 30px; border: 0; border-radius: 7px; background: transparent; color: var(--text-2); font-weight: 520; font-size: 13px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all .2s var(--ease);
+}
+.seg button.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0, 0, 0, .2), 0 0 0 1px var(--border); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--border-2); background: transparent;
+  color: var(--text-2); font-size: 12px; font-weight: 520; transition: all .15s var(--ease);
+}
+.chip:hover { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+
+/* =====================================================================
+   BADGES / STATUS
+   ===================================================================== */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 560; white-space: nowrap; background: var(--neutral-soft); color: var(--text-2);
+}
+.badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .9; }
+.badge.no-dot::before { display: none; }
+.t-success { background: var(--success-soft); color: var(--success); }
+.t-warning { background: var(--warning-soft); color: var(--warning); }
+.t-danger { background: var(--danger-soft); color: var(--danger); }
+.t-accent { background: var(--accent-soft); color: var(--accent); }
+.t-rose { background: var(--rose-soft); color: var(--rose); }
+.t-info { background: var(--info-soft); color: var(--info); }
+.t-neutral { background: var(--neutral-soft); color: var(--text-3); }
+.pos { color: var(--success); }
+.neg { color: var(--danger); }
+
+.meter { height: 6px; border-radius: 999px; background: var(--track); overflow: hidden; position: relative; }
+.meter > span { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background: var(--accent); transition: width .8s var(--ease); }
+.meter.success > span { background: var(--success); }
+.meter.warning > span { background: var(--warning); }
+.meter.danger > span { background: var(--danger); }
+
+/* =====================================================================
+   ALERTAS
+   ===================================================================== */
+.alerts { display: grid; gap: 10px; margin-bottom: 16px; }
+.alerts:empty { display: none; }
+.alert {
+  display: flex; gap: 12px; align-items: flex-start; padding: 13px 16px; border-radius: var(--r-lg);
+  border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); animation: rise .45s var(--ease) both;
+}
+.alert-ic { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; flex: none; }
+.alert-title { font-weight: 600; font-size: 13.5px; }
+.alert-msg { color: var(--text-2); font-size: 13px; margin-top: 1px; }
+.alert-body { flex: 1; min-width: 0; }
+.alert .btn { margin-left: auto; align-self: center; }
+.alert.success { border-color: color-mix(in srgb, var(--success) 30%, transparent); background: linear-gradient(90deg, var(--success-soft), var(--surface) 70%); }
+.alert.success .alert-ic { background: var(--success-soft); color: var(--success); }
+.alert.warning { border-color: color-mix(in srgb, var(--warning) 28%, transparent); }
+.alert.warning .alert-ic { background: var(--warning-soft); color: var(--warning); }
+.alert.danger { border-color: color-mix(in srgb, var(--danger) 35%, transparent); background: linear-gradient(90deg, var(--danger-soft), var(--surface) 70%); }
+.alert.danger .alert-ic { background: var(--danger-soft); color: var(--danger); }
+.alert.info .alert-ic { background: var(--info-soft); color: var(--info); }
+
+/* =====================================================================
+   RESUMO
+   ===================================================================== */
+.stat-list { display: grid; gap: 2px; }
+.stat { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--border); }
+.stat:last-child { border-bottom: 0; }
+.stat-l { color: var(--text-2); font-size: 13px; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.stat-l .i { color: var(--text-3); }
+.stat-v { font-weight: 600; font-size: 13.5px; text-align: right; white-space: nowrap; }
+.stat-v small { display: block; font-weight: 450; color: var(--text-3); font-size: 11.5px; }
+.dist { margin-top: 18px; }
+.dist-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 8px; }
+.dist-bars { display: flex; align-items: flex-end; gap: 6px; height: 92px; }
+.dist-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; height: 100%; justify-content: flex-end; }
+.dist-bar-wrap { width: 100%; max-width: 30px; flex: 1; display: flex; align-items: flex-end; position: relative; }
+.dist-bar { width: 100%; border-radius: 4px 4px 2px 2px; background: var(--accent); min-height: 2px; transition: height .8s var(--ease); }
+.dist-bar.zero { background: var(--track); }
+.dist-bar.ghost { position: absolute; bottom: 0; left: 0; background: transparent; border: 1px dashed var(--text-3); border-bottom: 0; opacity: .6; }
+.dist-lbl { font-size: 10.5px; color: var(--text-3); white-space: nowrap; }
+.dist-val { font-size: 10.5px; color: var(--text-2); font-weight: 560; white-space: nowrap; }
+
+/* =====================================================================
+   GRÁFICO
+   ===================================================================== */
+.chart { position: relative; width: 100%; min-height: 220px; }
+.chart svg { display: block; width: 100%; overflow: visible; }
+.chart .grid-line { stroke: var(--border); stroke-width: 1; }
+.chart .axis-t { fill: var(--text-3); font-size: 10.5px; font-family: var(--font); }
+.chart .goal-line { stroke: var(--success); stroke-width: 1.25; stroke-dasharray: 2 4; }
+.chart .goal-t { fill: var(--success); font-size: 10.5px; font-weight: 600; }
+.chart .line-actual { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.chart .line-proj { fill: none; stroke: var(--text-3); stroke-width: 2; stroke-dasharray: 5 5; stroke-linejoin: round; }
+.chart .wk { fill: var(--neutral-soft); }
+.chart .hol { fill: var(--rose); opacity: .8; }
+.chart .guide { stroke: var(--text-3); stroke-width: 1; opacity: 0; transition: opacity .15s; }
+.chart .dot-h { opacity: 0; transition: opacity .15s; }
+.chart.hovering .guide, .chart.hovering .dot-h { opacity: 1; }
+.chart .today-mark { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 2 3; opacity: .7; }
+.chart .today-t { fill: var(--accent); font-size: 10.5px; font-weight: 600; }
+.chart-tip {
+  position: absolute; pointer-events: none; z-index: 5; min-width: 150px; padding: 10px 12px; border-radius: 10px;
+  background: var(--surface-3); border: 1px solid var(--border-2); box-shadow: var(--shadow-lg);
+  font-size: 12px; opacity: 0; transform: translateY(4px); transition: opacity .15s, transform .15s;
+}
+.chart.hovering .chart-tip { opacity: 1; transform: none; }
+.chart-tip .tt { font-weight: 600; margin-bottom: 6px; color: var(--text); }
+.chart-tip .tr { display: flex; justify-content: space-between; gap: 14px; color: var(--text-2); }
+.chart-tip .tr b { color: var(--text); font-weight: 600; }
+.chart-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--text-2); }
+.chart-legend .ln { width: 16px; height: 0; border-top: 2px solid var(--accent); display: inline-block; vertical-align: middle; margin-right: 6px; }
+.chart-legend .ln.proj { border-top: 2px dashed var(--text-3); }
+.chart-legend .ln.goal { border-top: 1.5px dotted var(--success); }
+
+/* =====================================================================
+   TABELA DE PLANEJAMENTO
+   ===================================================================== */
+.plan-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.pm { padding: 14px 16px; }
+.pm-l { font-size: 12px; color: var(--text-3); }
+.pm-v { font-size: 20px; font-weight: 650; letter-spacing: -.03em; margin-top: 2px; }
+.table { width: 100%; }
+.tr-h, .tr-r {
+  display: grid; align-items: center; gap: 12px; padding: 0 16px;
+  grid-template-columns: minmax(130px, 1.4fr) 0.9fr 0.9fr 0.9fr 1.1fr 0.9fr minmax(140px, 1.2fr);
+}
+.tr-h { height: 38px; font-size: 11.5px; font-weight: 560; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--border); }
+.tr-r { min-height: 56px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background-color .15s var(--ease); position: relative; }
+.tr-r:last-child { border-bottom: 0; }
+.tr-r:hover { background: var(--hover); }
+.tr-r.is-today { background: linear-gradient(90deg, var(--accent-soft), transparent 60%); }
+.tr-r.is-today::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent); }
+.tr-r.is-off { color: var(--text-3); }
+.tr-r.is-past .c-date b { color: var(--text-2); }
+.c-date { display: flex; flex-direction: column; line-height: 1.3; }
+.c-date b { font-weight: 600; }
+.c-date span { font-size: 12px; color: var(--text-3); }
+.c-r { text-align: right; }
+.tr-h .c-r { text-align: right; }
+.c-num { font-weight: 560; }
+.c-status { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
+.c-status .meter { width: 52px; flex: none; }
+.today-pill { font-size: 10.5px; font-weight: 650; color: var(--accent); background: var(--accent-soft); padding: 1px 6px; border-radius: 5px; margin-left: 6px; text-transform: uppercase; letter-spacing: .03em; vertical-align: 1px; }
+.tr-foot { display: grid; grid-template-columns: minmax(130px, 1.4fr) 0.9fr 0.9fr 0.9fr 1.1fr 0.9fr minmax(140px, 1.2fr); gap: 12px; padding: 14px 16px; border-top: 1px solid var(--border-2); font-weight: 600; background: var(--surface-2); border-radius: 0 0 var(--r-xl) var(--r-xl); }
+.tr-init { background: var(--surface-2); }
+.table-card { padding: 0; overflow: hidden; }
+.legend-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
+/* =====================================================================
+   CALENDÁRIO
+   ===================================================================== */
+.cal-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.cal-month { font-size: 17px; font-weight: 640; letter-spacing: -.02em; text-transform: capitalize; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.cal-wd { text-align: center; font-size: 11.5px; color: var(--text-3); font-weight: 560; text-transform: uppercase; letter-spacing: .05em; padding: 4px 0 6px; }
+.cal-day {
+  position: relative; min-height: 86px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2);
+  padding: 8px 9px; text-align: left; display: flex; flex-direction: column; gap: 4px; color: var(--text);
+  transition: transform .18s var(--ease), border-color .18s var(--ease), background-color .18s var(--ease), box-shadow .18s var(--ease);
+}
+.cal-day:hover { transform: translateY(-2px); border-color: var(--border-2); box-shadow: var(--shadow); }
+.cal-day .dn { font-size: 13px; font-weight: 620; }
+.cal-day .dl { font-size: 11.5px; font-weight: 560; margin-top: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-day .ds { font-size: 10.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-day .bar { position: absolute; left: 9px; right: 9px; bottom: 6px; height: 3px; border-radius: 3px; background: var(--track); overflow: hidden; }
+.cal-day .bar span { position: absolute; inset: 0 auto 0 0; background: currentColor; border-radius: inherit; }
+.cal-day.empty { visibility: hidden; }
+.cal-day.out { opacity: .38; }
+.cal-day.weekend { background: transparent; border-style: dashed; color: var(--text-3); }
+.cal-day.k-done { border-color: color-mix(in srgb, var(--success) 40%, transparent); background: var(--success-soft); }
+.cal-day.k-done .dl { color: var(--success); }
+.cal-day.k-partial { border-color: color-mix(in srgb, var(--warning) 40%, transparent); background: var(--warning-soft); }
+.cal-day.k-partial .dl { color: var(--warning); }
+.cal-day.k-planned { border-color: color-mix(in srgb, var(--accent) 35%, transparent); background: var(--accent-soft); }
+.cal-day.k-planned .dl { color: var(--accent); }
+.cal-day.k-missed { border-color: color-mix(in srgb, var(--danger) 35%, transparent); background: var(--danger-soft); }
+.cal-day.k-missed .dl { color: var(--danger); }
+.cal-day.k-holiday { border-color: color-mix(in srgb, var(--rose) 35%, transparent); background: var(--rose-soft); }
+.cal-day.k-holiday .dl { color: var(--rose); }
+.cal-day.k-unavail { border-color: color-mix(in srgb, var(--warning) 25%, transparent); background: repeating-linear-gradient(135deg, var(--warning-soft) 0 6px, transparent 6px 12px); }
+.cal-day.k-unavail .dl { color: var(--warning); }
+.cal-day.k-free .dl { color: var(--text-3); }
+.cal-day.is-today { box-shadow: 0 0 0 2px var(--accent), 0 8px 20px -10px var(--accent); }
+.cal-day.is-today .dn::after { content: "hoje"; margin-left: 6px; font-size: 10px; font-weight: 650; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; }
+.cal-legend { display: grid; gap: 10px; }
+.cal-legend .lg { font-size: 13px; }
+.lg-sw { width: 14px; height: 14px; border-radius: 4px; flex: none; border: 1px solid transparent; }
+.lg-sw.done { background: var(--success-soft); border-color: var(--success); }
+.lg-sw.partial { background: var(--warning-soft); border-color: var(--warning); }
+.lg-sw.planned { background: var(--accent-soft); border-color: var(--accent); }
+.lg-sw.missed { background: var(--danger-soft); border-color: var(--danger); }
+.lg-sw.holiday { background: var(--rose-soft); border-color: var(--rose); }
+.lg-sw.unavail { background: repeating-linear-gradient(135deg, var(--warning-soft) 0 3px, transparent 3px 6px); border-color: var(--warning); }
+.lg-sw.free { background: var(--surface-2); border-color: var(--border-2); }
+.lg-sw.weekend { background: transparent; border: 1px dashed var(--text-3); }
+
+/* =====================================================================
+   HISTÓRICO DE LANÇAMENTOS
+   ===================================================================== */
+.hist-group { border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 12px; background: var(--surface-2); }
+.hist-group:last-child { margin-bottom: 0; }
+.hist-gh { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-bottom: 1px solid var(--border); }
+.hist-gh .gd { font-weight: 600; font-size: 13.5px; }
+.hist-gh .gd span { color: var(--text-3); font-weight: 450; margin-left: 6px; font-size: 12.5px; }
+.hist-gh .gt { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--text-2); }
+.hist-gh .meter { width: 60px; }
+.hist-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-bottom: 1px solid var(--border); background: var(--surface); transition: background-color .15s; }
+.hist-item:last-child { border-bottom: 0; }
+.hist-item:hover { background: var(--hover); }
+.hist-ic { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); flex: none; }
+.hist-ic.manual { background: var(--info-soft); color: var(--info); }
+.hist-main { flex: 1; min-width: 0; }
+.hist-t { font-weight: 560; font-size: 13.5px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.hist-n { font-size: 12.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-d { font-weight: 650; font-size: 15px; letter-spacing: -.02em; }
+.hist-actions { display: flex; gap: 2px; }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-3); }
+.empty-state .ic { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; margin: 0 auto 12px; background: var(--neutral-soft); color: var(--text-2); }
+.empty-state .t { color: var(--text); font-weight: 600; margin-bottom: 4px; }
+.hist-summary { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12.5px; color: var(--text-2); margin-bottom: 14px; }
+.hist-summary b { color: var(--text); }
+
+/* Prévia do formulário */
+.preview { border-radius: var(--r); background: var(--surface-2); border: 1px solid var(--border); padding: 12px 14px; display: grid; gap: 10px; }
+.pv-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pv-label { font-size: 12.5px; color: var(--text-3); }
+.pv-value { font-size: 22px; font-weight: 660; letter-spacing: -.03em; }
+.pv-value.empty { color: var(--text-3); }
+.pv-day { display: grid; gap: 6px; font-size: 12px; color: var(--text-2); }
+.pv-day-top { display: flex; justify-content: space-between; }
+.pv-msgs { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.pv-msgs li { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; line-height: 1.4; }
+.pv-msgs li .i { margin-top: 1px; }
+.pv-msgs li.err { color: var(--danger); }
+.pv-msgs li.warn { color: var(--warning); }
+.pv-msgs li.info { color: var(--text-2); }
+.form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.shake { animation: shake .35s var(--ease); }
+@keyframes shake { 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+
+/* Ajustes */
+.ov-list { display: grid; gap: 8px; margin-bottom: 14px; }
+.ov-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--r); border: 1px solid var(--border); background: var(--surface-2); }
+.ov-item .od { font-weight: 600; font-size: 13px; }
+.ov-item .ol { font-size: 12px; color: var(--text-3); }
+.ov-item .icon-btn { margin-left: auto; }
+.backup-actions { display: grid; gap: 10px; }
+.backup-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--r); border: 1px solid var(--border); background: var(--surface-2); }
+.backup-row .bt { font-weight: 560; font-size: 13.5px; }
+.backup-row .bd { font-size: 12px; color: var(--text-3); }
+.backup-row .btn { margin-left: auto; }
+.backup-row > div { min-width: 0; }
+.storage-note { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--text-3); margin-top: 14px; }
+
+/* =====================================================================
+   MODAL
+   ===================================================================== */
+.modal-wrap { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal-backdrop { position: absolute; inset: 0; background: var(--overlay); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: fade .2s var(--ease); }
+.modal {
+  position: relative; width: 100%; max-width: 520px; max-height: calc(100vh - 40px); display: flex; flex-direction: column;
+  background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--shadow-lg); animation: pop .26s var(--ease-spring);
+}
+.modal.modal-lg { max-width: 640px; }
+.modal.modal-sm { max-width: 420px; }
+.modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 20px 0; }
+.modal-title { font-size: 16px; font-weight: 640; letter-spacing: -.02em; }
+.modal-sub { font-size: 12.5px; color: var(--text-3); margin-top: 2px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.modal-body { padding: 16px 20px 20px; overflow-y: auto; overscroll-behavior: contain; }
+.modal-wrap.closing .modal { animation: popOut .16s var(--ease) forwards; }
+.modal-wrap.closing .modal-backdrop { animation: fadeOut .16s var(--ease) forwards; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes fadeOut { to { opacity: 0; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.97); } }
+@keyframes popOut { to { opacity: 0; transform: translateY(6px) scale(.98); } }
+.confirm-msg { color: var(--text-2); font-size: 13.5px; line-height: 1.55; }
+.confirm-list { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.confirm-list li { display: flex; gap: 8px; padding: 10px 12px; border-radius: var(--r); background: var(--warning-soft); color: var(--text); font-size: 13px; }
+.confirm-list li .i { color: var(--warning); margin-top: 2px; }
+.confirm-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+.day-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+.day-stat { padding: 12px; border-radius: var(--r); background: var(--surface-2); border: 1px solid var(--border); }
+.day-stat .l { font-size: 11.5px; color: var(--text-3); }
+.day-stat .v { font-size: 18px; font-weight: 650; letter-spacing: -.03em; }
+.section-l { font-size: 11.5px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .05em; margin: 18px 0 10px; display: flex; align-items: center; justify-content: space-between; }
+.divider { height: 1px; background: var(--border); margin: 18px 0; border: 0; }
+.info-box { display: flex; gap: 10px; padding: 12px 14px; border-radius: var(--r); background: var(--surface-2); border: 1px solid var(--border); font-size: 13px; color: var(--text-2); }
+.info-box .i { color: var(--text-3); margin-top: 1px; }
+
+/* =====================================================================
+   TOASTS
+   ===================================================================== */
+.toasts { position: fixed; right: 20px; bottom: 20px; z-index: 200; display: flex; flex-direction: column; gap: 10px; width: min(380px, calc(100vw - 32px)); pointer-events: none; }
+.toast {
+  pointer-events: auto; display: flex; gap: 12px; align-items: flex-start; padding: 12px 12px 12px 14px; border-radius: 14px;
+  background: var(--surface-3); border: 1px solid var(--border-2); box-shadow: var(--shadow-lg);
+  animation: toastIn .35s var(--ease-spring); position: relative; overflow: hidden;
+}
+.toast.out { animation: toastOut .22s var(--ease) forwards; }
+.toast-icon { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; flex: none; }
+.toast-success .toast-icon { background: var(--success-soft); color: var(--success); }
+.toast-warning .toast-icon { background: var(--warning-soft); color: var(--warning); }
+.toast-danger .toast-icon { background: var(--danger-soft); color: var(--danger); }
+.toast-info .toast-icon { background: var(--info-soft); color: var(--info); }
+.toast-body { flex: 1; min-width: 0; padding-top: 2px; }
+.toast-title { font-weight: 600; font-size: 13.5px; }
+.toast-msg { color: var(--text-2); font-size: 12.5px; margin-top: 1px; }
+.toast-action { border: 0; background: none; color: var(--accent); font-weight: 600; font-size: 12.5px; padding: 4px 6px; border-radius: 6px; align-self: center; }
+.toast-action:hover { background: var(--accent-soft); }
+.toast-close { border: 0; background: none; color: var(--text-3); padding: 2px; border-radius: 6px; display: grid; }
+.toast-close:hover { color: var(--text); }
+.toast-timer { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--accent); opacity: .5; animation: timer linear forwards; }
+@keyframes timer { from { width: 100%; } to { width: 0; } }
+@keyframes toastIn { from { opacity: 0; transform: translateY(12px) scale(.96); } }
+@keyframes toastOut { to { opacity: 0; transform: translateX(24px); } }
+
+/* Confete (meta atingida) */
+.confetti { position: fixed; pointer-events: none; z-index: 300; width: 8px; height: 12px; border-radius: 2px; top: 0; left: 0; animation: confetti 1.6s cubic-bezier(.2, .6, .4, 1) forwards; }
+@keyframes confetti { 0% { transform: translate(var(--x0), var(--y0)) rotate(0); opacity: 1; } 100% { transform: translate(var(--x1), var(--y1)) rotate(var(--r)); opacity: 0; } }
+
+/* Navegação inferior (celular) */
+.bottom-nav { display: none; }
+
+/* =====================================================================
+   RESPONSIVO
+   ===================================================================== */
+@media (max-width: 1180px) {
+  .kpis { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .kpis > * { grid-column: span 2; }
+  .kpis > :nth-child(4), .kpis > :nth-child(5) { grid-column: span 3; }
+  .cal-wrap { grid-template-columns: 1fr; }
+  .cal-legend { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 980px) {
+  .grid-hero, .grid-2, .grid-entries, .grid-settings { grid-template-columns: 1fr; }
+  .plan-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tr-h, .tr-r, .tr-foot { grid-template-columns: minmax(110px, 1.3fr) 0.8fr 0.8fr 0.8fr 0.9fr minmax(120px, 1.2fr); }
+  .c-cum { display: none !important; }
+}
+@media (max-width: 720px) {
+  body { font-size: 14px; }
+  .container { padding: 0 16px calc(var(--nav-h) + 32px + env(safe-area-inset-bottom)); }
+  .topbar-inner { padding: 14px 16px 10px; }
+  .brand-sub { display: none; }
+  .today-chip { display: none; }
+  #newEntryBtn span, #newEntryBtn kbd { display: none; }
+  #newEntryBtn { width: 34px; padding: 0; justify-content: center; }
+  .tabbar { display: none; }
+  .view { padding-top: 12px; }
+  .view-title { font-size: 20px; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .kpis > *, .kpis > :nth-child(4), .kpis > :nth-child(5) { grid-column: span 1; }
+  .kpis > :first-child { grid-column: span 2; }
+  .kpi-value { font-size: 24px; }
+  .hero { padding: 18px; }
+  .hero-value { font-size: 40px; }
+  .hero-value .of { font-size: 17px; }
+  .hero-pct .big { font-size: 24px; }
+  .card { padding: 16px; border-radius: 16px; }
+  .table-card { padding: 0; }
+  .tr-h { display: none; }
+  .tr-r {
+    grid-template-columns: 1fr auto; grid-template-areas: "date status" "nums nums"; row-gap: 8px; padding: 12px 14px;
+  }
+  .tr-r .c-date { grid-area: date; }
+  .tr-r .c-status { grid-area: status; }
+  .tr-r .c-wd { display: none; }
+  .tr-r .c-nums-wrap { grid-area: nums; }
+  .tr-r .c-plan, .tr-r .c-real, .tr-r .c-diff { display: none; }
+  .tr-r .c-mobile { display: flex !important; }
+  .tr-foot { grid-template-columns: 1fr 1fr 1fr; }
+  .tr-foot .c-wd, .tr-foot .c-status, .tr-foot .c-sp { display: none; }
+  .plan-metrics { gap: 10px; }
+  .pm-v { font-size: 18px; }
+  .cal-grid { gap: 4px; }
+  .cal-day { min-height: 64px; padding: 6px; border-radius: 10px; }
+  .cal-day .dn { font-size: 12px; }
+  .cal-day .ds { display: none; }
+  .cal-day .dl { font-size: 10px; }
+  .cal-day.is-today .dn::after { display: none; }
+  .cal-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .row-3 { grid-template-columns: 1fr 1fr; }
+  .day-stats .v { font-size: 16px; }
+  .hist-gh .meter { display: none; }
+  .modal-wrap { align-items: flex-end; padding: 0; }
+  .modal { max-width: none !important; border-radius: 20px 20px 0 0; max-height: 92vh; animation: sheet .32s var(--ease); }
+  .modal-wrap.closing .modal { animation: sheetOut .2s var(--ease) forwards; }
+  .modal-body { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+  @keyframes sheet { from { transform: translateY(100%); } }
+  @keyframes sheetOut { to { transform: translateY(100%); } }
+  .toasts { left: 16px; right: 16px; width: auto; bottom: calc(var(--nav-h) + 14px + env(safe-area-inset-bottom)); }
+  .bottom-nav {
+    display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    height: calc(var(--nav-h) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom);
+    background: color-mix(in srgb, var(--surface) 86%, transparent); backdrop-filter: saturate(160%) blur(16px); -webkit-backdrop-filter: saturate(160%) blur(16px);
+    border-top: 1px solid var(--border);
+  }
+  .bn { border: 0; background: none; color: var(--text-3); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10.5px; font-weight: 560; transition: color .2s; }
+  .bn .i { width: 20px; height: 20px; transition: transform .25s var(--ease-spring); }
+  .bn.active { color: var(--accent); }
+  .bn.active .i { transform: translateY(-1px) scale(1.08); }
+  .backup-row { flex-wrap: wrap; }
+  .backup-row .btn { margin-left: 0; width: 100%; justify-content: center; }
+}
+.c-mobile { display: none !important; gap: 14px; font-size: 12.5px; color: var(--text-2); flex-wrap: wrap; }
+.c-mobile b { color: var(--text); font-weight: 600; }
+@media (max-width: 380px) {
+  .kpi-value { font-size: 21px; }
+  .hero-value { font-size: 34px; }
+  .cal-day { min-height: 56px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+@media print {
+  .tabbar, .bottom-nav, .top-actions, .toasts { display: none !important; }
+  .view { display: block !important; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <!-- ================= CABEÇALHO ================= -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" id="brandMark"></div>
+        <div>
+          <div class="brand-title">Banco de Horas</div>
+          <div class="brand-sub" id="brandSub">—</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span class="today-chip num" id="todayChip"><span class="dot"></span><span id="todayChipText">—</span></span>
+        <button class="icon-btn" id="themeBtn" type="button" title="Alternar tema (claro/escuro)" aria-label="Alternar tema"></button>
+        <button class="btn btn-primary" id="newEntryBtn" type="button" title="Registrar horas extras (atalho: N)"></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= ABAS (desktop/tablet) ================= -->
+  <nav class="tabbar" aria-label="Seções">
+    <div class="tabbar-inner" id="tabs" role="tablist"></div>
+  </nav>
+
+  <main class="container">
+    <!-- VISÃO GERAL -->
+    <section class="view active" id="view-overview" aria-label="Visão geral">
+      <div id="alerts" class="alerts"></div>
+      <div class="kpis stagger" id="kpis"></div>
+      <div class="grid-hero">
+        <div class="card hero" id="heroCard"></div>
+        <div class="card today-card" id="todayCard"></div>
+      </div>
+      <div class="card clock-card hidden" id="clockCard"></div>
+      <div class="grid-2">
+        <div class="card" id="chartCard">
+          <div class="card-head">
+            <h3 class="card-title" id="chartTitle"></h3>
+            <div class="chart-legend">
+              <span><i class="ln"></i>Saldo realizado</span>
+              <span><i class="ln proj"></i>Projeção pelo plano</span>
+              <span><i class="ln goal"></i>Meta</span>
+            </div>
+          </div>
+          <div class="chart" id="chart"></div>
+        </div>
+        <div class="card" id="summaryCard"></div>
+      </div>
+    </section>
+
+    <!-- PLANEJAMENTO -->
+    <section class="view" id="view-plan" aria-label="Planejamento">
+      <div class="view-head">
+        <div>
+          <h2 class="view-title">Planejamento inteligente</h2>
+          <p class="view-desc" id="planDesc">Distribuição das horas restantes nos dias úteis disponíveis.</p>
+        </div>
+        <div class="view-actions">
+          <button class="btn btn-primary" id="recalcBtn" type="button"></button>
+        </div>
+      </div>
+      <div id="planAlerts" class="alerts"></div>
+      <div class="plan-metrics stagger" id="planMetrics"></div>
+      <div class="card table-card" id="planTable"></div>
+      <div class="legend-row" id="planLegend"></div>
+    </section>
+
+    <!-- CALENDÁRIO -->
+    <section class="view" id="view-calendar" aria-label="Calendário">
+      <div class="view-head">
+        <div>
+          <h2 class="view-title">Calendário</h2>
+          <p class="view-desc">Clique em um dia para ver detalhes, registrar ou editar horas extras.</p>
+        </div>
+      </div>
+      <div class="cal-wrap">
+        <div class="card">
+          <div class="cal-head">
+            <button class="icon-btn" id="calPrev" type="button" aria-label="Mês anterior"></button>
+            <div class="cal-month" id="calMonth"></div>
+            <button class="icon-btn" id="calNext" type="button" aria-label="Próximo mês"></button>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3 class="card-title" id="calLegendTitle"></h3></div>
+          <div class="cal-legend" id="calLegend"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LANÇAMENTOS -->
+    <section class="view" id="view-entries" aria-label="Lançamentos">
+      <div class="view-head">
+        <div>
+          <h2 class="view-title">Registro de horas extras</h2>
+          <p class="view-desc">Lance por horário (cálculo automático) ou manualmente. O saldo e o plano são atualizados na hora.</p>
+        </div>
+      </div>
+      <div class="grid-entries">
+        <div class="card">
+          <div class="card-head"><h3 class="card-title" id="formTitle"></h3></div>
+          <div id="inlineFormHost"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3 class="card-title" id="histTitle"></h3></div>
+          <div id="history"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AJUSTES -->
+    <section class="view" id="view-settings" aria-label="Ajustes">
+      <div class="view-head">
+        <div>
+          <h2 class="view-title">Ajustes</h2>
+          <p class="view-desc">Meta, saldo, período, dias indisponíveis, aparência e backup.</p>
+        </div>
+      </div>
+      <div class="grid-settings">
+        <div class="grid">
+          <form class="card" id="settingsForm" novalidate>
+            <div class="card-head"><h3 class="card-title" id="setTitle1"></h3></div>
+            <div class="form-stack">
+              <div class="row-2">
+                <div class="field"><label for="sGoal">Meta total</label><input id="sGoal" name="goal" class="num" inputmode="text" placeholder="16h00" autocomplete="off"><span class="hint">Formato 16h00 ou 16:00</span></div>
+                <div class="field"><label for="sInitial">Saldo inicial</label><input id="sInitial" name="initial" class="num" inputmode="text" placeholder="2h21" autocomplete="off"><span class="hint" id="sInitialHint">Acumulado antes do início</span></div>
+              </div>
+              <div class="row-2">
+                <div class="field"><label for="sStart">Início do planejamento</label><input id="sStart" name="start" type="date"></div>
+                <div class="field"><label for="sEnd">Prazo final</label><input id="sEnd" name="end" type="date"></div>
+              </div>
+              <div class="row-3">
+                <div class="field"><label for="sLimit">Limite diário</label><input id="sLimit" name="limit" class="num" placeholder="2h00" autocomplete="off"></div>
+                <div class="field"><label for="sWs">Jornada início</label><input id="sWs" name="ws" type="time"></div>
+                <div class="field"><label for="sWe">Jornada fim</label><input id="sWe" name="we" type="time"></div>
+              </div>
+              <ul class="pv-msgs" id="settingsErrors"></ul>
+              <div class="form-actions">
+                <button type="button" class="btn btn-ghost" id="settingsRevert">Descartar</button>
+                <button type="submit" class="btn btn-primary" id="settingsSave">Salvar e replanejar</button>
+              </div>
+            </div>
+          </form>
+          <div class="card">
+            <div class="card-head"><h3 class="card-title" id="setTitleTheme"></h3></div>
+            <div class="seg" id="themeSeg" role="radiogroup" aria-label="Tema">
+              <button type="button" data-theme-opt="dark" role="radio"></button>
+              <button type="button" data-theme-opt="light" role="radio"></button>
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <div class="card-head"><h3 class="card-title" id="setTitle2"></h3><span class="card-sub" id="ovCount"></span></div>
+            <div class="ov-list" id="ovList"></div>
+            <form class="form-stack" id="ovForm" novalidate>
+              <div class="row-2">
+                <div class="field"><label for="ovDate">Data</label><input id="ovDate" type="date"></div>
+                <div class="field"><label for="ovType">Tipo</label>
+                  <select id="ovType"><option value="unavailable">Indisponível</option><option value="event">Evento</option><option value="holiday">Feriado</option></select>
+                </div>
+              </div>
+              <div class="field"><label for="ovLabel">Descrição <span class="opt">opcional</span></label><input id="ovLabel" maxlength="60" placeholder="Ex.: consulta médica"></div>
+              <ul class="pv-msgs" id="ovErrors"></ul>
+              <div class="form-actions"><button type="submit" class="btn" id="ovAdd"></button></div>
+            </form>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3 class="card-title" id="setTitle3"></h3></div>
+            <div class="backup-actions">
+              <div class="backup-row"><div><div class="bt">Exportar backup</div><div class="bd">Baixa um arquivo .json com todos os dados.</div></div><button type="button" class="btn" id="exportBtn"></button></div>
+              <div class="backup-row"><div><div class="bt">Importar backup</div><div class="bd">Substitui os dados atuais por um backup .json.</div></div><button type="button" class="btn" id="importBtn"></button></div>
+              <div class="backup-row"><div><div class="bt">Restaurar configurações iniciais</div><div class="bd">Apaga lançamentos e volta ao plano original.</div></div><button type="button" class="btn btn-danger" id="resetBtn"></button></div>
+            </div>
+            <input type="file" id="importFile" accept="application/json,.json" class="hidden">
+            <div class="storage-note" id="storageNote"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= NAVEGAÇÃO INFERIOR (celular) ================= -->
+  <nav class="bottom-nav" id="bottomNav" aria-label="Seções"></nav>
+</div>
+<div id="modalRoot"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   NÚCLEO DE CÁLCULO (puro, sem DOM)
+   - Todas as durações são inteiros em MINUTOS.
+   - Datas são strings "AAAA-MM-DD" tratadas em UTC (sem fuso/horário de verão).
+   - O saldo é SEMPRE derivado: saldo inicial + soma dos lançamentos.
+     Nada é acumulado de forma incremental, então recalcular o plano
+     nunca duplica horas.
+   ===================================================================== */
+/* @core-start */
+const Core = (() => {
+  const DAY_MS = 864e5;
+  const WEEKDAYS = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+  const WEEKDAYS_SHORT = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+  const MONTHS = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+  const OVERRIDE_TYPES = { holiday: 'Feriado', event: 'Evento', unavailable: 'Indisponível' };
+  const MAX_ENTRY_MIN = 12 * 60;     // trava de sanidade para um único lançamento
+  const STEP = 5;                    // granularidade do planejamento (minutos)
+
+  const pad = n => String(n).padStart(2, '0');
+  const sum = a => a.reduce((s, x) => s + x, 0);
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const isInt = v => Number.isInteger(v);
+
+  /* ---------- Datas ---------- */
+  function parseKey(k) { const [y, m, d] = k.split('-').map(Number); return Date.UTC(y, m - 1, d); }
+  function keyFromUTC(ms) { const d = new Date(ms); return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`; }
+  function isValidKey(k) { return typeof k === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(k) && keyFromUTC(parseKey(k)) === k; }
+  function addDays(k, n) { return keyFromUTC(parseKey(k) + n * DAY_MS); }
+  function dayIndex(k) { return Math.round(parseKey(k) / DAY_MS); }
+  function weekday(k) { return new Date(parseKey(k)).getUTCDay(); }
+  function isWeekend(k) { const w = weekday(k); return w === 0 || w === 6; }
+  function rangeKeys(a, b) { const out = []; if (!isValidKey(a) || !isValidKey(b)) return out; for (let k = a; k <= b; k = addDays(k, 1)) out.push(k); return out; }
+  function minKey(a, b) { return a < b ? a : b; }
+  function maxKey(a, b) { return a > b ? a : b; }
+  function localTodayKey(d = new Date()) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+  function fmtDate(k) { const [y, m, d] = k.split('-'); return `${d}/${m}/${y}`; }
+  function fmtDateShort(k) { const [, m, d] = k.split('-'); return `${d}/${m}`; }
+  function fmtDateLong(k) { const [, m, d] = k.split('-').map(Number); return `${WEEKDAYS[weekday(k)]}, ${d} de ${MONTHS[m - 1]}`; }
+  function wdShort(k) { return WEEKDAYS_SHORT[weekday(k)]; }
+  function wdLong(k) { return WEEKDAYS[weekday(k)]; }
+
+  /* ---------- Horas ---------- */
+  /** "18:26" -> 1106 (minutos desde 00:00). Retorna null se inválido. */
+  function parseClock(s) {
+    if (typeof s !== 'string') return null;
+    const m = /^(\d{1,2}):(\d{2})$/.exec(s.trim());
+    if (!m) return null;
+    const h = +m[1], mi = +m[2];
+    if (h > 23 || mi > 59) return null;
+    return h * 60 + mi;
+  }
+  /** 1106 -> "18:26" (módulo 24h). */
+  function fmtClock(min) { min = ((Math.round(min) % 1440) + 1440) % 1440; return `${pad(Math.floor(min / 60))}:${pad(min % 60)}`; }
+  /** 141 -> "2h21"; -30 -> "−0h30"; sign:true acrescenta "+" a positivos. */
+  function fmtDur(min, opts = {}) {
+    const neg = min < 0, a = Math.abs(Math.round(min));
+    const s = `${Math.floor(a / 60)}h${pad(a % 60)}`;
+    return (neg && a > 0 ? '−' : (opts.sign && a > 0 ? '+' : '')) + s;
+  }
+  /** Interpreta "2h21", "2:21", "2h", "45min", "16" (horas). Retorna minutos ou null. */
+  function parseDur(str) {
+    if (typeof str !== 'string') return null;
+    const s = str.trim().toLowerCase().replace(/\s+/g, '');
+    let m;
+    if ((m = /^(\d{1,3})[h:](\d{1,2})?(min|m)?$/.exec(s))) { const mi = m[2] ? +m[2] : 0; if (mi > 59) return null; return +m[1] * 60 + mi; }
+    if ((m = /^(\d{1,4})(min|m)$/.exec(s))) return +m[1];
+    if ((m = /^(\d{1,3})$/.exec(s))) return +m[1] * 60;
+    return null;
+  }
+  /**
+   * Calcula a duração de um intervalo de horário.
+   * Se término <= início, considera que o período atravessa a meia-noite.
+   */
+  function spanFromClock(start, end) {
+    const s = parseClock(start), e = parseClock(end);
+    if (s == null || e == null || s === e) return null;
+    let raw = e - s, crosses = false;
+    if (raw < 0) { raw += 1440; crosses = true; }
+    return { s, e, raw, crosses };
+  }
+
+  /* ---------- Estado padrão ---------- */
+  const SEED_PLAN = {
+    '2026-11-16': 120, '2026-11-17': 90, '2026-11-18': 90,
+    '2026-11-23': 90, '2026-11-24': 90, '2026-11-25': 90, '2026-11-26': 90, '2026-11-27': 90,
+    '2026-11-30': 69
+  };
+  function defaultState() {
+    return {
+      version: 1,
+      settings: {
+        goalMin: 960,                 // 16h00
+        initialBalanceMin: 141,       // 2h21 (antes de 16/11)
+        startDate: '2026-11-16',
+        endDate: '2026-11-30',
+        dailyLimitMin: 120,           // 2h00
+        workStart: '09:00',
+        workEnd: '18:00'
+      },
+      theme: 'dark',
+      overrides: {
+        '2026-11-20': { type: 'holiday', label: 'Feriado — Consciência Negra' }
+      },
+      entries: [],
+      plan: { ...SEED_PLAN },          // meta total (min) prevista para cada dia
+      baseline: { ...SEED_PLAN },      // referência para "adiantado/atrasado"
+      dayNotes: {},
+      clock: {},                       // ponto do dia: { 'AAAA-MM-DD': { in, lunchOut, lunchIn, out } }
+      meta: { createdAt: new Date().toISOString(), updatedAt: null, lastPlanAt: null, goalCelebrated: false }
+    };
+  }
+
+  /* ---------- Derivados básicos ---------- */
+  function realizedByDate(entries) { const m = {}; for (const e of entries) m[e.date] = (m[e.date] || 0) + e.durationMin; return m; }
+  function totalEntries(state) { return sum(state.entries.map(e => e.durationMin)); }
+  function balance(state) { return state.settings.initialBalanceMin + totalEntries(state); }
+  function isAvailable(state, k) { return !isWeekend(k) && !state.overrides[k]; }
+  function inPeriod(state, k) { return k >= state.settings.startDate && k <= state.settings.endDate; }
+  /** Dias úteis disponíveis a partir de hoje (inclusive) até o prazo. */
+  function openDays(state, today) {
+    const { startDate, endDate } = state.settings;
+    const from = maxKey(today, startDate);
+    if (from > endDate) return [];
+    return rangeKeys(from, endDate).filter(k => isAvailable(state, k));
+  }
+
+  /* ---------- Distribuição ---------- */
+  /**
+   * "Enchimento por nível" (water-filling): eleva primeiro os dias com menos
+   * horas, em níveis múltiplos de 5 min, nunca passando da capacidade do dia.
+   * As sobras são distribuídas em blocos de 5 min a partir dos dias MAIS CEDO
+   * (evita concentrar horas no fim do mês). Retorna o que não coube.
+   */
+  function waterFill(p, caps, amount) {
+    if (amount <= 0 || !p.length) return Math.max(0, amount);
+    const n = p.length, maxCap = Math.max(...caps);
+    const cost = L => { let c = 0; for (let i = 0; i < n; i++) { const t = Math.min(caps[i], L); if (t > p[i]) c += t - p[i]; } return c; };
+    let L = 0;
+    while (L + STEP <= maxCap && cost(L + STEP) <= amount) L += STEP;
+    const used = cost(L);
+    for (let i = 0; i < n; i++) { const t = Math.min(caps[i], L); if (t > p[i]) p[i] = t; }
+    let left = amount - used, guard = 0;
+    while (left > 0 && guard++ < 100000) {
+      let best = -1;
+      for (let i = 0; i < n; i++) if (p[i] < caps[i] && (best < 0 || p[i] < p[best])) best = i;
+      if (best < 0) break;
+      const add = Math.min(STEP, left, caps[best] - p[best]);
+      p[best] += add; left -= add;
+    }
+    return left;
+  }
+  /** Remove horas excedentes a partir dos ÚLTIMOS dias (a meta é concluída mais cedo). */
+  function removeFromEnd(p, amount) {
+    for (let i = p.length - 1; i >= 0 && amount > 0; i--) { const t = Math.min(p[i], amount); p[i] -= t; amount -= t; }
+    return amount;
+  }
+
+  /**
+   * Recalcula o planejamento.
+   * plan[dia] = total de horas extras previsto para o dia (inclui o que já foi feito nele).
+   * - Dias passados ficam congelados (histórico do que estava previsto).
+   * - Dias de hoje em diante: o "a fazer" de cada dia é ajustado para que
+   *   saldo + soma do "a fazer" = meta, respeitando o limite diário.
+   * mode 'incremental': preserva o plano atual e só ajusta a diferença
+   *   (falta → distribui equilibrado; sobra → retira dos últimos dias).
+   * mode 'full': redistribui tudo do zero de forma equilibrada.
+   */
+  function computePlan(state, today, mode = 'incremental') {
+    const S = state.settings;
+    const real = realizedByDate(state.entries);
+    const plan = {};
+    for (const [k, v] of Object.entries(state.plan || {})) {
+      if (!isValidKey(k) || !isInt(v) || v < 0) continue;
+      if (!inPeriod(state, k) || !isAvailable(state, k)) continue;   // indisponível nunca recebe plano
+      plan[k] = v;
+    }
+    const open = openDays(state, today);
+    const R = Math.max(0, S.goalMin - balance(state));
+    const caps = open.map(k => Math.max(0, S.dailyLimitMin - (real[k] || 0)));
+    const before = open.map((k, i) => mode === 'full' ? 0 : clamp((plan[k] || 0) - (real[k] || 0), 0, caps[i]));
+    const p = before.slice();
+    const S0 = sum(p);
+    let unallocated = 0;
+    if (R > S0) unallocated = waterFill(p, caps, R - S0);
+    else if (R < S0) removeFromEnd(p, S0 - R);
+    open.forEach((k, i) => {
+      const r = real[k] || 0;
+      const keep = mode !== 'full' && p[i] === before[i] && plan[k] !== undefined && plan[k] <= S.dailyLimitMin;
+      plan[k] = keep ? plan[k] : r + p[i];
+    });
+    return { plan, R, unallocated, open, caps, todo: p };
+  }
+
+  /** Recria a linha de referência (usada para adiantado/atrasado). */
+  function makeBaseline(state, today) {
+    const real = realizedByDate(state.entries), b = {};
+    for (const k of rangeKeys(state.settings.startDate, state.settings.endDate)) {
+      if (k < today) { if (real[k]) b[k] = real[k]; }
+      else if (state.plan[k]) b[k] = state.plan[k];
+    }
+    return b;
+  }
+
+  /** Data em que o saldo cruzou a meta (ou 'before' se o saldo inicial já bastava). */
+  function reachedDate(state) {
+    const S = state.settings;
+    let cum = S.initialBalanceMin;
+    if (cum >= S.goalMin) return 'before';
+    const real = realizedByDate(state.entries);
+    for (const k of Object.keys(real).sort()) { cum += real[k]; if (cum >= S.goalMin) return k; }
+    return null;
+  }
+
+  /** Status de um dia. */
+  function dayStatus(state, k, today, real, goalReached) {
+    const r = real[k] || 0, p = state.plan[k] || 0;
+    if (!isAvailable(state, k) && r === 0) { const ov = state.overrides[k]; return ov ? ov.type : 'weekend'; }
+    if (r > 0) return r >= p ? 'done' : 'partial';
+    if (p > 0) return k < today ? 'missed' : 'pending';
+    return goalReached ? 'goal' : 'free';
+  }
+
+  /** Todos os indicadores derivados do estado (nada disso é salvo como fonte de verdade). */
+  function derive(state, today) {
+    const S = state.settings;
+    const real = realizedByDate(state.entries);
+    const bal = balance(state);
+    const goal = S.goalMin;
+    const R = Math.max(0, goal - bal);
+    const goalReached = bal >= goal;
+    const open = openDays(state, today);
+    const caps = open.map(k => Math.max(0, S.dailyLimitMin - (real[k] || 0)));
+    const todo = open.map((k, i) => clamp((state.plan[k] || 0) - (real[k] || 0), 0, caps[i]));
+    const todoMap = {}; open.forEach((k, i) => { todoMap[k] = todo[i]; });
+    const capacity = sum(caps);
+    const availableDays = caps.filter(c => c > 0).length;
+    const deficit = goalReached ? 0 : Math.max(0, R - capacity);
+    const feasible = deficit === 0;
+    const beforeStart = today < S.startDate;
+    const deadlinePassed = today > S.endDate;
+    const avgNeeded = availableDays ? Math.ceil(R / availableDays) : 0;
+    const sinceStart = sum(Object.entries(real).filter(([k]) => k >= S.startDate).map(([, v]) => v));
+
+    // Ritmo: realizado x linha de referência até ontem (+ excedente de hoje)
+    let delta = 0;
+    const yesterday = addDays(today, -1);
+    if (yesterday >= S.startDate) {
+      for (const k of rangeKeys(S.startDate, minKey(yesterday, S.endDate))) delta += (real[k] || 0) - (state.baseline[k] || 0);
+    }
+    if (inPeriod(state, today)) delta += Math.max(0, (real[today] || 0) - (state.baseline[today] || 0));
+    const pace = goalReached ? 'reached' : delta > 0 ? 'ahead' : delta < 0 ? 'behind' : 'ontrack';
+
+    // Previsão pelo plano
+    let forecast = null;
+    if (goalReached) forecast = reachedDate(state);
+    else if (feasible) { let cum = bal; for (let i = 0; i < open.length; i++) { cum += todo[i]; if (cum >= goal) { forecast = open[i]; break; } } }
+
+    // Previsão pelo ritmo médio realizado
+    let paceAvg = 0, paceForecast = null, paceFinal = null;
+    if (!goalReached && today >= S.startDate) {
+      const elapsed = rangeKeys(S.startDate, minKey(yesterday, S.endDate)).filter(k => isAvailable(state, k) || real[k]);
+      const countToday = inPeriod(state, today) && (real[today] || 0) > 0;
+      const nDays = elapsed.length + (countToday ? 1 : 0);
+      if (nDays > 0) {
+        paceAvg = Math.round(sinceStart / nDays);
+        if (paceAvg > 0) {
+          let cum = bal;
+          for (const k of open) {
+            if (k === today && countToday) continue;
+            cum += Math.min(paceAvg, S.dailyLimitMin - (real[k] || 0));
+            if (cum >= goal) { paceForecast = k; break; }
+          }
+          paceFinal = cum;
+        }
+      }
+    }
+
+    // Linhas da tabela (dias úteis + dias com lançamento)
+    const rows = [];
+    let cum = S.initialBalanceMin + sum(Object.entries(real).filter(([k]) => k < S.startDate).map(([, v]) => v));
+    for (const k of rangeKeys(S.startDate, S.endDate)) {
+      const r = real[k] || 0;
+      cum += r + (k >= today ? (todoMap[k] || 0) : 0);
+      if (isWeekend(k) && r === 0) continue;
+      const p = state.plan[k] || 0;
+      rows.push({
+        key: k, plan: p, real: r, diff: r - p, cum, todo: todoMap[k] || 0,
+        status: dayStatus(state, k, today, real, goalReached),
+        override: state.overrides[k] || null, isToday: k === today, past: k < today
+      });
+    }
+
+    const todayReal = real[today] || 0;
+    return {
+      bal, goal, R, goalReached, open, caps, todo, todoMap, capacity, availableDays, deficit, feasible,
+      beforeStart, deadlinePassed, avgNeeded, delta, pace, forecast, paceAvg, paceForecast, paceFinal,
+      rows, real, sinceStart, todayReal, todayPlan: state.plan[today] || 0, todayTodo: todoMap[today] || 0,
+      pct: goal > 0 ? bal / goal : 1,
+      limitReachedToday: inPeriod(state, today) && todayReal >= S.dailyLimitMin
+    };
+  }
+
+  /* ---------- Validação de lançamentos ---------- */
+  /**
+   * d = { mode:'time'|'manual', date, start, end, breakMin, hours, minutes }
+   * Retorna { errors:[{msg,missing}], warnings:[msg], infos:[msg], durationMin, crosses, dayTotal }
+   */
+  function validateEntry(state, d, opts = {}) {
+    const { excludeId = null, today = null } = opts;
+    const S = state.settings, errors = [], warnings = [], infos = [];
+    const err = (msg, missing = false) => errors.push({ msg, missing });
+    if (!d.date) err('Informe a data.', true);
+    else if (!isValidKey(d.date)) err('Data inválida.');
+    else if (d.date < S.startDate) err(`Datas anteriores a ${fmtDate(S.startDate)} já estão incluídas no saldo inicial (${fmtDur(S.initialBalanceMin)}).`);
+    else if (d.date > S.endDate) err(`A data está após o prazo final (${fmtDate(S.endDate)}).`);
+    else if (today && d.date > today) err('Não é possível registrar horas extras em uma data futura.');
+
+    let dur = null, span = null;
+    if (d.mode === 'time') {
+      const s = parseClock(d.start || ''), e = parseClock(d.end || '');
+      if (!d.start) err('Informe o horário de início.', true); else if (s == null) err('Horário de início inválido (use HH:mm).');
+      if (!d.end) err('Informe o horário de término.', true); else if (e == null) err('Horário de término inválido (use HH:mm).');
+      if (s != null && e != null) {
+        if (s === e) err('Início e término não podem ser iguais.');
+        else {
+          span = spanFromClock(d.start, d.end);
+          const brRaw = d.breakMin === '' || d.breakMin == null ? 0 : Number(d.breakMin);
+          if (!isInt(brRaw) || brRaw < 0) err('O intervalo deve ser um número inteiro de minutos (0 ou mais).');
+          else if (brRaw >= span.raw) err(`O intervalo (${brRaw} min) não pode ser maior ou igual ao período (${fmtDur(span.raw)}).`);
+          else dur = span.raw - brRaw;
+          if (span.crosses) infos.push(`Termina no dia seguinte (${fmtDateShort(addDays(d.date || S.startDate, 1))}) — será contabilizado em ${d.date ? fmtDateShort(d.date) : 'data de início'}.`);
+        }
+      }
+    } else {
+      const hs = d.hours === '' || d.hours == null ? 0 : Number(d.hours);
+      const ms = d.minutes === '' || d.minutes == null ? 0 : Number(d.minutes);
+      if (!isInt(hs) || hs < 0 || hs > 12) err('Horas devem ser um número inteiro entre 0 e 12.');
+      else if (!isInt(ms) || ms < 0 || ms > 59) err('Minutos devem ser um número inteiro entre 0 e 59.');
+      else { dur = hs * 60 + ms; if (dur <= 0) { err('Informe uma duração maior que zero.', true); dur = null; } }
+    }
+    if (dur != null && dur > MAX_ENTRY_MIN) { err(`Duração de ${fmtDur(dur)} acima de 12h00 — verifique os horários.`); }
+
+    let dayTotal = null;
+    if (dur != null && d.date && isValidKey(d.date)) {
+      const others = state.entries.filter(o => o.id !== excludeId);
+      if (d.mode === 'time' && span) {
+        const a0 = dayIndex(d.date) * 1440 + span.s, a1 = a0 + span.raw;
+        for (const o of others) {
+          if (o.mode !== 'time') continue;
+          const os = spanFromClock(o.start, o.end); if (!os) continue;
+          const b0 = dayIndex(o.date) * 1440 + os.s, b1 = b0 + os.raw;
+          if (a0 < b1 && b0 < a1) err(`Sobrepõe o lançamento de ${fmtDateShort(o.date)} (${o.start}–${o.end}). Registros duplicados não são permitidos.`);
+        }
+        const ws = parseClock(S.workStart), we = parseClock(S.workEnd);
+        if (!d.ignoreWorkWindow && ws != null && we != null && we > ws) {
+          for (const k of [d.date, addDays(d.date, 1)]) {
+            if (!isAvailable(state, k)) continue;
+            const w0 = dayIndex(k) * 1440 + ws, w1 = dayIndex(k) * 1440 + we;
+            if (a0 < w1 && w0 < a1) { warnings.push(`O período ${d.start}–${d.end} coincide com a jornada normal (${S.workStart}–${S.workEnd}).`); break; }
+          }
+        }
+      } else if (d.mode === 'manual') {
+        if (others.some(o => o.date === d.date && o.mode === 'manual' && o.durationMin === dur)) warnings.push(`Já existe um lançamento manual de ${fmtDur(dur)} em ${fmtDateShort(d.date)}. Pode ser duplicidade.`);
+      }
+      dayTotal = sum(others.filter(o => o.date === d.date).map(o => o.durationMin)) + dur;
+      if (dayTotal > S.dailyLimitMin) warnings.push(`O total de ${fmtDateShort(d.date)} ficará em ${fmtDur(dayTotal)}, acima do limite de ${fmtDur(S.dailyLimitMin)} por dia.`);
+      if (isWeekend(d.date)) warnings.push(`${fmtDateShort(d.date)} é fim de semana (fora do planejamento).`);
+      else if (state.overrides[d.date]) { const ov = state.overrides[d.date]; warnings.push(`${fmtDateShort(d.date)} está marcado como ${OVERRIDE_TYPES[ov.type].toLowerCase()}${ov.label ? ` (${ov.label})` : ''}.`); }
+    }
+    return { errors, warnings, infos, durationMin: errors.length ? null : dur, rawDuration: dur, crosses: span ? span.crosses : false, dayTotal };
+  }
+
+  /* ---------- Ponto do dia (jornada informada manualmente) ---------- */
+  const BREAK_RIGHT = 60; // intervalo a que se tem direito (min)
+  /** Jornada normal em minutos: (fim − início da jornada) − 1h de intervalo. Padrão 09:00–18:00 → 8h00. */
+  function regularDayMin(S) {
+    const ws = parseClock(S.workStart), we = parseClock(S.workEnd);
+    return ws != null && we != null && we - ws > BREAK_RIGHT ? we - ws - BREAK_RIGHT : 480;
+  }
+  /**
+   * Calcula, a partir dos horários informados em `state.clock[date]`:
+   *  - fim da jornada normal  = entrada + jornada + intervalo
+   *  - saída prevista         = fim da jornada normal + hora extra planejada do dia
+   *  - hora extra realizada   = saída − entrada − intervalo − jornada (quando a saída é informada)
+   * Intervalo: usa ida→volta quando ambos existem; caso contrário assume 1h (o direito).
+   * Todos os valores são minutos desde 00:00 do dia (podem passar de 1440 = dia seguinte).
+   */
+  function dayClock(state, date, nowMin = null) {
+    const S = state.settings, c = (state.clock && state.clock[date]) || {};
+    const regular = regularDayMin(S);
+    const plan = state.plan[date] || 0;
+    const r = { regular, plan, errors: [], warnings: [], filled: false, valid: false, breakMin: BREAK_RIGHT, breakAssumed: true };
+    const tIn = parseClock(c.in || ''), tLo = parseClock(c.lunchOut || ''), tLi = parseClock(c.lunchIn || ''), tOut = parseClock(c.out || '');
+    r.filled = tIn != null || tLo != null || tLi != null || tOut != null;
+    const err = m => r.errors.push(m);
+    if (tIn == null) { if (r.filled) err('Informe o horário de entrada.'); return r; }
+    let last = tIn, lo = null, li = null, out = null;
+    if (tLo != null) { if (tLo <= tIn) err('A ida ao intervalo deve ser depois da entrada.'); else { lo = tLo; last = tLo; } }
+    if (tLi != null) {
+      if (tLo == null) err('Informe a ida ao intervalo antes da volta.');
+      else if (lo != null) { if (tLi <= lo) err('A volta do intervalo deve ser depois da ida.'); else { li = tLi; last = tLi; } }
+    }
+    if (tOut != null) {
+      let o = tOut; if (o <= last) o += 1440;
+      if (o - tIn > 18 * 60) err('A saída está muito distante da entrada — verifique os horários.'); else out = o;
+    }
+    if (r.errors.length) return r;
+    r.valid = true; r.tIn = tIn; r.lunchOut = lo; r.lunchIn = li; r.out = out;
+    if (lo != null && li != null) { r.breakMin = li - lo; r.breakAssumed = false; }
+    else if (lo != null) r.expectedBack = lo + BREAK_RIGHT;
+    r.regularEnd = tIn + regular + r.breakMin;              // sai sem hora extra
+    r.exitTarget = r.regularEnd + plan;                     // sai cumprindo a hora extra prevista hoje
+    if (out != null) {
+      r.worked = out - tIn - r.breakMin;
+      r.overtime = Math.max(0, r.worked - regular);
+      r.short = Math.max(0, regular - r.worked);
+      r.crosses = out >= 1440;
+      if (r.breakAssumed) r.warnings.push('Intervalo de 1h00 assumido (ida e volta não informadas).');
+      else if (r.breakMin < BREAK_RIGHT) r.warnings.push(`Intervalo de ${fmtDur(r.breakMin)}, abaixo da 1h00 a que você tem direito.`);
+    } else if (nowMin != null) {
+      r.untilTarget = r.exitTarget - nowMin;
+      r.untilRegular = r.regularEnd - nowMin;
+    }
+    return r;
+  }
+
+  /* ---------- Sanitização (carregamento e importação) ---------- */
+  function sanitizeState(input) {
+    const def = defaultState();
+    let src = input;
+    if (src && typeof src === 'object' && src.data && src.app === 'banco-de-horas') src = src.data;
+    if (!src || typeof src !== 'object' || !src.settings || !Array.isArray(src.entries)) return { ok: false, error: 'Arquivo não reconhecido como backup do Banco de Horas.' };
+    const st = def;
+    const s = src.settings, d = def.settings;
+    const intIn = (v, lo, hi, dv) => (isInt(v) && v >= lo && v <= hi) ? v : dv;
+    st.settings = {
+      goalMin: intIn(s.goalMin, 1, 999 * 60, d.goalMin),
+      initialBalanceMin: intIn(s.initialBalanceMin, 0, 999 * 60, d.initialBalanceMin),
+      startDate: isValidKey(s.startDate) ? s.startDate : d.startDate,
+      endDate: isValidKey(s.endDate) ? s.endDate : d.endDate,
+      dailyLimitMin: intIn(s.dailyLimitMin, 5, 24 * 60, d.dailyLimitMin),
+      workStart: parseClock(s.workStart) != null ? s.workStart : d.workStart,
+      workEnd: parseClock(s.workEnd) != null ? s.workEnd : d.workEnd
+    };
+    if (st.settings.startDate > st.settings.endDate) { st.settings.startDate = d.startDate; st.settings.endDate = d.endDate; }
+    st.theme = src.theme === 'light' ? 'light' : 'dark';
+    st.overrides = {};
+    if (src.overrides && typeof src.overrides === 'object') {
+      for (const [k, v] of Object.entries(src.overrides)) {
+        if (isValidKey(k) && v && OVERRIDE_TYPES[v.type]) st.overrides[k] = { type: v.type, label: String(v.label || '').slice(0, 60) };
+      }
+    }
+    st.entries = []; let dropped = 0; const ids = new Set();
+    for (const e of src.entries) {
+      if (!e || !isValidKey(e.date)) { dropped++; continue; }
+      let id = typeof e.id === 'string' && e.id ? e.id : null;
+      if (!id || ids.has(id)) id = 'e' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+      const base = { id, ...(e.fromClock === true ? { fromClock: true } : {}), date: e.date, note: String(e.note || '').slice(0, 280), createdAt: e.createdAt || new Date().toISOString(), updatedAt: e.updatedAt || null };
+      if (e.mode === 'time') {
+        const span = spanFromClock(e.start, e.end);
+        const br = isInt(e.breakMin) && e.breakMin >= 0 ? e.breakMin : 0;
+        if (!span || br >= span.raw || span.raw - br > MAX_ENTRY_MIN) { dropped++; continue; }
+        st.entries.push({ ...base, mode: 'time', start: fmtClock(span.s), end: fmtClock(span.e), breakMin: br, durationMin: span.raw - br, crossesMidnight: span.crosses });
+      } else {
+        if (!isInt(e.durationMin) || e.durationMin <= 0 || e.durationMin > MAX_ENTRY_MIN) { dropped++; continue; }
+        st.entries.push({ ...base, mode: 'manual', start: null, end: null, breakMin: 0, durationMin: e.durationMin, crossesMidnight: false });
+      }
+      ids.add(id);
+    }
+    const cleanMap = m => { const o = {}; if (m && typeof m === 'object') for (const [k, v] of Object.entries(m)) if (isValidKey(k) && isInt(v) && v >= 0 && v <= 1440) o[k] = v; return o; };
+    st.plan = cleanMap(src.plan);
+    st.baseline = src.baseline ? cleanMap(src.baseline) : { ...st.plan };
+    st.dayNotes = {};
+    if (src.dayNotes && typeof src.dayNotes === 'object') for (const [k, v] of Object.entries(src.dayNotes)) if (isValidKey(k) && typeof v === 'string' && v.trim()) st.dayNotes[k] = v.slice(0, 500);
+    st.clock = {};
+    if (src.clock && typeof src.clock === 'object') {
+      for (const [k, v] of Object.entries(src.clock)) {
+        if (!isValidKey(k) || !v || typeof v !== 'object') continue;
+        const c = {}; let any = false;
+        for (const f of ['in', 'lunchOut', 'lunchIn', 'out']) { c[f] = parseClock(v[f]) != null ? fmtClock(parseClock(v[f])) : ''; if (c[f]) any = true; }
+        if (any) st.clock[k] = c;
+      }
+    }
+    st.meta = { ...def.meta, ...(src.meta && typeof src.meta === 'object' ? src.meta : {}) };
+    return { ok: true, state: st, dropped };
+  }
+
+  return {
+    WEEKDAYS, WEEKDAYS_SHORT, MONTHS, OVERRIDE_TYPES, SEED_PLAN, STEP,
+    pad, sum, clamp, parseKey, isValidKey, addDays, dayIndex, weekday, isWeekend, rangeKeys, minKey, maxKey,
+    localTodayKey, fmtDate, fmtDateShort, fmtDateLong, wdShort, wdLong,
+    parseClock, fmtClock, fmtDur, parseDur, spanFromClock,
+    defaultState, realizedByDate, balance, isAvailable, inPeriod, openDays,
+    waterFill, removeFromEnd, computePlan, makeBaseline, reachedDate, dayStatus, derive,
+    BREAK_RIGHT, regularDayMin, dayClock, validateEntry, sanitizeState
+  };
+})();
+/* @core-end */
+
+/* =====================================================================
+   ARMAZENAMENTO (localStorage)
+   ===================================================================== */
+const STORAGE_KEY = 'bancoHoras.v1';
+let storageOk = true;
+let state;
+
+/** Data de "hoje". Para testes é possível simular com ?hoje=AAAA-MM-DD na URL. */
+const SIM_TODAY = (() => { try { const v = new URLSearchParams(location.search).get('hoje'); return Core.isValidKey(v) ? v : null; } catch (e) { return null; } })();
+const today = () => SIM_TODAY || Core.localTodayKey();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) { const d = Core.defaultState(); d.meta.evento19Liberado = true; return d; }
+    const res = Core.sanitizeState(JSON.parse(raw));
+    if (!res.ok) return Core.defaultState();
+    // Migração única: o dia do evento (19/11) passou a permitir hora extra.
+    const st = res.state, ov = st.overrides['2026-11-19'];
+    if (!st.meta.evento19Liberado) {
+      if (ov && ov.type === 'event' && ov.label === 'Evento') delete st.overrides['2026-11-19'];
+      st.meta.evento19Liberado = true;
+    }
+    return st;
+  } catch (e) {
+    storageOk = false;
+    return Core.defaultState();
+  }
+}
+function saveState() {
+  state.meta.updatedAt = new Date().toISOString();
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); storageOk = true; }
+  catch (e) { storageOk = false; toast({ type: 'danger', title: 'Não foi possível salvar', msg: 'O navegador bloqueou o armazenamento local. Exporte um backup para não perder dados.' }); }
+}
+
+/* =====================================================================
+   UTILITÁRIOS DE INTERFACE
+   ===================================================================== */
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => 'e' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+const fmtPct = (x, d = 1) => (x * 100).toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d }) + '%';
+const reduceMotion = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const { fmtDur, fmtDate, fmtDateShort, fmtDateLong, wdShort } = Core;
+
+/* Ícones (traço 1.75, estilo consistente) */
+const ICONS = {
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  timer: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/>',
+  trend: '<path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/>',
+  calendar: '<rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/>',
+  calcheck: '<rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M16 2.5v4M8 2.5v4M3 10h18M9 15.5l2 2 4-4"/>',
+  list: '<path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+  grid: '<rect x="3" y="3" width="7.5" height="9" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="5" rx="1.5"/><rect x="13.5" y="11" width="7.5" height="10" rx="1.5"/><rect x="3" y="15" width="7.5" height="6" rx="1.5"/>',
+  sliders: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1.5 14h5M9.5 8h5M17.5 16h5"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon: '<path d="M20.5 14.1A8.5 8.5 0 1 1 9.9 3.5a6.8 6.8 0 0 0 10.6 10.6z"/>',
+  trash: '<path d="M3.5 6h17M9 6V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V6M18.5 6l-.8 13a2 2 0 0 1-2 1.9H8.3a2 2 0 0 1-2-1.9L5.5 6M10 10.5v6M14 10.5v6"/>',
+  edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7.5 18.5l-4 1 1-4z"/>',
+  check: '<path d="M20 6L9 17l-5-5"/>',
+  checkCircle: '<circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.3 2.3 4.7-5"/>',
+  x: '<path d="M18 6L6 18M6 6l12 12"/>',
+  alert: '<path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+  alertCircle: '<circle cx="12" cy="12" r="9"/><path d="M12 8v4.5M12 16h.01"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 16v-4.5M12 8h.01"/>',
+  trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5.5h2.5V7a3 3 0 0 1-3 3M7 5.5H4.5V7a3 3 0 0 0 3 3"/>',
+  refresh: '<path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1L20.5 8.5"/><path d="M20.5 3.5v5h-5"/>',
+  sparkles: '<path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>',
+  download: '<path d="M12 3.5v12M7 10.5l5 5 5-5M4.5 20.5h15"/>',
+  upload: '<path d="M12 20.5v-12M7 13.5l5-5 5 5M4.5 3.5h15"/>',
+  reset: '<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 3.5v5h5"/>',
+  chevL: '<path d="M15 18l-6-6 6-6"/>',
+  chevR: '<path d="M9 18l6-6-6-6"/>',
+  zap: '<path d="M13 2.5L4 14h7l-1 7.5L19 10h-7z"/>',
+  flag: '<path d="M5 21V4M5 4h12l-2.5 4L17 12H5"/>',
+  ban: '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
+  note: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
+  bell: '<path d="M6 8a6 6 0 1 1 12 0c0 7 3 8.5 3 8.5H3S6 15 6 8"/><path d="M10.3 20a1.9 1.9 0 0 0 3.4 0"/>',
+  pen: '<path d="M4 20l4-1L19 8a2.1 2.1 0 0 0-3-3L5 16z"/>',
+  hourglass: '<path d="M6 3h12M6 21h12M7 3v3a5 5 0 0 0 10 0V3M7 21v-3a5 5 0 0 1 10 0v3"/>',
+  rocket: '<path d="M5 15c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.8-.9.8-2.2 0-3a2.1 2.1 0 0 0-3 0z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.9A12.9 12.9 0 0 1 22 2c0 2.7-.8 7.5-6 11a22.4 22.4 0 0 1-4 2z"/>',
+  database: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+  palette: '<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16" cy="10" r="1.2"/><path d="M12 21a2 2 0 0 1 0-4h1.5a2.5 2.5 0 0 0 0-5"/>',
+  gauge: '<path d="M12 14l4-4"/><path d="M3.5 18a9 9 0 1 1 17 0"/>'
+};
+const icon = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ''}</svg>`;
+
+/* Metadados dos status */
+const STATUS = {
+  done: { label: 'Concluído', tone: 't-success' },
+  partial: { label: 'Parcial', tone: 't-warning' },
+  pending: { label: 'Pendente', tone: 't-accent' },
+  missed: { label: 'Não realizado', tone: 't-danger' },
+  free: { label: 'Dia livre', tone: 't-neutral' },
+  goal: { label: 'Meta atingida', tone: 't-success' },
+  holiday: { label: 'Feriado', tone: 't-rose' },
+  event: { label: 'Evento', tone: 't-warning' },
+  unavailable: { label: 'Indisponível', tone: 't-warning' },
+  weekend: { label: 'Fim de semana', tone: 't-neutral' }
+};
+const statusBadge = s => `<span class="badge ${STATUS[s].tone}">${STATUS[s].label}</span>`;
+
+/* ---------- Toasts ---------- */
+const TOAST_ICON = { success: 'checkCircle', warning: 'alert', danger: 'alertCircle', info: 'info', trophy: 'trophy' };
+function toast({ type = 'info', title, msg = '', action = null, timeout = 4800, iconName = null }) {
+  const host = $('#toasts');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.setAttribute('role', type === 'danger' ? 'alert' : 'status');
+  el.innerHTML = `<div class="toast-icon">${icon(iconName || TOAST_ICON[type])}</div>
+    <div class="toast-body"><div class="toast-title">${esc(title)}</div>${msg ? `<div class="toast-msg">${esc(msg)}</div>` : ''}</div>
+    ${action ? `<button class="toast-action" type="button">${esc(action.label)}</button>` : ''}
+    <button class="toast-close" type="button" aria-label="Fechar">${icon('x', 'i-sm')}</button>
+    ${timeout ? `<div class="toast-timer" style="animation-duration:${timeout}ms"></div>` : ''}`;
+  let timer = null;
+  const close = () => { clearTimeout(timer); if (!el.isConnected) return; el.classList.add('out'); setTimeout(() => el.remove(), 230); };
+  $('.toast-close', el).onclick = close;
+  if (action) $('.toast-action', el).onclick = () => { action.fn(); close(); };
+  if (timeout) {
+    timer = setTimeout(close, timeout);
+    el.addEventListener('mouseenter', () => { clearTimeout(timer); const t = $('.toast-timer', el); if (t) t.style.animationPlayState = 'paused'; });
+    el.addEventListener('mouseleave', () => { timer = setTimeout(close, 1800); });
+  }
+  host.appendChild(el);
+  while (host.children.length > 4) host.firstElementChild.remove();
+  return close;
+}
+
+/* ---------- Confete ---------- */
+function confetti() {
+  if (reduceMotion()) return;
+  const colors = ['#7f7dff', '#3dd598', '#f5b342', '#f17bbf', '#64a8ff'];
+  const cx = window.innerWidth / 2, cy = window.innerHeight * 0.35;
+  for (let i = 0; i < 46; i++) {
+    const p = document.createElement('i');
+    p.className = 'confetti';
+    const ang = Math.random() * Math.PI * 2, dist = 120 + Math.random() * 260;
+    p.style.background = colors[i % colors.length];
+    p.style.setProperty('--x0', `${cx}px`); p.style.setProperty('--y0', `${cy}px`);
+    p.style.setProperty('--x1', `${cx + Math.cos(ang) * dist}px`); p.style.setProperty('--y1', `${cy + Math.sin(ang) * dist + 220}px`);
+    p.style.setProperty('--r', `${(Math.random() * 900 - 450) | 0}deg`);
+    p.style.animationDelay = `${Math.random() * 120}ms`;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1900);
+  }
+}
+
+/* ---------- Modais ---------- */
+const modalStack = [];
+function openModal({ title, subtitle = '', content, size = 'md', onClose = null }) {
+  const wrap = document.createElement('div');
+  wrap.className = 'modal-wrap';
+  wrap.innerHTML = `<div class="modal-backdrop"></div>
+    <div class="modal modal-${size}" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+      <div class="modal-head"><div><div class="modal-title">${esc(title)}</div>${subtitle ? `<div class="modal-sub">${subtitle}</div>` : ''}</div>
+      <button class="icon-btn ghost modal-x" type="button" aria-label="Fechar">${icon('x')}</button></div>
+      <div class="modal-body"></div>
+    </div>`;
+  const body = $('.modal-body', wrap);
+  if (typeof content === 'string') body.innerHTML = content; else if (content) body.appendChild(content);
+  const prevFocus = document.activeElement;
+  let closed = false;
+  const m = {
+    el: wrap, body,
+    close() {
+      if (closed) return; closed = true;
+      const i = modalStack.indexOf(m); if (i >= 0) modalStack.splice(i, 1);
+      wrap.classList.add('closing');
+      setTimeout(() => wrap.remove(), 190);
+      if (onClose) onClose();
+      if (prevFocus && prevFocus.focus) prevFocus.focus({ preventScroll: true });
+    }
+  };
+  $('.modal-backdrop', wrap).onclick = () => m.close();
+  $('.modal-x', wrap).onclick = () => m.close();
+  $('#modalRoot').appendChild(wrap);
+  modalStack.push(m);
+  requestAnimationFrame(() => {
+    const f = $('input:not([type=hidden]):not([type=date]), textarea, select, .btn-primary', body);
+    if (f && window.innerWidth > 720) f.focus({ preventScroll: true });
+  });
+  return m;
+}
+/** Diálogo de confirmação. Retorna Promise<boolean>. */
+function confirmDialog({ title, message = '', items = [], confirmText = 'Confirmar', cancelText = 'Cancelar', danger = false, extra = null }) {
+  return new Promise(resolve => {
+    let answered = false;
+    const div = document.createElement('div');
+    div.innerHTML = `${message ? `<div class="confirm-msg">${message}</div>` : ''}
+      ${items.length ? `<ul class="confirm-list">${items.map(t => `<li>${icon('alert')}<span>${esc(t)}</span></li>`).join('')}</ul>` : ''}
+      <div class="confirm-actions">
+        ${extra ? `<button type="button" class="btn btn-ghost" data-x>${esc(extra.label)}</button>` : ''}
+        <button type="button" class="btn" data-no>${esc(cancelText)}</button>
+        <button type="button" class="btn ${danger ? 'btn-danger-solid' : 'btn-primary'}" data-yes>${esc(confirmText)}</button>
+      </div>`;
+    const m = openModal({ title, content: div, size: 'sm', onClose: () => { if (!answered) resolve(false); } });
+    $('[data-no]', div).onclick = () => { answered = true; resolve(false); m.close(); };
+    $('[data-yes]', div).onclick = () => { answered = true; resolve(true); m.close(); };
+    if (extra) $('[data-x]', div).onclick = () => extra.fn();
+    setTimeout(() => $('[data-yes]', div).focus(), 30);
+  });
+}
+
+/* ---------- Contadores animados ---------- */
+const lastValues = new Map();
+function animateNumbers(root) {
+  $$('[data-count]', root).forEach(el => {
+    const key = el.dataset.key, to = Number(el.dataset.count), kind = el.dataset.kind || 'dur';
+    const fmt = v => kind === 'pct' ? fmtPct(v, 1) : kind === 'int' ? String(Math.round(v)) : fmtDur(v);
+    const from = lastValues.has(key) ? lastValues.get(key) : (kind === 'pct' ? 0 : 0);
+    lastValues.set(key, to);
+    if (reduceMotion() || from === to) { el.textContent = fmt(to); return; }
+    const t0 = performance.now(), dur = 700;
+    const step = now => {
+      const t = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - t, 3);
+      const v = from + (to - from) * e;
+      el.textContent = fmt(kind === 'pct' ? v : Math.round(v));
+      if (t < 1) requestAnimationFrame(step); else el.textContent = fmt(to);
+    };
+    requestAnimationFrame(step);
+  });
+}
+const count = (key, val, kind = 'dur') => `<span class="num" data-count="${val}" data-key="${key}" data-kind="${kind}">${kind === 'pct' ? fmtPct(val) : kind === 'int' ? val : fmtDur(val)}</span>`;
+
+/* =====================================================================
+   MUTAÇÕES (todas passam por commit → replanejamento → salvar → render)
+   ===================================================================== */
+let undoSnapshot = null;
+function snapshot() { return JSON.stringify(state); }
+function restore(snap) {
+  const res = Core.sanitizeState(JSON.parse(snap));
+  if (res.ok) { state = res.state; replan('incremental'); saveState(); renderAll(); }
+}
+/**
+ * Aplica o replanejamento.
+ * rebase=true recria a linha de referência (mudança estrutural: meta,
+ * período, limite, disponibilidade ou recálculo manual).
+ */
+function replan(mode = 'incremental', rebase = false) {
+  const t = today();
+  const res = Core.computePlan(state, t, mode);
+  state.plan = res.plan;
+  if (rebase) state.baseline = Core.makeBaseline(state, t);
+  state.meta.lastPlanAt = new Date().toISOString();
+  return res;
+}
+function commit(mutator, { mode = 'incremental', rebase = false, silent = false } = {}) {
+  const before = Core.derive(state, today());
+  mutator(state);
+  replan(mode, rebase);
+  saveState();
+  renderAll();
+  if (!silent) notifyTransitions(before, Core.derive(state, today()));
+}
+/** Notificações visuais quando um indicador muda de estado. */
+function notifyTransitions(a, b) {
+  if (!a.goalReached && b.goalReached) {
+    confetti();
+    toast({ type: 'success', iconName: 'trophy', title: 'Meta atingida!', msg: `Você completou ${fmtDur(b.bal)} de ${fmtDur(b.goal)}. Nenhuma hora extra adicional é necessária.`, timeout: 8000 });
+    state.meta.goalCelebrated = true; saveState();
+    return;
+  }
+  if (!b.goalReached) {
+    if (a.feasible && !b.feasible) toast({ type: 'danger', title: 'Meta não pode mais ser atingida', msg: `Faltam ${fmtDur(b.deficit)} além da capacidade dos dias restantes.`, timeout: 7000 });
+    if (a.pace !== 'behind' && b.pace === 'behind') toast({ type: 'warning', title: 'Saldo abaixo do planejado', msg: `Você está ${fmtDur(-b.delta)} atrás do previsto. O plano foi redistribuído.` });
+  }
+  if (!a.limitReachedToday && b.limitReachedToday) toast({ type: 'info', iconName: 'gauge', title: 'Limite diário atingido', msg: `Hoje você já registrou ${fmtDur(b.todayReal)} (limite de ${fmtDur(state.settings.dailyLimitMin)}).` });
+}
+
+/* =====================================================================
+   NAVEGAÇÃO
+   ===================================================================== */
+const VIEWS = [
+  { id: 'overview', label: 'Visão geral', short: 'Início', icon: 'grid' },
+  { id: 'plan', label: 'Planejamento', short: 'Plano', icon: 'list' },
+  { id: 'calendar', label: 'Calendário', short: 'Calendário', icon: 'calendar' },
+  { id: 'entries', label: 'Lançamentos', short: 'Registros', icon: 'clock' },
+  { id: 'settings', label: 'Ajustes', short: 'Ajustes', icon: 'sliders' }
+];
+let currentView = 'overview';
+function setView(id, { scroll = true } = {}) {
+  if (!VIEWS.some(v => v.id === id)) id = 'overview';
+  currentView = id;
+  $$('.view').forEach(v => v.classList.toggle('active', v.id === `view-${id}`));
+  $$('[data-view]').forEach(b => { const on = b.dataset.view === id; b.classList.toggle('active', on); b.setAttribute('aria-selected', on); });
+  if (id === 'settings') fillSettingsForm();
+  if (id === 'overview') requestAnimationFrame(() => renderChart(Core.derive(state, today())));
+  try { sessionStorage.setItem('bancoHoras.view', id); } catch (e) {}
+  if (scroll) window.scrollTo({ top: 0, behavior: reduceMotion() ? 'auto' : 'smooth' });
+}
+function buildNav() {
+  $('#tabs').innerHTML = VIEWS.map(v => `<button class="tab" type="button" role="tab" data-view="${v.id}">${icon(v.icon)}<span>${v.label}</span>${v.id === 'entries' ? '<span class="count num" id="entriesCount">0</span>' : ''}</button>`).join('');
+  $('#bottomNav').innerHTML = VIEWS.map(v => `<button class="bn" type="button" data-view="${v.id}">${icon(v.icon)}<span>${v.short}</span></button>`).join('');
+  $$('[data-view]').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+}
+
+/* =====================================================================
+   RENDERIZAÇÃO
+   ===================================================================== */
+function renderAll() {
+  const t = today();
+  const d = Core.derive(state, t);
+  renderHeader(d, t);
+  renderAlerts(d, t);
+  renderKpis(d);
+  renderHero(d, t);
+  renderToday(d, t);
+  renderClock(d, t);
+  renderSummary(d, t);
+  if (currentView === 'overview') renderChart(d);
+  renderPlan(d, t);
+  renderCalendar(d, t);
+  renderHistory(d, t);
+  renderOverrides();
+  renderStorageNote();
+  if (inlineForm) inlineForm.refresh();
+  animateNumbers(document);
+}
+
+function renderHeader(d, t) {
+  const S = state.settings;
+  $('#brandSub').textContent = `Meta de ${fmtDur(S.goalMin)} até ${fmtDate(S.endDate)}`;
+  $('#todayChipText').textContent = `${SIM_TODAY ? 'Simulação · ' : 'Hoje · '}${wdShort(t)}, ${fmtDate(t)}`;
+  $('#todayChip').classList.toggle('sim', !!SIM_TODAY);
+  $('#themeBtn').innerHTML = icon(state.theme === 'dark' ? 'sun' : 'moon');
+  const ec = $('#entriesCount'); if (ec) ec.textContent = state.entries.length;
+}
+
+/** Lista de alertas persistentes conforme a situação atual. */
+function buildAlerts(d, t) {
+  const S = state.settings, list = [];
+  if (d.goalReached) {
+    const when = d.forecast === 'before' ? 'já com o saldo inicial' : d.forecast ? `em ${fmtDate(d.forecast)}` : '';
+    list.push({ type: 'success', icon: 'trophy', title: 'Meta atingida', msg: `Você acumulou ${fmtDur(d.bal)} de ${fmtDur(d.goal)} ${when}. Não há necessidade de novas horas extras.` });
+    return list;
+  }
+  if (d.deadlinePassed) {
+    list.push({ type: 'danger', icon: 'alertCircle', title: 'Prazo encerrado', msg: `O prazo terminou em ${fmtDate(S.endDate)} com ${fmtDur(d.R)} faltando para a meta.` });
+    return list;
+  }
+  if (!d.feasible) list.push({ type: 'danger', icon: 'alertCircle', title: 'Meta não pode ser atingida no prazo', msg: `Mesmo com ${fmtDur(S.dailyLimitMin)} em todos os ${d.availableDays} dias disponíveis, faltariam ${fmtDur(d.deficit)}. Considere liberar dias ou rever a meta.`, action: { label: 'Ver plano', fn: () => setView('plan') } });
+  else if (d.R > 0 && d.capacity - d.R < 30) list.push({ type: 'warning', icon: 'alert', title: 'Margem muito apertada', msg: `A capacidade restante (${fmtDur(d.capacity)}) supera o necessário em apenas ${fmtDur(d.capacity - d.R)}.` });
+  if (d.pace === 'behind') list.push({ type: 'warning', icon: 'trend', title: 'Saldo abaixo do planejado', msg: `Você está ${fmtDur(-d.delta)} atrás do previsto até agora. As horas faltantes foram redistribuídas nos próximos dias.`, action: { label: 'Ver plano', fn: () => setView('plan') } });
+  if (d.availableDays > 0 && d.availableDays <= 3 && d.R > 0) list.push({ type: 'warning', icon: 'hourglass', title: 'Restam poucos dias', msg: `Apenas ${d.availableDays} ${d.availableDays === 1 ? 'dia disponível' : 'dias disponíveis'} até ${fmtDate(S.endDate)} para completar ${fmtDur(d.R)}.` });
+  if (d.limitReachedToday) list.push({ type: 'info', icon: 'gauge', title: 'Limite diário atingido', msg: `Hoje você já registrou ${fmtDur(d.todayReal)} — o limite é ${fmtDur(S.dailyLimitMin)} por dia.` });
+  return list;
+}
+function alertHTML(a, i) {
+  return `<div class="alert ${a.type}"><div class="alert-ic">${icon(a.icon)}</div><div class="alert-body"><div class="alert-title">${esc(a.title)}</div><div class="alert-msg">${esc(a.msg)}</div></div>${a.action ? `<button class="btn btn-sm" type="button" data-alert="${i}">${esc(a.action.label)}</button>` : ''}</div>`;
+}
+function renderAlerts(d, t) {
+  const list = buildAlerts(d, t);
+  const host = $('#alerts');
+  host.innerHTML = list.map(alertHTML).join('');
+  $$('[data-alert]', host).forEach(b => { b.onclick = () => list[+b.dataset.alert].action.fn(); });
+  const planList = list.filter(a => a.type === 'danger' || a.type === 'success');
+  $('#planAlerts').innerHTML = planList.map(a => alertHTML({ ...a, action: null })).join('');
+}
+
+function renderKpis(d) {
+  const S = state.settings;
+  const kpi = (label, ic, tone, value, foot) => `<div class="card kpi"><div class="kpi-top"><span class="kpi-label">${label}</span><span class="kpi-icon ${tone}">${icon(ic)}</span></div><div class="kpi-value">${value}</div><div class="kpi-foot">${foot}</div></div>`;
+  const nextOpen = d.open.find(k => (d.todoMap[k] || 0) > 0);
+  $('#kpis').innerHTML = [
+    kpi('Saldo atual', 'clock', 'accent', count('k-bal', d.bal), `${fmtDur(S.initialBalanceMin)} inicial + ${fmtDur(d.sinceStart)} registradas`),
+    kpi('Meta', 'target', '', count('k-goal', d.goal), `até ${fmtDate(S.endDate)}`),
+    kpi('Horas restantes', 'hourglass', d.R === 0 ? 'success' : 'warning', count('k-rem', d.R), d.R === 0 ? 'Meta concluída' : `média de ${fmtDur(d.avgNeeded)}/dia`),
+    kpi('Progresso', 'trend', d.goalReached ? 'success' : 'info', count('k-pct', d.pct, 'pct'), d.goalReached ? 'Concluído' : `${fmtDur(d.bal)} de ${fmtDur(d.goal)}`),
+    kpi('Dias disponíveis', 'calendar', '', `${count('k-days', d.availableDays, 'int')}<small>${d.availableDays === 1 ? 'dia' : 'dias'}</small>`, nextOpen ? `próximo: ${wdShort(nextOpen)}, ${fmtDateShort(nextOpen)}` : (d.goalReached ? 'nenhum necessário' : 'sem dias restantes'))
+  ].join('');
+}
+
+let lastHeroWidths = null;
+function renderHero(d, t) {
+  const S = state.settings, goal = Math.max(1, d.goal);
+  const scale = Math.max(goal, d.bal);
+  const wInit = Math.min(S.initialBalanceMin, scale) / scale * 100;
+  const wDone = Math.min(d.bal, scale) / scale * 100;
+  const wToday = Math.min(d.bal + d.todayTodo, scale) / scale * 100;
+  const prev = lastHeroWidths || { i: 0, d: 0, t: 0 };
+  const paceTxt = { reached: ['t-success', 'Meta concluída'], ahead: ['t-success', `Adiantado ${fmtDur(d.delta, { sign: true })}`], behind: ['t-danger', `Atrasado ${fmtDur(d.delta)}`], ontrack: ['t-accent', 'Dentro do planejado'] }[d.pace];
+  const ticks = [];
+  const tickStep = goal > 24 * 60 ? 480 : goal > 8 * 60 ? 240 : 60;
+  for (let m = 0; m <= goal; m += tickStep) ticks.push(m);
+  if (ticks[ticks.length - 1] !== goal) ticks.push(goal);
+  $('#heroCard').innerHTML = `
+    <div class="hero-top">
+      <div>
+        <div class="hero-eyebrow">${icon('zap', 'i-sm')} Banco de horas acumulado <span class="badge ${paceTxt[0]}">${paceTxt[1]}</span></div>
+        <div class="hero-value">${count('h-bal', d.bal)}<span class="of">/ ${fmtDur(d.goal)}</span></div>
+      </div>
+      <div class="hero-pct"><div class="big">${count('h-pct', Math.min(d.pct, 9.99), 'pct')}</div><div class="lbl">concluído</div></div>
+    </div>
+    <div class="progress ${d.goalReached ? 'complete' : ''}" role="progressbar" aria-valuemin="0" aria-valuemax="${d.goal}" aria-valuenow="${d.bal}" aria-label="Progresso da meta">
+      <div class="progress-track">
+        <div class="progress-seg today" style="width:${prev.t}%"></div>
+        <div class="progress-seg done" style="width:${prev.d}%"></div>
+        <div class="progress-seg initial" style="width:${prev.i}%"></div>
+      </div>
+      <div class="progress-ticks num">${ticks.map(m => `<span style="left:${m / scale * 100}%">${fmtDur(m).replace('h00', 'h')}</span>`).join('')}</div>
+    </div>
+    <div class="progress-legend">
+      <span class="lg"><i class="sw initial"></i>Saldo inicial <b class="num">${fmtDur(S.initialBalanceMin)}</b></span>
+      <span class="lg"><i class="sw done"></i>Registrado desde ${fmtDateShort(S.startDate)} <b class="num">${fmtDur(d.sinceStart)}</b></span>
+      ${d.todayTodo > 0 ? `<span class="lg"><i class="sw today"></i>Previsto hoje <b class="num">${fmtDur(d.todayTodo)}</b></span>` : ''}
+      <span class="lg"><i class="sw rest"></i>Restante <b class="num">${fmtDur(d.R)}</b></span>
+    </div>
+    <div class="hero-foot">
+      <button class="btn btn-sm" type="button" data-go="plan">${icon('list', 'i-sm')} Ver planejamento</button>
+      <button class="btn btn-sm btn-ghost" type="button" data-go="calendar">${icon('calendar', 'i-sm')} Calendário</button>
+    </div>`;
+  $$('[data-go]', $('#heroCard')).forEach(b => b.onclick = () => setView(b.dataset.go));
+  lastHeroWidths = { i: wInit, d: wDone, t: wToday };
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const segs = $$('.progress-seg', $('#heroCard'));
+    if (segs.length === 3) { segs[0].style.width = wToday + '%'; segs[1].style.width = wDone + '%'; segs[2].style.width = wInit + '%'; }
+  }));
+}
+
+/** Sugere início/fim de hoje com base na jornada e nos lançamentos já feitos. */
+function suggestionForToday(t, minutes) {
+  const S = state.settings;
+  let start = Core.parseClock(S.workEnd) ?? 1080;
+  const ck = Core.dayClock(state, t);
+  if (ck.valid) start = ck.regularEnd;     // fim da jornada normal conforme o ponto informado
+  for (const e of state.entries) {
+    if (e.date !== t || e.mode !== 'time') continue;
+    const sp = Core.spanFromClock(e.start, e.end);
+    if (sp) start = Math.max(start, sp.s + sp.raw);
+  }
+  return { start: Core.fmtClock(start), end: Core.fmtClock(start + minutes), crosses: start + minutes >= 1440 };
+}
+function renderToday(d, t) {
+  const S = state.settings, card = $('#todayCard');
+  const avail = Core.isAvailable(state, t), inP = Core.inPeriod(state, t);
+  const head = `<div class="card-head" style="margin-bottom:0"><h3 class="card-title">${icon('sun')} Hoje</h3>${inP ? statusBadge(Core.dayStatus(state, t, t, d.real, d.goalReached)) : ''}</div><div class="today-date">${esc(fmtDateLong(t))}</div>`;
+  const nextDay = d.open.find(k => k > t && (d.todoMap[k] || 0) > 0);
+  const nextTxt = nextDay ? `Próximo dia planejado: <b>${wdShort(nextDay)}, ${fmtDateShort(nextDay)}</b> · ${fmtDur(d.todoMap[nextDay])}` : '';
+  let body = '';
+  if (d.goalReached) {
+    body = `<div class="today-big"><span class="v" style="color:var(--success)">${icon('trophy', 'i-lg')}</span></div><p class="muted" style="margin:0">Meta concluída. Não é necessário fazer horas extras.</p>${d.todayReal ? `<div class="today-rows"><div class="today-row"><span>Registrado hoje</span><b class="num">${fmtDur(d.todayReal)}</b></div></div>` : ''}`;
+  } else if (!inP) {
+    body = `<p class="muted" style="margin:16px 0 0">${t < S.startDate ? `O planejamento começa em ${fmtDate(S.startDate)}.` : `O prazo terminou em ${fmtDate(S.endDate)}.`}</p>`;
+  } else if (!avail && !d.todayReal) {
+    const ov = state.overrides[t];
+    body = `<div class="today-big"><span class="v" style="font-size:22px">${ov ? Core.OVERRIDE_TYPES[ov.type] : 'Fim de semana'}</span></div><p class="muted" style="margin:0">${ov && ov.label ? esc(ov.label) + ' · ' : ''}Sem horas extras planejadas hoje.</p><div class="suggest">${icon('calendar')}<div><div class="suggest-t">A seguir</div><div class="suggest-v">${nextDay ? `${wdShort(nextDay)}, ${fmtDateShort(nextDay)} · ${fmtDur(d.todoMap[nextDay])}` : '—'}</div></div></div>`;
+  } else {
+    const planT = d.todayPlan, realT = d.todayReal, todoT = d.todayTodo;
+    const pct = planT ? Math.min(100, realT / planT * 100) : (realT ? 100 : 0);
+    const sug = todoT > 0 ? suggestionForToday(t, todoT) : null;
+    body = `
+      <div class="today-big"><span class="v num">${fmtDur(todoT)}</span><span class="u">${todoT > 0 ? 'a fazer hoje' : 'pendente hoje'}</span></div>
+      <div class="today-meter meter ${realT >= planT && planT > 0 ? 'success' : ''}"><span style="width:${pct}%"></span></div>
+      <div class="today-rows">
+        <div class="today-row"><span>Previsto</span><b class="num">${fmtDur(planT)}</b></div>
+        <div class="today-row"><span>Realizado</span><b class="num">${fmtDur(realT)}</b></div>
+        <div class="today-row"><span>Limite diário</span><b class="num">${fmtDur(S.dailyLimitMin)}</b></div>
+        ${(() => { const k = Core.dayClock(state, t); return k.valid && k.out == null ? `<div class="today-row"><span>Saída prevista</span><b class="num">${Core.fmtClock(k.exitTarget)}${k.exitTarget >= 1440 ? ' (+1 dia)' : ''}</b></div>` : ''; })()}
+      </div>
+      ${sug ? `<div class="suggest">${icon('clock')}<div><div class="suggest-t">Sugestão de horário</div><div class="suggest-v num">${sug.start} → ${sug.end}${sug.crosses ? ' (+1 dia)' : ''}</div></div></div>` : (nextTxt ? `<div class="suggest">${icon('calendar')}<div><div class="suggest-t">Hoje concluído</div><div class="suggest-v" style="font-weight:500;font-size:13px">${nextTxt}</div></div></div>` : '')}`;
+  }
+  const canLog = inP && t >= S.startDate;
+  card.innerHTML = head + body + `<div class="spacer"></div>${canLog ? `<button class="btn ${d.goalReached ? '' : 'btn-primary'}" type="button" id="todayLogBtn">${icon('plus')} Registrar hoje</button>` : ''}`;
+  const btn = $('#todayLogBtn');
+  if (btn) btn.onclick = () => {
+    const sug = d.todayTodo > 0 ? suggestionForToday(t, d.todayTodo) : null;
+    openEntryModal({ date: t, preset: sug ? { start: sug.start, end: sug.end } : null });
+  };
+}
+
+/* ---------- Jornada de hoje: entrada, intervalo e saída informados manualmente ---------- */
+const CLOCK_FIELDS = [
+  ['in', 'Entrada'], ['lunchOut', 'Ida ao intervalo'], ['lunchIn', 'Volta do intervalo'], ['out', 'Saída']
+];
+const nowClock = () => { const n = new Date(); return `${Core.pad(n.getHours())}:${Core.pad(n.getMinutes())}`; };
+const nowMinutes = () => { if (SIM_TODAY) return null; const n = new Date(); return n.getHours() * 60 + n.getMinutes(); };
+
+function saveClockField(t, f, value) {
+  const c = { in: '', lunchOut: '', lunchIn: '', out: '', ...(state.clock[t] || {}) };
+  c[f] = value || '';
+  if (CLOCK_FIELDS.every(([k]) => !c[k])) delete state.clock[t]; else state.clock[t] = c;
+  saveState();
+  updateClockResults(Core.derive(state, today()), t);
+}
+function renderClock(d, t) {
+  const card = $('#clockCard');
+  if (!Core.inPeriod(state, t)) { card.classList.add('hidden'); card.innerHTML = ''; delete card.dataset.built; return; }
+  card.classList.remove('hidden');
+  if (card.dataset.built !== t) {
+    card.dataset.built = t;
+    card.innerHTML = `
+      <div class="card-head" style="margin-bottom:0"><h3 class="card-title">${icon('clock')} Jornada de hoje</h3><span class="card-sub">${esc(fmtDateLong(t))}</span></div>
+      <div class="clock-grid">
+        <div>
+          <div class="clock-inputs">${CLOCK_FIELDS.map(([f, label]) => `<div class="field"><label for="ck-${f}">${label}<button type="button" class="clock-now" data-now="${f}">agora</button></label><input id="ck-${f}" type="time" step="60" data-f="${f}"></div>`).join('')}</div>
+          <div class="clock-foot"><span>Intervalo a que você tem direito: <b class="num">${fmtDur(Core.BREAK_RIGHT)}</b> · jornada normal: <b class="num" id="ckRegular"></b></span><button type="button" class="btn btn-ghost btn-sm" id="ckClear">Limpar</button></div>
+        </div>
+        <div class="clock-result" id="clockOut" aria-live="polite"></div>
+      </div>`;
+    $$('input[data-f]', card).forEach(inp => inp.addEventListener('input', () => saveClockField(today(), inp.dataset.f, inp.value)));
+    $$('[data-now]', card).forEach(b => b.onclick = () => { const inp = $(`#ck-${b.dataset.now}`, card); inp.value = nowClock(); saveClockField(today(), b.dataset.now, inp.value); });
+    $('#ckClear', card).onclick = () => { delete state.clock[today()]; saveState(); renderClock(Core.derive(state, today()), today()); };
+  }
+  updateClockResults(d, t);
+}
+function updateClockResults(d, t) {
+  const card = $('#clockCard'); if (!card || card.dataset.built !== t) return;
+  const c = state.clock[t] || {};
+  for (const [f] of CLOCK_FIELDS) { const inp = $(`#ck-${f}`, card); if (inp && document.activeElement !== inp && inp.value !== (c[f] || '')) inp.value = c[f] || ''; }
+  $('#ckRegular', card).textContent = fmtDur(Core.regularDayMin(state.settings));
+  const k = Core.dayClock(state, t, nowMinutes());
+  const hhmm = m => `${Core.fmtClock(m)}${m >= 1440 ? ' <span class="badge t-info no-dot">+1 dia</span>' : ''}`;
+  const row = (a, b) => `<div class="today-row"><span>${a}</span><b class="num">${b}</b></div>`;
+  let html = '';
+  if (!k.filled) {
+    html = `<div class="lbl">Saída prevista</div><div class="clock-big"><span class="v num" style="color:var(--text-3)">--:--</span></div><div class="muted" style="font-size:13px">Informe sua entrada${d.todayPlan ? ` e veja a que horas sair para cumprir ${fmtDur(d.todayPlan)} de hora extra hoje` : ' para ver a que horas termina sua jornada'}.</div>`;
+  } else if (!k.valid) {
+    html = `<ul class="clock-msgs">${k.errors.map(m => `<li class="err">${icon('alertCircle', 'i-sm')}<span>${esc(m)}</span></li>`).join('')}</ul>`;
+  } else if (k.out != null) {
+    const reg = state.entries.find(e => e.fromClock && e.date === t);
+    const same = reg && reg.durationMin === k.overtime && reg.start === Core.fmtClock(k.regularEnd) && reg.end === Core.fmtClock(k.out);
+    const diff = k.overtime - k.plan;
+    html = `<div class="lbl">Hora extra de hoje</div><div class="clock-big"><span class="v num">${fmtDur(k.overtime)}</span>${k.crosses ? '<span class="badge t-info no-dot">+1 dia</span>' : ''}</div>
+      <div class="clock-lines">
+        ${row('Trabalhado', fmtDur(k.worked))}
+        ${row('Jornada normal', fmtDur(k.regular))}
+        ${row('Intervalo', fmtDur(k.breakMin) + (k.breakAssumed ? ' (assumido)' : ''))}
+        ${k.plan ? row('Previsto para hoje', `${fmtDur(k.plan)} <span class="${diff >= 0 ? 'pos' : 'neg'}">(${fmtDur(diff, { sign: true })})</span>`) : ''}
+      </div>
+      ${k.short ? `<ul class="clock-msgs"><li class="warn">${icon('alert', 'i-sm')}<span>Faltaram ${fmtDur(k.short)} para completar a jornada de ${fmtDur(k.regular)}.</span></li></ul>` : ''}
+      ${k.warnings.length ? `<ul class="clock-msgs">${k.warnings.map(m => `<li class="warn">${icon('info', 'i-sm')}<span>${esc(m)}</span></li>`).join('')}</ul>` : ''}
+      ${k.overtime > 0 ? (same ? `<div class="badge t-success no-dot" style="justify-self:start">${icon('check', 'i-sm')} Registrado no banco de horas</div>` : `<button type="button" class="btn btn-primary" id="ckRegister">${icon(reg ? 'check' : 'plus')} ${reg ? 'Atualizar registro' : 'Registrar'} ${fmtDur(k.overtime)} (${Core.fmtClock(k.regularEnd)} → ${Core.fmtClock(k.out)})</button>`) : ''}`;
+  } else {
+    const planTxt = k.plan ? `hora extra ${fmtDur(k.plan)}` : 'sem hora extra prevista hoje';
+    let cd = '';
+    if (k.untilTarget != null) cd = k.untilTarget > 0 ? `faltam <b>${fmtDur(k.untilTarget)}</b>` : k.untilTarget === 0 ? '<b>é agora</b>' : `<b>${fmtDur(-k.untilTarget)}</b> além do previsto`;
+    html = `<div class="lbl">Saída prevista</div><div class="clock-big"><span class="v num">${hhmm(k.exitTarget)}</span>${cd ? `<span class="muted" style="font-size:13px">${cd}</span>` : ''}</div>
+      <div class="clock-lines">
+        ${row('Jornada normal', fmtDur(k.regular))}
+        ${row('Intervalo', fmtDur(k.breakMin) + (k.breakAssumed ? ' (previsto)' : ''))}
+        ${k.plan ? row('Hora extra planejada', fmtDur(k.plan)) : ''}
+        ${k.plan ? row('Sem hora extra, saída às', hhmm(k.regularEnd)) : ''}
+        ${k.expectedBack != null ? row('Volta prevista às', hhmm(k.expectedBack)) : ''}
+      </div>
+      <div class="muted" style="font-size:12.5px">Entrada ${Core.fmtClock(k.tIn)} + ${fmtDur(k.regular)} + intervalo ${fmtDur(k.breakMin)}${k.plan ? ` + ${planTxt}` : ` (${planTxt})`}. Informe a saída real para registrar.</div>`;
+  }
+  $('#clockOut', card).innerHTML = html;
+  const b = $('#ckRegister', card); if (b) b.onclick = () => registerClockOvertime(t);
+}
+async function registerClockOvertime(t) {
+  const k = Core.dayClock(state, t);
+  if (!k.valid || k.out == null || !k.overtime) return;
+  const existing = state.entries.find(e => e.fromClock && e.date === t);
+  const draftE = { mode: 'time', date: t, start: Core.fmtClock(k.regularEnd), end: Core.fmtClock(k.out), breakMin: 0, ignoreWorkWindow: true };
+  const v = Core.validateEntry(state, draftE, { excludeId: existing ? existing.id : null, today: today() });
+  if (v.errors.length) { toast({ type: 'danger', title: 'Não foi possível registrar', msg: v.errors[0].msg, timeout: 8000 }); return; }
+  if (v.warnings.length) {
+    const ok = await confirmDialog({ title: 'Confirmar lançamento', message: 'Verifique os avisos abaixo antes de continuar:', items: v.warnings, confirmText: 'Registrar mesmo assim' });
+    if (!ok) return;
+  }
+  const now = new Date().toISOString(), c = state.clock[t] || {};
+  const rec = {
+    id: existing ? existing.id : uid(), fromClock: true, date: t, mode: 'time',
+    start: draftE.start, end: draftE.end, breakMin: 0, durationMin: v.durationMin, crossesMidnight: v.crosses,
+    note: `Jornada: entrada ${c.in || '—'} · saída ${c.out || '—'}`, createdAt: existing ? existing.createdAt : now, updatedAt: existing ? now : null
+  };
+  const snap = snapshot();
+  commit(st => { const i = st.entries.findIndex(x => x.id === rec.id); if (i >= 0) st.entries[i] = rec; else st.entries.push(rec); });
+  const dd = Core.derive(state, today());
+  toast({
+    type: 'success', title: `${existing ? 'Registro atualizado' : 'Registrado'}: ${fmtDur(rec.durationMin)} em ${fmtDateShort(t)}`,
+    msg: dd.goalReached ? `Saldo ${fmtDur(dd.bal)} · meta concluída` : `Saldo ${fmtDur(dd.bal)} · faltam ${fmtDur(dd.R)}`,
+    action: { label: 'Desfazer', fn: () => { restore(snap); toast({ type: 'info', title: 'Alteração desfeita' }); } }
+  });
+}
+
+function renderSummary(d, t) {
+  const S = state.settings;
+  const full = Core.computePlan(state, t, 'full');
+  const days = d.open;
+  const fcTxt = d.goalReached ? (d.forecast === 'before' ? 'Antes do início' : d.forecast ? fmtDate(d.forecast) : '—') : d.feasible && d.forecast ? `${wdShort(d.forecast)}, ${fmtDate(d.forecast)}` : 'Não atingível';
+  const paceFc = d.goalReached ? '—' : d.paceAvg > 0 ? (d.paceForecast ? `${wdShort(d.paceForecast)}, ${fmtDateShort(d.paceForecast)}` : `Não atinge (${fmtDur(d.paceFinal)})`) : 'Sem histórico';
+  const differs = days.some((k, i) => (full.plan[k] || 0) !== (state.plan[k] || 0));
+  const maxV = Math.max(S.dailyLimitMin, 1);
+  const bars = days.map((k, i) => {
+    const cur = d.todo[i];
+    const ideal = Math.max(0, (full.plan[k] || 0) - (d.real[k] || 0));
+    return `<div class="dist-col" title="${wdShort(k)} ${fmtDateShort(k)} — plano atual ${fmtDur(cur)} · ideal ${fmtDur(ideal)}">
+      <span class="dist-val num">${cur ? fmtDur(cur).replace('h00', 'h') : '–'}</span>
+      <div class="dist-bar-wrap" style="height:100%">
+        <div class="dist-bar ${cur ? '' : 'zero'}" style="height:${Math.max(2, cur / maxV * 100)}%"></div>
+        ${differs ? `<div class="dist-bar ghost" style="height:${Math.max(0, ideal / maxV * 100)}%"></div>` : ''}
+      </div>
+      <span class="dist-lbl num">${fmtDateShort(k).slice(0, 2)}</span></div>`;
+  }).join('');
+  $('#summaryCard').innerHTML = `
+    <div class="card-head"><h3 class="card-title">${icon('sparkles')} Resumo</h3><span class="card-sub">${days.length} dias restantes</span></div>
+    <div class="stat-list">
+      <div class="stat"><span class="stat-l">${icon('gauge', 'i-sm')} Média necessária por dia</span><span class="stat-v num">${d.R ? fmtDur(d.avgNeeded) : '0h00'}<small>${d.availableDays} dias disponíveis</small></span></div>
+      <div class="stat"><span class="stat-l">${icon('database', 'i-sm')} Capacidade restante</span><span class="stat-v num">${fmtDur(d.capacity)}<small>limite ${fmtDur(S.dailyLimitMin)}/dia</small></span></div>
+      <div class="stat"><span class="stat-l">${icon('flag', 'i-sm')} Previsão pelo plano</span><span class="stat-v ${d.feasible || d.goalReached ? '' : 'neg'}">${fcTxt}</span></div>
+      <div class="stat"><span class="stat-l">${icon('trend', 'i-sm')} No ritmo atual</span><span class="stat-v num">${paceFc}${d.paceAvg ? `<small>média ${fmtDur(d.paceAvg)}/dia</small>` : ''}</span></div>
+    </div>
+    ${days.length ? `<div class="dist">
+      <div class="dist-head"><span class="label" style="display:block">Distribuição dos próximos dias${differs ? '<span class="opt" style="display:block">tracejado = distribuição ideal equilibrada</span>' : ''}</span>
+      ${differs && !d.goalReached ? `<button class="btn btn-sm" type="button" id="applyIdeal">${icon('sparkles', 'i-sm')} Aplicar ideal</button>` : `<span class="badge t-success no-dot">${icon('check', 'i-sm')} Equilibrado</span>`}</div>
+      <div class="dist-bars">${bars}</div>
+    </div>` : ''}`;
+  const ap = $('#applyIdeal'); if (ap) ap.onclick = () => doRecalc();
+}
+
+/* ---------- Gráfico de evolução ---------- */
+function renderChart(d) {
+  const host = $('#chart'); if (!host || !host.offsetParent) return;
+  const S = state.settings, t = today();
+  $('#chartTitle').innerHTML = `${icon('trend')} Evolução do saldo`;
+  const W = Math.max(260, host.clientWidth), H = W < 520 ? 220 : 300;
+  const P = { l: 38, r: 12, t: 14, b: 26 };
+  const keys = [Core.addDays(S.startDate, -1), ...Core.rangeKeys(S.startDate, S.endDate)];
+  const n = keys.length;
+  const real = d.real;
+  const base0 = S.initialBalanceMin + Core.sum(Object.entries(real).filter(([k]) => k < S.startDate).map(([, v]) => v));
+  // séries
+  const actual = [], proj = [];
+  let cum = base0;
+  keys.forEach((k, i) => {
+    if (i > 0) cum += real[k] || 0;
+    if (i === 0 || k <= t) actual.push({ i, k, v: cum });
+  });
+  const lastA = actual[actual.length - 1];
+  if (t <= S.endDate) {
+    const startI = Math.max(0, keys.indexOf(Core.addDays(Core.maxKey(t, S.startDate), -1)));
+    let pc = startI === 0 ? base0 : actual.find(p => p.i === startI)?.v ?? base0;
+    proj.push({ i: startI, k: keys[startI], v: pc });
+    for (let i = startI + 1; i < n; i++) { const k = keys[i]; pc += (k >= t ? (real[k] || 0) + (d.todoMap[k] || 0) : (real[k] || 0)); proj.push({ i, k, v: pc }); }
+  }
+  const maxV = Math.max(d.goal * 1.1, ...actual.map(p => p.v), ...proj.map(p => p.v));
+  const x = i => P.l + (W - P.l - P.r) * (i / (n - 1));
+  const y = v => P.t + (H - P.t - P.b) * (1 - v / maxV);
+  const step = maxV > 40 * 60 ? 600 : maxV > 20 * 60 ? 300 : 240;
+  let grid = '';
+  for (let v = 0; v <= maxV; v += step) grid += `<line class="grid-line" x1="${P.l}" x2="${W - P.r}" y1="${y(v)}" y2="${y(v)}"/><text class="axis-t" x="${P.l - 8}" y="${y(v) + 3.5}" text-anchor="end">${Math.round(v / 60)}h</text>`;
+  const colW = (W - P.l - P.r) / (n - 1);
+  let bands = '';
+  keys.forEach((k, i) => {
+    if (i === 0) return;
+    if (Core.isWeekend(k)) bands += `<rect class="wk" x="${x(i) - colW / 2}" y="${P.t}" width="${colW}" height="${H - P.t - P.b}"/>`;
+    else if (state.overrides[k]) bands += `<rect class="hol" x="${x(i) - 2}" y="${H - P.b + 1}" width="4" height="4" rx="2"/>`;
+  });
+  const labelEvery = W < 420 ? 4 : W < 700 ? 2 : 1;
+  let xl = '';
+  keys.forEach((k, i) => { if (i > 0 && (i - 1) % labelEvery === 0) xl += `<text class="axis-t num" x="${x(i)}" y="${H - 8}" text-anchor="middle">${k.slice(8)}</text>`; });
+  const path = pts => pts.map((p, j) => `${j ? 'L' : 'M'}${x(p.i).toFixed(1)},${y(p.v).toFixed(1)}`).join('');
+  const area = actual.length > 1 ? `${path(actual)}L${x(lastA.i)},${y(0)}L${x(actual[0].i)},${y(0)}Z` : '';
+  const ti = keys.indexOf(t);
+  host.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolução do saldo de horas">
+    <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".28"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+    ${bands}${grid}${xl}
+    <line class="goal-line" x1="${P.l}" x2="${W - P.r}" y1="${y(d.goal)}" y2="${y(d.goal)}"/>
+    <text class="goal-t" x="${W - P.r}" y="${y(d.goal) - 6}" text-anchor="end">Meta ${fmtDur(d.goal)}</text>
+    ${ti > 0 ? `<line class="today-mark" x1="${x(ti)}" x2="${x(ti)}" y1="${P.t}" y2="${H - P.b}"/>` : ''}
+    ${area ? `<path d="${area}" fill="url(#ga)"/>` : ''}
+    ${proj.length > 1 ? `<path class="line-proj" d="${path(proj)}"/>` : ''}
+    ${actual.length > 1 ? `<path class="line-actual" d="${path(actual)}"/>` : ''}
+    <circle cx="${x(lastA.i)}" cy="${y(lastA.v)}" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>
+    <line class="guide" id="cg" x1="0" x2="0" y1="${P.t}" y2="${H - P.b}"/>
+    <circle class="dot-h" id="cd1" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>
+    <circle class="dot-h" id="cd2" r="4" fill="var(--surface)" stroke="var(--text-3)" stroke-width="2"/>
+    <rect id="hit" x="${P.l}" y="0" width="${W - P.l - P.r}" height="${H}" fill="transparent"/>
+  </svg><div class="chart-tip" id="ctip"></div>`;
+  const svg = $('svg', host), tip = $('#ctip', host);
+  const aMap = new Map(actual.map(p => [p.i, p])), pMap = new Map(proj.map(p => [p.i, p]));
+  const move = ev => {
+    const r = svg.getBoundingClientRect();
+    const px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
+    const i = Math.max(0, Math.min(n - 1, Math.round((px - P.l) / (W - P.l - P.r) * (n - 1))));
+    const k = keys[i], a = aMap.get(i), p = pMap.get(i);
+    host.classList.add('hovering');
+    $('#cg', svg).setAttribute('x1', x(i)); $('#cg', svg).setAttribute('x2', x(i));
+    const d1 = $('#cd1', svg), d2 = $('#cd2', svg);
+    if (a) { d1.setAttribute('cx', x(i)); d1.setAttribute('cy', y(a.v)); d1.style.display = ''; } else d1.style.display = 'none';
+    if (p && !(a && i === ti)) { d2.setAttribute('cx', x(i)); d2.setAttribute('cy', y(p.v)); d2.style.display = ''; } else d2.style.display = 'none';
+    const dayVal = i > 0 ? (real[k] || 0) : 0;
+    tip.innerHTML = `<div class="tt">${i === 0 ? `Saldo inicial (antes de ${fmtDateShort(S.startDate)})` : `${wdShort(k)}, ${fmtDateShort(k)}`}</div>
+      ${a ? `<div class="tr"><span>Saldo</span><b class="num">${fmtDur(a.v)}</b></div>` : ''}
+      ${i > 0 && a ? `<div class="tr"><span>No dia</span><b class="num">${fmtDur(dayVal, { sign: true })}</b></div>` : ''}
+      ${p && (!a || i === ti) ? `<div class="tr"><span>Projeção</span><b class="num">${fmtDur(p.v)}</b></div>` : ''}
+      ${i > 0 && (state.plan[k] || 0) ? `<div class="tr"><span>Previsto no dia</span><b class="num">${fmtDur(state.plan[k])}</b></div>` : ''}
+      ${state.overrides[k] ? `<div class="tr"><span>${Core.OVERRIDE_TYPES[state.overrides[k].type]}</span></div>` : ''}`;
+    const tw = tip.offsetWidth, left = Math.min(W - tw - 4, Math.max(4, x(i) + 12 + tw > W ? x(i) - tw - 12 : x(i) + 12));
+    tip.style.left = left + 'px'; tip.style.top = Math.max(0, Math.min(H - tip.offsetHeight - 30, (a ? y(a.v) : p ? y(p.v) : 0) - 30)) + 'px';
+  };
+  const hit = $('#hit', svg);
+  hit.addEventListener('mousemove', move); hit.addEventListener('touchstart', move, { passive: true }); hit.addEventListener('touchmove', move, { passive: true });
+  hit.addEventListener('mouseleave', () => host.classList.remove('hovering'));
+  hit.addEventListener('touchend', () => setTimeout(() => host.classList.remove('hovering'), 1200));
+}
+
+/* ---------- Planejamento (tabela) ---------- */
+function renderPlan(d, t) {
+  const S = state.settings;
+  $('#recalcBtn').innerHTML = `${icon('refresh')} Recalcular planejamento`;
+  $('#planDesc').textContent = `Distribuição das horas restantes em dias úteis de ${fmtDateShort(S.startDate)} a ${fmtDateShort(S.endDate)}, com no máximo ${fmtDur(S.dailyLimitMin)} por dia.`;
+  const pm = (l, v) => `<div class="card pm"><div class="pm-l">${l}</div><div class="pm-v num">${v}</div></div>`;
+  $('#planMetrics').innerHTML = [
+    pm('Horas restantes', fmtDur(d.R)),
+    pm('Dias disponíveis', d.availableDays),
+    pm('Média necessária/dia', d.R ? fmtDur(d.avgNeeded) : '0h00'),
+    pm('Previsão de conclusão', d.goalReached ? 'Concluída' : d.feasible && d.forecast ? fmtDateShort(d.forecast) : '—')
+  ].join('');
+  const head = `<div class="tr-h"><span>Data</span><span class="c-wd">Dia</span><span class="c-r">Previsto</span><span class="c-r">Realizado</span><span class="c-r">Diferença</span><span class="c-r c-cum">Acumulado</span><span class="c-r">Status</span></div>`;
+  const init = `<div class="tr-r tr-init is-off" style="cursor:default"><div class="c-date"><b>Saldo anterior</b><span>antes de ${fmtDateShort(S.startDate)}</span></div><span class="c-wd">—</span><span class="c-r c-plan">—</span><span class="c-r c-real num c-num">${fmtDur(S.initialBalanceMin)}</span><span class="c-r c-diff">—</span><span class="c-r c-cum num">${fmtDur(S.initialBalanceMin)}</span><div class="c-status"><span class="badge t-neutral no-dot">Inicial</span></div>
+    <div class="c-mobile c-nums-wrap"><span>Saldo <b class="num">${fmtDur(S.initialBalanceMin)}</b></span></div></div>`;
+  let totP = 0, totR = 0;
+  const rows = d.rows.map(r => {
+    const off = ['holiday', 'event', 'unavailable', 'weekend'].includes(r.status);
+    totP += r.plan; totR += r.real;
+    const diffTxt = off && !r.real ? '—' : (r.past || r.isToday || r.real) ? `<span class="${r.diff > 0 ? 'pos' : r.diff < 0 ? (r.past ? 'neg' : '') : ''}">${fmtDur(r.diff, { sign: true })}</span>` : '<span class="faint">—</span>';
+    const pct = r.plan ? Math.min(100, r.real / r.plan * 100) : (r.real ? 100 : 0);
+    const meterTone = r.status === 'done' ? 'success' : r.status === 'partial' ? 'warning' : r.status === 'missed' ? 'danger' : '';
+    const label = r.override ? (r.override.label || Core.OVERRIDE_TYPES[r.override.type]) : Core.wdLong(r.key);
+    return `<div class="tr-r ${r.isToday ? 'is-today' : ''} ${off ? 'is-off' : ''} ${r.past ? 'is-past' : ''}" data-day="${r.key}" tabindex="0" role="button" aria-label="Detalhes de ${fmtDate(r.key)}">
+      <div class="c-date"><b class="num">${fmtDate(r.key)}${r.isToday ? '<span class="today-pill">hoje</span>' : ''}</b><span>${esc(label)}</span></div>
+      <span class="c-wd" style="text-transform:capitalize">${wdShort(r.key)}</span>
+      <span class="c-r c-plan num c-num">${off && !r.plan ? '—' : fmtDur(r.plan)}</span>
+      <span class="c-r c-real num c-num">${r.real ? fmtDur(r.real) : '<span class="faint">0h00</span>'}</span>
+      <span class="c-r c-diff num">${diffTxt}</span>
+      <span class="c-r c-cum num faint">${fmtDur(r.cum)}</span>
+      <div class="c-status">${!off ? `<div class="meter ${meterTone}"><span style="width:${pct}%"></span></div>` : ''}${statusBadge(r.status)}</div>
+      <div class="c-mobile c-nums-wrap"><span>Previsto <b class="num">${off && !r.plan ? '—' : fmtDur(r.plan)}</b></span><span>Realizado <b class="num">${fmtDur(r.real)}</b></span><span>Dif. <b class="num">${off && !r.real ? '—' : fmtDur(r.diff, { sign: true })}</b></span></div>
+    </div>`;
+  }).join('');
+  const projected = S.initialBalanceMin + totR + Core.sum(d.todo);
+  const foot = `<div class="tr-foot"><span>Total</span><span class="c-wd"></span><span class="c-r num">${fmtDur(totP)}</span><span class="c-r num">${fmtDur(totR)}</span><span class="c-r num c-sp">${fmtDur(totR - totP, { sign: true })}</span><span class="c-r num c-cum">${fmtDur(projected)}</span><span class="c-r c-status" style="font-weight:500;color:var(--text-3);font-size:12.5px">saldo final previsto</span></div>`;
+  $('#planTable').innerHTML = `<div class="table">${head}${init}${rows}</div>${foot}`;
+  $$('[data-day]', $('#planTable')).forEach(el => {
+    el.onclick = () => openDayModal(el.dataset.day);
+    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDayModal(el.dataset.day); } };
+  });
+  $('#planLegend').innerHTML = ['done', 'partial', 'pending', 'missed', 'free', 'goal', 'holiday', 'event', 'unavailable'].map(statusBadge).join('');
+}
+
+/* ---------- Calendário ---------- */
+let calMonth = null; // "AAAA-MM"
+function calKind(status, plan) {
+  return { done: 'k-done', partial: 'k-partial', pending: 'k-planned', missed: 'k-missed', holiday: 'k-holiday', event: 'k-unavail', unavailable: 'k-unavail', free: 'k-free', goal: 'k-free', weekend: 'weekend' }[status];
+}
+function renderCalendar(d, t) {
+  const S = state.settings;
+  if (!calMonth) calMonth = (Core.inPeriod(state, t) ? t : S.startDate).slice(0, 7);
+  const [y, m] = calMonth.split('-').map(Number);
+  $('#calMonth').textContent = `${Core.MONTHS[m - 1]} ${y}`;
+  $('#calPrev').innerHTML = icon('chevL'); $('#calNext').innerHTML = icon('chevR');
+  const first = `${calMonth}-01`;
+  const daysIn = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const lead = Core.weekday(first);
+  let html = Core.WEEKDAYS_SHORT.map(w => `<div class="cal-wd">${w}</div>`).join('');
+  for (let i = 0; i < lead; i++) html += '<div class="cal-day empty"></div>';
+  const real = d.real;
+  for (let day = 1; day <= daysIn; day++) {
+    const k = `${calMonth}-${Core.pad(day)}`;
+    const inP = Core.inPeriod(state, k);
+    const r = real[k] || 0, p = state.plan[k] || 0;
+    const ov = state.overrides[k];
+    let cls = 'cal-day', dl = '', ds = '', bar = '';
+    if (!inP) {
+      cls += ' out' + (Core.isWeekend(k) ? ' weekend' : '');
+      if (ov) { cls += ov.type === 'holiday' ? ' k-holiday' : ' k-unavail'; dl = Core.OVERRIDE_TYPES[ov.type]; }
+      if (r) dl = fmtDur(r);
+    } else {
+      const st = Core.dayStatus(state, k, t, real, d.goalReached);
+      cls += ' ' + calKind(st);
+      if (st === 'done') { dl = `${fmtDur(r)} ✓`; ds = p && r !== p ? `prev. ${fmtDur(p)}` : 'realizado'; }
+      else if (st === 'partial') { dl = fmtDur(r); ds = `de ${fmtDur(p)} · parcial`; }
+      else if (st === 'pending') { dl = fmtDur(p); ds = 'planejado'; }
+      else if (st === 'missed') { dl = '0h00'; ds = `de ${fmtDur(p)} · não feito`; }
+      else if (st === 'holiday' || st === 'event' || st === 'unavailable') { dl = Core.OVERRIDE_TYPES[ov.type]; ds = ov.label && ov.label !== dl ? ov.label : ''; }
+      else if (st === 'free' || st === 'goal') { dl = 'Livre'; ds = st === 'goal' ? 'meta atingida' : 'sem necessidade'; }
+    }
+    if (k === t) cls += ' is-today';
+    if (state.dayNotes[k]) ds = ds ? ds + ' · nota' : 'nota';
+    html += `<button type="button" class="${cls}" data-cal="${k}" aria-label="${fmtDate(k)} ${esc(dl)}"><span class="dn num">${day}</span>${ds ? `<span class="ds">${esc(ds)}</span>` : ''}${dl ? `<span class="dl num">${esc(dl)}</span>` : ''}${bar}</button>`;
+  }
+  $('#calGrid').innerHTML = html;
+  $$('[data-cal]', $('#calGrid')).forEach(b => b.onclick = () => openDayModal(b.dataset.cal));
+  const minM = S.startDate.slice(0, 7), maxM = S.endDate.slice(0, 7);
+  $('#calPrev').disabled = calMonth <= minM && calMonth <= t.slice(0, 7);
+  $('#calNext').disabled = calMonth >= maxM && calMonth >= t.slice(0, 7);
+  $('#calLegendTitle').innerHTML = `${icon('palette')} Legenda`;
+  $('#calLegend').innerHTML = [
+    ['done', 'Horas extras realizadas'], ['partial', 'Parcialmente realizado'], ['planned', 'Planejado'], ['missed', 'Planejado e não realizado'],
+    ['holiday', 'Feriado'], ['unavail', 'Indisponível / evento'], ['free', 'Sem necessidade de horas'], ['weekend', 'Fim de semana']
+  ].map(([c, l]) => `<span class="lg"><i class="lg-sw ${c}"></i>${l}</span>`).join('');
+}
+function shiftMonth(delta) {
+  const [y, m] = calMonth.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1 + delta, 1));
+  calMonth = `${dt.getUTCFullYear()}-${Core.pad(dt.getUTCMonth() + 1)}`;
+  renderCalendar(Core.derive(state, today()), today());
+}
+
+/* ---------- Histórico ---------- */
+function entryTitle(e) {
+  return e.mode === 'time' ? `${e.start} – ${e.end}${e.crossesMidnight ? ' <span class="badge t-info no-dot">+1 dia</span>' : ''}` : 'Lançamento manual';
+}
+function entryRowHTML(e) {
+  return `<div class="hist-item">
+    <div class="hist-ic ${e.mode === 'manual' ? 'manual' : ''}">${icon(e.mode === 'manual' ? 'pen' : 'clock', 'i-sm')}</div>
+    <div class="hist-main"><div class="hist-t num">${entryTitle(e)}${e.breakMin ? `<span class="faint" style="font-weight:450;font-size:12px">− ${e.breakMin} min intervalo</span>` : ''}</div>${e.note ? `<div class="hist-n">${esc(e.note)}</div>` : ''}</div>
+    <div class="hist-d num">${fmtDur(e.durationMin)}</div>
+    <div class="hist-actions">
+      <button class="icon-btn ghost" type="button" data-edit="${e.id}" aria-label="Editar lançamento" title="Editar">${icon('edit', 'i-sm')}</button>
+      <button class="icon-btn ghost danger" type="button" data-del="${e.id}" aria-label="Excluir lançamento" title="Excluir">${icon('trash', 'i-sm')}</button>
+    </div></div>`;
+}
+function bindEntryActions(root, afterDelete) {
+  $$('[data-edit]', root).forEach(b => b.onclick = () => { const e = state.entries.find(x => x.id === b.dataset.edit); if (e) openEntryModal({ entry: e }); });
+  $$('[data-del]', root).forEach(b => b.onclick = () => deleteEntry(b.dataset.del, afterDelete));
+}
+function renderHistory(d, t) {
+  const S = state.settings;
+  $('#histTitle').innerHTML = `${icon('list')} Histórico <span class="card-sub" style="font-weight:450">${state.entries.length} ${state.entries.length === 1 ? 'lançamento' : 'lançamentos'}</span>`;
+  const host = $('#history');
+  if (!state.entries.length) {
+    host.innerHTML = `<div class="empty-state"><div class="ic">${icon('clock', 'i-lg')}</div><div class="t">Nenhum lançamento ainda</div><div>O saldo inicial de ${fmtDur(S.initialBalanceMin)} já está considerado. Registre suas horas extras a partir de ${fmtDate(S.startDate)}.</div></div>`;
+    return;
+  }
+  const byDate = {};
+  for (const e of state.entries) (byDate[e.date] = byDate[e.date] || []).push(e);
+  const dates = Object.keys(byDate).sort().reverse();
+  const sortKey = e => e.mode === 'time' ? Core.parseClock(e.start) : 9999;
+  host.innerHTML = `<div class="hist-summary"><span>Saldo inicial <b class="num">${fmtDur(S.initialBalanceMin)}</b></span><span>Registrado <b class="num">${fmtDur(d.sinceStart)}</b></span><span>Saldo atual <b class="num">${fmtDur(d.bal)}</b></span></div>` +
+    dates.map(k => {
+      const list = byDate[k].sort((a, b) => sortKey(a) - sortKey(b));
+      const tot = Core.sum(list.map(e => e.durationMin));
+      const over = tot > S.dailyLimitMin;
+      return `<div class="hist-group"><div class="hist-gh"><div class="gd num">${fmtDateShort(k)}<span>${Core.wdLong(k).replace(/^./, c => c.toUpperCase())}</span></div>
+        <div class="gt"><div class="meter ${over ? 'danger' : tot >= S.dailyLimitMin ? 'success' : ''}"><span style="width:${Math.min(100, tot / S.dailyLimitMin * 100)}%"></span></div><b class="num ${over ? 'neg' : ''}">${fmtDur(tot)}</b>${over ? `<span class="badge t-danger no-dot" title="Acima do limite diário">${icon('alert', 'i-sm')} limite</span>` : ''}</div></div>
+        ${list.map(entryRowHTML).join('')}</div>`;
+    }).join('');
+  bindEntryActions(host);
+}
+
+/* ---------- Ajustes ---------- */
+function fillSettingsForm() {
+  const S = state.settings;
+  $('#sGoal').value = fmtDur(S.goalMin);
+  $('#sInitial').value = fmtDur(S.initialBalanceMin);
+  $('#sStart').value = S.startDate; $('#sEnd').value = S.endDate;
+  $('#sLimit').value = fmtDur(S.dailyLimitMin);
+  $('#sWs').value = S.workStart; $('#sWe').value = S.workEnd;
+  $('#sInitialHint').textContent = `Acumulado antes de ${fmtDateShort(S.startDate)}`;
+  $('#settingsErrors').innerHTML = '';
+  $$('#settingsForm input').forEach(i => i.classList.remove('invalid'));
+  $$('[data-theme-opt]').forEach(b => { const on = b.dataset.themeOpt === state.theme; b.classList.toggle('active', on); b.setAttribute('aria-checked', on); });
+}
+function renderOverrides() {
+  const entries = Object.entries(state.overrides).sort(([a], [b]) => a < b ? -1 : 1);
+  $('#ovCount').textContent = `${entries.length} ${entries.length === 1 ? 'dia' : 'dias'}`;
+  $('#ovList').innerHTML = entries.length ? entries.map(([k, v]) => `<div class="ov-item">
+      <span class="badge ${v.type === 'holiday' ? 't-rose' : 't-warning'}">${Core.OVERRIDE_TYPES[v.type]}</span>
+      <div><div class="od num">${fmtDate(k)} · <span style="text-transform:capitalize;font-weight:500">${wdShort(k)}</span></div>${v.label ? `<div class="ol">${esc(v.label)}</div>` : ''}</div>
+      <button class="icon-btn ghost danger" type="button" data-ovdel="${k}" aria-label="Remover" title="Tornar disponível">${icon('trash', 'i-sm')}</button></div>`).join('')
+    : `<div class="info-box">${icon('info')}<span>Nenhum dia marcado. Sábados e domingos já são desconsiderados automaticamente.</span></div>`;
+  $$('[data-ovdel]').forEach(b => b.onclick = () => setOverride(b.dataset.ovdel, null));
+}
+function renderStorageNote() {
+  const up = state.meta.updatedAt ? new Date(state.meta.updatedAt) : null;
+  $('#storageNote').innerHTML = storageOk
+    ? `${icon('database', 'i-sm')} Dados salvos neste navegador${up ? ` · última alteração ${up.toLocaleDateString('pt-BR')} às ${up.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : ''}`
+    : `<span class="neg">${icon('alert', 'i-sm')} Armazenamento local indisponível — exporte um backup.</span>`;
+}
+
+/* =====================================================================
+   FORMULÁRIO DE LANÇAMENTO (reutilizável: aba, modal e calendário)
+   ===================================================================== */
+let inlineForm = null;
+function createEntryForm({ entry = null, date = null, preset = null, onDone = null, onCancel = null, inline = false } = {}) {
+  const S = () => state.settings;
+  const form = document.createElement('form');
+  form.className = 'entry-form form-stack';
+  form.noValidate = true;
+  const fid = 'f' + Math.random().toString(36).slice(2, 7);
+  form.innerHTML = `
+    <div class="seg" role="tablist" aria-label="Tipo de lançamento">
+      <button type="button" data-mode="time">${icon('clock', 'i-sm')} Por horário</button>
+      <button type="button" data-mode="manual">${icon('pen', 'i-sm')} Manual</button>
+    </div>
+    <div class="field"><label for="${fid}d">Data</label><input id="${fid}d" type="date" name="date" required></div>
+    <div class="mode-time form-stack">
+      <div class="row-2">
+        <div class="field"><label for="${fid}s">Início</label><input id="${fid}s" type="time" name="start" step="60"></div>
+        <div class="field"><label for="${fid}e">Término</label><input id="${fid}e" type="time" name="end" step="60"></div>
+      </div>
+      <div class="chips" aria-label="Atalhos de duração">
+        <button type="button" class="chip" data-add="30">+30min</button><button type="button" class="chip" data-add="60">+1h</button>
+        <button type="button" class="chip" data-add="90">+1h30</button><button type="button" class="chip" data-add="120">+2h</button>
+        <button type="button" class="chip" data-now>Término agora</button>
+      </div>
+      <div class="field"><label for="${fid}b">Intervalo descontado <span class="opt">opcional</span></label><div class="input-suffix"><input id="${fid}b" type="number" name="breakMin" min="0" step="1" inputmode="numeric" placeholder="0"><span>min</span></div></div>
+    </div>
+    <div class="mode-manual row-2 hidden">
+      <div class="field"><label for="${fid}h">Horas</label><input id="${fid}h" type="number" name="hours" min="0" max="12" step="1" inputmode="numeric" placeholder="0"></div>
+      <div class="field"><label for="${fid}m">Minutos</label><input id="${fid}m" type="number" name="minutes" min="0" max="59" step="1" inputmode="numeric" placeholder="0"></div>
+    </div>
+    <div class="field"><label for="${fid}n">Observação <span class="opt">opcional</span></label><textarea id="${fid}n" name="note" rows="2" maxlength="280" placeholder="Ex.: fechamento do relatório mensal"></textarea></div>
+    <div class="preview" aria-live="polite"></div>
+    <div class="form-actions">
+      ${onCancel ? '<button type="button" class="btn btn-ghost" data-cancel>Cancelar</button>' : ''}
+      <button type="submit" class="btn btn-primary">${icon(entry ? 'check' : 'plus')} ${entry ? 'Salvar alterações' : 'Adicionar registro'}</button>
+    </div>`;
+  const f = name => form.elements[name];
+  let mode = entry ? entry.mode : 'time';
+  let attempted = false;
+
+  function setMode(m) {
+    mode = m;
+    $$('[data-mode]', form).forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+    $('.mode-time', form).classList.toggle('hidden', m !== 'time');
+    $('.mode-manual', form).classList.toggle('hidden', m !== 'manual');
+    update();
+  }
+  function defaults() {
+    const t = today();
+    const dt = entry ? entry.date : (date || Core.minKey(Core.maxKey(t, S().startDate), S().endDate));
+    f('date').value = dt;
+    f('start').value = entry && entry.mode === 'time' ? entry.start : (preset && preset.start) || S().workEnd;
+    f('end').value = entry && entry.mode === 'time' ? entry.end : (preset && preset.end) || '';
+    f('breakMin').value = entry && entry.breakMin ? entry.breakMin : '';
+    f('hours').value = entry && entry.mode === 'manual' ? Math.floor(entry.durationMin / 60) : '';
+    f('minutes').value = entry && entry.mode === 'manual' ? entry.durationMin % 60 : '';
+    f('note').value = entry ? entry.note : '';
+    attempted = false;
+  }
+  function draft() {
+    return { mode, date: f('date').value, start: f('start').value, end: f('end').value, breakMin: f('breakMin').value === '' ? '' : Number(f('breakMin').value), hours: f('hours').value === '' ? '' : Number(f('hours').value), minutes: f('minutes').value === '' ? '' : Number(f('minutes').value), note: f('note').value };
+  }
+  function update() {
+    const d = draft();
+    const v = Core.validateEntry(state, d, { excludeId: entry ? entry.id : null, today: today() });
+    const shownErrors = v.errors.filter(e => attempted || !e.missing);
+    const dur = v.rawDuration;
+    const dayOther = Core.sum(state.entries.filter(o => o.date === d.date && (!entry || o.id !== entry.id)).map(o => o.durationMin));
+    const lim = S().dailyLimitMin;
+    const tot = dayOther + (dur || 0);
+    const tone = tot > lim ? 'danger' : tot === lim ? 'success' : '';
+    $('.preview', form).innerHTML = `
+      <div class="pv-main"><span class="pv-label">Duração calculada</span><span class="pv-value num ${dur ? '' : 'empty'}">${dur ? fmtDur(dur) : '—'}${v.crosses ? ' <span class="badge t-info no-dot" style="vertical-align:4px">+1 dia</span>' : ''}</span></div>
+      ${Core.isValidKey(d.date) ? `<div class="pv-day"><div class="pv-day-top"><span>Total do dia ${fmtDateShort(d.date)}${dayOther ? ` (já lançado ${fmtDur(dayOther)})` : ''}</span><span class="num ${tot > lim ? 'neg' : ''}">${fmtDur(tot)} / ${fmtDur(lim)}</span></div><div class="meter ${tone}"><span style="width:${Math.min(100, tot / lim * 100)}%"></span></div></div>` : ''}
+      ${(shownErrors.length || v.warnings.length || v.infos.length) ? `<ul class="pv-msgs">
+        ${shownErrors.map(e => `<li class="err">${icon('alertCircle', 'i-sm')}<span>${esc(e.msg)}</span></li>`).join('')}
+        ${!shownErrors.length ? v.warnings.map(w => `<li class="warn">${icon('alert', 'i-sm')}<span>${esc(w)}</span></li>`).join('') : ''}
+        ${v.infos.map(w => `<li class="info">${icon('info', 'i-sm')}<span>${esc(w)}</span></li>`).join('')}
+      </ul>` : ''}`;
+    const t = today();
+    f('date').min = S().startDate; f('date').max = Core.minKey(S().endDate, Core.maxKey(t, S().startDate));
+    return v;
+  }
+  async function submit(e) {
+    e.preventDefault();
+    attempted = true;
+    const v = update();
+    if (v.errors.length) { form.classList.remove('shake'); void form.offsetWidth; form.classList.add('shake'); return; }
+    if (v.warnings.length) {
+      const ok = await confirmDialog({ title: 'Confirmar lançamento', message: 'Verifique os avisos abaixo antes de continuar:', items: v.warnings, confirmText: 'Registrar mesmo assim' });
+      if (!ok) return;
+    }
+    const d = draft();
+    const span = mode === 'time' ? Core.spanFromClock(d.start, d.end) : null;
+    const now = new Date().toISOString();
+    const rec = {
+      id: entry ? entry.id : uid(), ...(entry && entry.fromClock ? { fromClock: true } : {}), date: d.date, mode,
+      start: mode === 'time' ? Core.fmtClock(span.s) : null, end: mode === 'time' ? Core.fmtClock(span.e) : null,
+      breakMin: mode === 'time' ? (Number(d.breakMin) || 0) : 0,
+      durationMin: v.durationMin, crossesMidnight: span ? span.crosses : false,
+      note: d.note.trim().slice(0, 280), createdAt: entry ? entry.createdAt : now, updatedAt: entry ? now : null
+    };
+    const snap = snapshot();
+    commit(st => {
+      if (entry) { const i = st.entries.findIndex(x => x.id === entry.id); if (i >= 0) st.entries[i] = rec; else st.entries.push(rec); }
+      else st.entries.push(rec);
+    });
+    const dd = Core.derive(state, today());
+    toast({
+      type: 'success', title: entry ? 'Lançamento atualizado' : `+${fmtDur(rec.durationMin)} em ${fmtDateShort(rec.date)}`,
+      msg: dd.goalReached ? `Saldo ${fmtDur(dd.bal)} · meta concluída` : `Saldo ${fmtDur(dd.bal)} · faltam ${fmtDur(dd.R)}`,
+      action: { label: 'Desfazer', fn: () => { restore(snap); toast({ type: 'info', title: 'Alteração desfeita' }); } }
+    });
+    if (inline && !entry) { const keepDate = f('date').value; defaults(); f('date').value = keepDate; f('end').value = ''; update(); }
+    if (onDone) onDone(rec);
+  }
+  $$('[data-mode]', form).forEach(b => b.onclick = () => setMode(b.dataset.mode));
+  $$('[data-add]', form).forEach(b => b.onclick = () => {
+    if (!f('start').value) f('start').value = S().workEnd;
+    const s = Core.parseClock(f('start').value);
+    if (s != null) f('end').value = Core.fmtClock(s + Number(b.dataset.add));
+    update();
+  });
+  $('[data-now]', form).onclick = () => { const n = new Date(); f('end').value = `${Core.pad(n.getHours())}:${Core.pad(n.getMinutes())}`; update(); };
+  form.addEventListener('input', update);
+  form.addEventListener('change', update);
+  form.addEventListener('submit', submit);
+  if (onCancel) $('[data-cancel]', form).onclick = onCancel;
+  defaults(); setMode(mode);
+  form.refresh = update;
+  return form;
+}
+function openEntryModal({ entry = null, date = null, preset = null } = {}) {
+  let m;
+  const form = createEntryForm({ entry, date, preset, onDone: () => m.close(), onCancel: () => m.close() });
+  m = openModal({ title: entry ? 'Editar lançamento' : 'Registrar horas extras', subtitle: entry ? `${fmtDateLong(entry.date)}` : 'O saldo e o planejamento são recalculados automaticamente.', content: form });
+}
+
+/* ---------- Ações ---------- */
+function deleteEntry(id, after) {
+  const e = state.entries.find(x => x.id === id); if (!e) return;
+  const snap = snapshot();
+  commit(st => { st.entries = st.entries.filter(x => x.id !== id); });
+  toast({ type: 'warning', iconName: 'trash', title: 'Lançamento excluído', msg: `${fmtDur(e.durationMin)} removidas de ${fmtDateShort(e.date)} · saldo ${fmtDur(Core.balance(state))}`, action: { label: 'Desfazer', fn: () => { restore(snap); toast({ type: 'info', title: 'Exclusão desfeita' }); } }, timeout: 7000 });
+  if (after) after();
+}
+function setOverride(k, value) {
+  const snap = snapshot();
+  const S = state.settings;
+  const becameAvailable = !value && state.overrides[k];
+  commit(st => { if (value) st.overrides[k] = value; else delete st.overrides[k]; }, { mode: becameAvailable ? 'full' : 'incremental', rebase: true });
+  toast({
+    type: 'info', iconName: value ? 'ban' : 'calcheck',
+    title: value ? `${fmtDateShort(k)} marcado como ${Core.OVERRIDE_TYPES[value.type].toLowerCase()}` : `${fmtDateShort(k)} disponível novamente`,
+    msg: Core.inPeriod(state, k) && !Core.isWeekend(k) ? 'Planejamento recalculado.' : `Data fora dos dias úteis de ${fmtDateShort(S.startDate)} a ${fmtDateShort(S.endDate)}.`,
+    action: { label: 'Desfazer', fn: () => restore(snap) }
+  });
+}
+function doRecalc() {
+  const snap = snapshot();
+  commit(() => {}, { mode: 'full', rebase: true });
+  const d = Core.derive(state, today());
+  toast({
+    type: d.feasible ? 'success' : 'danger', iconName: 'refresh', title: 'Planejamento recalculado',
+    msg: d.goalReached ? 'Meta já atingida — nenhum dia precisa de horas extras.' : d.feasible ? `${fmtDur(d.R)} distribuídas em ${d.todo.filter(x => x > 0).length} dias (máx. ${fmtDur(state.settings.dailyLimitMin)}/dia).` : `Faltam ${fmtDur(d.deficit)} além da capacidade.`,
+    action: { label: 'Desfazer', fn: () => restore(snap) }
+  });
+}
+
+/* ---------- Modal do dia (calendário / tabela) ---------- */
+function openDayModal(k) {
+  const m = openModal({ title: Core.fmtDateLong(k).replace(/^./, c => c.toUpperCase()), subtitle: '', content: document.createElement('div'), size: 'lg' });
+  const draw = () => {
+    const t = today(), S = state.settings, d = Core.derive(state, t);
+    const inP = Core.inPeriod(state, k), wk = Core.isWeekend(k), ov = state.overrides[k];
+    const r = d.real[k] || 0, p = state.plan[k] || 0;
+    const st = inP ? Core.dayStatus(state, k, t, d.real, d.goalReached) : null;
+    $('.modal-sub', m.el) ? null : $('.modal-head > div', m.el).insertAdjacentHTML('beforeend', '<div class="modal-sub"></div>');
+    $('.modal-sub', m.el).innerHTML = `<span class="num">${fmtDate(k)}</span>${st ? statusBadge(st) : '<span class="badge t-neutral">Fora do período</span>'}${k === t ? '<span class="today-pill">hoje</span>' : ''}`;
+    const list = state.entries.filter(e => e.date === k).sort((a, b) => (a.start || '99') < (b.start || '99') ? -1 : 1);
+    const canLog = inP && k <= t;
+    const body = document.createElement('div');
+    body.innerHTML = `
+      <div class="day-stats">
+        <div class="day-stat"><div class="l">Previsto</div><div class="v num">${fmtDur(p)}</div></div>
+        <div class="day-stat"><div class="l">Realizado</div><div class="v num">${fmtDur(r)}</div></div>
+        <div class="day-stat"><div class="l">Diferença</div><div class="v num ${r - p > 0 ? 'pos' : r - p < 0 && k < t ? 'neg' : ''}">${fmtDur(r - p, { sign: true })}</div></div>
+      </div>
+      ${ov ? `<div class="info-box">${icon('ban')}<span><b>${Core.OVERRIDE_TYPES[ov.type]}</b>${ov.label ? ` — ${esc(ov.label)}` : ''}. Este dia não recebe horas no planejamento.</span></div>` : ''}
+      ${!ov && wk ? `<div class="info-box">${icon('info')}<span>Fim de semana — não considerado no planejamento.</span></div>` : ''}
+      ${!inP ? `<div class="info-box">${icon('info')}<span>Fora do período de ${fmtDate(S.startDate)} a ${fmtDate(S.endDate)}.</span></div>` : ''}
+      ${inP && !ov && !wk && k > t ? `<div class="info-box">${icon('calendar')}<span>${p ? `Planejado: <b>${fmtDur(p)}</b>. ` : 'Nenhuma hora necessária neste dia. '}O registro fica liberado a partir do próprio dia.</span></div>` : ''}
+      <div class="section-l"><span>Lançamentos do dia</span><span class="num">${list.length ? fmtDur(r) : ''}</span></div>
+      <div class="day-entries">${list.length ? `<div class="hist-group">${list.map(entryRowHTML).join('')}</div>` : `<div class="faint" style="font-size:13px">Nenhum lançamento neste dia.</div>`}</div>
+      ${canLog ? `<div class="section-l"><span>Registrar horas</span></div><div class="day-form"></div>` : ''}
+      ${inP && !wk ? `<hr class="divider"><div class="section-l"><span>Disponibilidade</span></div>
+        ${ov ? `<button class="btn" type="button" data-avail>${icon('calcheck')} Tornar disponível para horas extras</button>`
+             : `<div class="row-2" style="align-items:end"><div class="field"><label>Motivo</label><select data-ovtype><option value="unavailable">Indisponível</option><option value="event">Evento</option><option value="holiday">Feriado</option></select></div><div class="field"><label>Descrição <span class="opt">opcional</span></label><input data-ovlabel maxlength="60" placeholder="Ex.: viagem"></div></div>
+                <div style="margin-top:10px"><button class="btn" type="button" data-unavail>${icon('ban')} Marcar como indisponível</button></div>`}` : ''}
+      <hr class="divider">
+      <div class="field"><label>${icon('note', 'i-sm')} Observação do dia <span class="opt">salva automaticamente</span></label><textarea data-note rows="2" maxlength="500" placeholder="Anotações sobre este dia...">${esc(state.dayNotes[k] || '')}</textarea></div>`;
+    m.body.innerHTML = ''; m.body.appendChild(body);
+    bindEntryActions(body, draw);
+    // Edição dentro do próprio modal do dia (substitui o formulário de novo registro)
+    $$('[data-edit]', body).forEach(b => b.onclick = () => {
+      const e = state.entries.find(x => x.id === b.dataset.edit); if (!e) return;
+      const fm = createEntryForm({ entry: e, onDone: draw, onCancel: draw });
+      let host = $('.day-form', body);
+      if (!host) { host = document.createElement('div'); host.className = 'day-form'; $('.day-entries', body).after(host); }
+      host.innerHTML = '<div class="section-l"><span>Editar lançamento</span></div>';
+      host.appendChild(fm);
+      const prevLabel = host.previousElementSibling; if (prevLabel && prevLabel.classList.contains('section-l') && prevLabel.textContent.includes('Registrar')) prevLabel.remove();
+      fm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    if (canLog) {
+      const sug = k === t && d.todayTodo > 0 ? suggestionForToday(t, d.todayTodo) : null;
+      $('.day-form', body).appendChild(createEntryForm({ date: k, preset: sug, onDone: draw }));
+    }
+    const av = $('[data-avail]', body); if (av) av.onclick = () => { setOverride(k, null); draw(); };
+    const un = $('[data-unavail]', body);
+    if (un) un.onclick = async () => {
+      if (r > 0) { const ok = await confirmDialog({ title: 'Dia com lançamentos', message: `Este dia já possui ${fmtDur(r)} registradas. Elas continuarão contando no saldo. Marcar como indisponível mesmo assim?`, confirmText: 'Marcar' }); if (!ok) return; }
+      const type = $('[data-ovtype]', body).value, label = $('[data-ovlabel]', body).value.trim();
+      setOverride(k, { type, label: label || Core.OVERRIDE_TYPES[type] }); draw();
+    };
+    const note = $('[data-note]', body);
+    let nt = null;
+    note.oninput = () => { clearTimeout(nt); nt = setTimeout(() => { const v = note.value.trim(); if (v) state.dayNotes[k] = v.slice(0, 500); else delete state.dayNotes[k]; saveState(); renderCalendar(Core.derive(state, today()), today()); }, 400); };
+  };
+  draw();
+}
+
+/* ---------- Ajustes: salvar ---------- */
+function onSettingsSubmit(ev) {
+  ev.preventDefault();
+  const errs = [], mark = [];
+  const goal = Core.parseDur($('#sGoal').value), init = Core.parseDur($('#sInitial').value), lim = Core.parseDur($('#sLimit').value);
+  const st = $('#sStart').value, en = $('#sEnd').value, ws = $('#sWs').value, we = $('#sWe').value;
+  if (goal == null || goal <= 0 || goal > 999 * 60) { errs.push('Meta inválida. Use o formato 16h00.'); mark.push('#sGoal'); }
+  if (init == null || init > 999 * 60) { errs.push('Saldo inicial inválido. Use o formato 2h21.'); mark.push('#sInitial'); }
+  if (lim == null || lim < 5 || lim > 1440) { errs.push('Limite diário inválido (entre 0h05 e 24h00).'); mark.push('#sLimit'); }
+  if (!Core.isValidKey(st)) { errs.push('Data de início inválida.'); mark.push('#sStart'); }
+  if (!Core.isValidKey(en)) { errs.push('Prazo final inválido.'); mark.push('#sEnd'); }
+  if (Core.isValidKey(st) && Core.isValidKey(en) && st > en) { errs.push('O início deve ser anterior ou igual ao prazo final.'); mark.push('#sStart', '#sEnd'); }
+  if (Core.isValidKey(st) && Core.isValidKey(en) && Core.rangeKeys(st, en).length > 400) { errs.push('Período muito longo (máximo de 400 dias).'); mark.push('#sEnd'); }
+  if (Core.parseClock(ws) == null || Core.parseClock(we) == null || Core.parseClock(we) <= Core.parseClock(ws)) { errs.push('Jornada inválida: o fim deve ser após o início.'); mark.push('#sWs', '#sWe'); }
+  $$('#settingsForm input').forEach(i => i.classList.toggle('invalid', mark.includes('#' + i.id)));
+  $('#settingsErrors').innerHTML = errs.map(e => `<li class="err">${icon('alertCircle', 'i-sm')}<span>${esc(e)}</span></li>`).join('');
+  if (errs.length) { $('#settingsForm').classList.remove('shake'); void $('#settingsForm').offsetWidth; $('#settingsForm').classList.add('shake'); return; }
+  const outside = state.entries.filter(e => e.date < st || e.date > en).length;
+  const apply = () => {
+    const snap = snapshot();
+    commit(s => { s.settings = { ...s.settings, goalMin: goal, initialBalanceMin: init, dailyLimitMin: lim, startDate: st, endDate: en, workStart: ws, workEnd: we }; }, { rebase: true });
+    calMonth = null; renderCalendar(Core.derive(state, today()), today());
+    fillSettingsForm();
+    const d = Core.derive(state, today());
+    toast({ type: 'success', title: 'Configurações salvas', msg: d.goalReached ? 'Meta atingida com o saldo atual.' : `Planejamento atualizado: faltam ${fmtDur(d.R)}.`, action: { label: 'Desfazer', fn: () => { restore(snap); fillSettingsForm(); } } });
+  };
+  if (outside) confirmDialog({ title: 'Lançamentos fora do período', message: `${outside} lançamento(s) ficarão fora do novo período. Eles continuam somando no saldo. Continuar?`, confirmText: 'Salvar' }).then(ok => ok && apply());
+  else apply();
+}
+
+/* ---------- Backup ---------- */
+function exportBackup() {
+  const payload = { app: 'banco-de-horas', version: 1, exportedAt: new Date().toISOString(), data: state };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `banco-de-horas-backup-${Core.localTodayKey()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast({ type: 'success', iconName: 'download', title: 'Backup exportado', msg: `${state.entries.length} lançamentos · saldo ${fmtDur(Core.balance(state))}` });
+}
+function importBackup(file) {
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { toast({ type: 'danger', title: 'Arquivo muito grande', msg: 'O backup deve ter no máximo 5 MB.' }); return; }
+  const reader = new FileReader();
+  reader.onload = async () => {
+    let parsed;
+    try { parsed = JSON.parse(reader.result); } catch (e) { toast({ type: 'danger', title: 'Arquivo inválido', msg: 'Não foi possível ler o JSON.' }); return; }
+    const res = Core.sanitizeState(parsed);
+    if (!res.ok) { toast({ type: 'danger', title: 'Backup não reconhecido', msg: res.error }); return; }
+    const ns = res.state, bal = Core.balance(ns);
+    const ok = await confirmDialog({
+      title: 'Importar backup?',
+      message: `Os dados atuais serão substituídos por:<br><br><b>${ns.entries.length}</b> lançamentos · saldo <b>${fmtDur(bal)}</b> · meta <b>${fmtDur(ns.settings.goalMin)}</b> até <b>${fmtDate(ns.settings.endDate)}</b>${res.dropped ? `<br><span class="neg">${res.dropped} registro(s) inválido(s) serão ignorados.</span>` : ''}`,
+      confirmText: 'Importar e substituir', danger: true
+    });
+    if (!ok) return;
+    const snap = snapshot();
+    state = ns;
+    applyTheme(state.theme);
+    replan('incremental'); saveState(); calMonth = null; renderAll(); fillSettingsForm();
+    toast({ type: 'success', iconName: 'upload', title: 'Backup importado', msg: `Saldo ${fmtDur(bal)} · plano recalculado.`, action: { label: 'Desfazer', fn: () => { restore(snap); applyTheme(state.theme); fillSettingsForm(); } } });
+  };
+  reader.onerror = () => toast({ type: 'danger', title: 'Falha ao ler o arquivo' });
+  reader.readAsText(file);
+}
+async function resetAll() {
+  const ok = await confirmDialog({
+    title: 'Restaurar configurações iniciais?',
+    message: `Isso apagará <b>todos os ${state.entries.length} lançamentos</b>, observações e dias marcados, e voltará à meta de 16h00, saldo inicial de 2h21 e ao planejamento original.<br><br>Recomendamos exportar um backup antes.`,
+    confirmText: 'Apagar e restaurar', danger: true,
+    extra: { label: 'Exportar backup antes', fn: exportBackup }
+  });
+  if (!ok) return;
+  const theme = state.theme;
+  state = Core.defaultState(); state.theme = theme;
+  replan('incremental');
+  saveState(); calMonth = null; lastValues.clear(); renderAll(); fillSettingsForm();
+  toast({ type: 'info', iconName: 'reset', title: 'Dados restaurados', msg: 'Configurações e planejamento iniciais aplicados.' });
+}
+
+/* ---------- Tema ---------- */
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+  const mc = document.querySelector('meta[name="color-scheme"]'); if (mc) mc.content = t === 'light' ? 'light' : 'dark';
+}
+function setTheme(t) {
+  state.theme = t; applyTheme(t); saveState();
+  $('#themeBtn').innerHTML = icon(t === 'dark' ? 'sun' : 'moon');
+  $$('[data-theme-opt]').forEach(b => { const on = b.dataset.themeOpt === t; b.classList.toggle('active', on); b.setAttribute('aria-checked', on); });
+  if (currentView === 'overview') renderChart(Core.derive(state, today()));
+}
+
+/* =====================================================================
+   INICIALIZAÇÃO
+   ===================================================================== */
+function init() {
+  state = loadState();
+  applyTheme(state.theme);
+  replan('incremental');       // ajusta o plano à data atual (dias que passaram)
+  saveState();
+
+  // Ícones e rótulos estáticos
+  $('#brandMark').innerHTML = icon('clock');
+  $('#newEntryBtn').innerHTML = `${icon('plus')}<span>Registrar</span><kbd>N</kbd>`;
+  $('#formTitle').innerHTML = `${icon('plus')} Novo lançamento`;
+  $('#setTitle1').innerHTML = `${icon('target')} Meta, saldo e período`;
+  $('#setTitle2').innerHTML = `${icon('ban')} Feriados e dias indisponíveis`;
+  $('#setTitle3').innerHTML = `${icon('database')} Backup e dados`;
+  $('#setTitleTheme').innerHTML = `${icon('palette')} Aparência`;
+  $('[data-theme-opt="dark"]').innerHTML = `${icon('moon', 'i-sm')} Escuro`;
+  $('[data-theme-opt="light"]').innerHTML = `${icon('sun', 'i-sm')} Claro`;
+  $('#exportBtn').innerHTML = `${icon('download', 'i-sm')} Exportar`;
+  $('#importBtn').innerHTML = `${icon('upload', 'i-sm')} Importar`;
+  $('#resetBtn').innerHTML = `${icon('reset', 'i-sm')} Restaurar`;
+  $('#ovAdd').innerHTML = `${icon('plus', 'i-sm')} Adicionar dia`;
+
+  buildNav();
+  inlineForm = createEntryForm({ inline: true });
+  $('#inlineFormHost').appendChild(inlineForm);
+
+  // Eventos
+  $('#newEntryBtn').onclick = () => openEntryModal();
+  $('#themeBtn').onclick = () => setTheme(state.theme === 'dark' ? 'light' : 'dark');
+  $$('[data-theme-opt]').forEach(b => b.onclick = () => setTheme(b.dataset.themeOpt));
+  $('#recalcBtn').onclick = doRecalc;
+  $('#calPrev').onclick = () => shiftMonth(-1);
+  $('#calNext').onclick = () => shiftMonth(1);
+  $('#settingsForm').addEventListener('submit', onSettingsSubmit);
+  $('#settingsRevert').onclick = fillSettingsForm;
+  $('#exportBtn').onclick = exportBackup;
+  $('#importBtn').onclick = () => $('#importFile').click();
+  $('#importFile').onchange = e => { importBackup(e.target.files[0]); e.target.value = ''; };
+  $('#resetBtn').onclick = resetAll;
+  $('#ovForm').addEventListener('submit', ev => {
+    ev.preventDefault();
+    const k = $('#ovDate').value, type = $('#ovType').value, label = $('#ovLabel').value.trim();
+    const errs = [];
+    if (!Core.isValidKey(k)) errs.push('Informe uma data válida.');
+    else if (Core.isWeekend(k)) errs.push('Fins de semana já são desconsiderados automaticamente.');
+    else if (state.overrides[k]) errs.push('Esta data já está marcada.');
+    $('#ovErrors').innerHTML = errs.map(e => `<li class="err">${icon('alertCircle', 'i-sm')}<span>${esc(e)}</span></li>`).join('');
+    if (errs.length) return;
+    setOverride(k, { type, label: label || Core.OVERRIDE_TYPES[type] });
+    $('#ovDate').value = ''; $('#ovLabel').value = '';
+  });
+
+  // Atalhos de teclado
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && modalStack.length) { modalStack[modalStack.length - 1].close(); return; }
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (['input', 'textarea', 'select'].includes(tag) || e.metaKey || e.ctrlKey || e.altKey || modalStack.length) return;
+    if (e.key === 'n' || e.key === 'N') { e.preventDefault(); openEntryModal(); }
+    const n = Number(e.key); if (n >= 1 && n <= VIEWS.length) setView(VIEWS[n - 1].id);
+  });
+
+  // Redesenha o gráfico ao redimensionar
+  let rz = null;
+  window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (currentView === 'overview') renderChart(Core.derive(state, today())); }, 120); });
+
+  // Virada do dia com a página aberta → replanejar
+  let lastDay = today();
+  setInterval(() => { if (today() !== lastDay) { lastDay = today(); replan('incremental'); saveState(); renderAll(); } else updateClockResults(Core.derive(state, today()), today()); }, 60000);
+
+  // Sincroniza entre abas abertas
+  window.addEventListener('storage', e => {
+    if (e.key !== STORAGE_KEY || !e.newValue) return;
+    try { const res = Core.sanitizeState(JSON.parse(e.newValue)); if (res.ok) { state = res.state; applyTheme(state.theme); renderAll(); } } catch (err) {}
+  });
+
+  let v = 'overview';
+  try { v = sessionStorage.getItem('bancoHoras.view') || 'overview'; } catch (e) {}
+  renderAll();
+  setView(v, { scroll: false });
+  if (!storageOk) toast({ type: 'danger', title: 'Armazenamento indisponível', msg: 'Os dados não serão mantidos após fechar o navegador. Use o backup JSON.', timeout: 0 });
+}
+
+// Exposto apenas para depuração no console
+window.BancoHoras = { Core, get state() { return state; } };
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
