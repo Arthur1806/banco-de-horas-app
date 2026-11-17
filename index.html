@@ -302,6 +302,7 @@ a { color: var(--accent); }
   .goal-pct small { display: block; margin: 2px 0 0; font-size: 13px; }
   .goal-side { display: none; }
 }
+@media (max-width: 380px) { .field input[type="time"], .field input[type="date"] { padding: 0 8px; } }
 @media (max-width: 380px) { .goal-ring { width: 68px; height: 68px; } .goal-pct { font-size: 30px; } }
 
 /* CARD HOJE */
@@ -402,8 +403,13 @@ a { color: var(--accent); }
 .field input::-webkit-calendar-picker-indicator { opacity: .55; cursor: pointer; }
 html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter: invert(1); }
 .field .hint { font-size: 12px; color: var(--text-3); }
-.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.row-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.row-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+/* Safari (iOS): campos de data/hora têm largura mínima própria e estouravam a coluna */
+.field input, .field select, .field textarea { min-width: 0; max-width: 100%; }
+.field input[type="date"], .field input[type="time"] { -webkit-appearance: none; appearance: none; display: block; text-align: left; }
+.field input::-webkit-date-and-time-value { text-align: left; margin: 0; }
+.field input::-webkit-datetime-edit { padding: 0; }
 .input-suffix { position: relative; }
 .input-suffix input { padding-right: 44px; }
 .input-suffix span { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-3); font-size: 12.5px; pointer-events: none; }
@@ -805,7 +811,11 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
   .cal-day .dl { font-size: 10px; }
   .cal-day.is-today .dn::after { display: none; }
   .cal-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .row-3 { grid-template-columns: 1fr 1fr; }
+  .row-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* 16px evita o zoom automático do iPhone ao tocar num campo (que fazia a tela "andar" para o lado) */
+  .input, .field input, .field select, .field textarea { font-size: 16px; }
+  html, body { overflow-x: hidden; }
+  .app { overflow-x: clip; }
   .day-stats .v { font-size: 16px; }
   .hist-gh .meter { display: none; }
   .modal-wrap { align-items: flex-end; padding: 0; }
