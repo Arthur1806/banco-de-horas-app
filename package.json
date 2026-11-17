@@ -1,0 +1,8 @@
+{
+  "name": "banco-de-horas-app",
+  "private": true,
+  "description": "Gerenciador de banco de horas em um único arquivo HTML.",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  }
+}
