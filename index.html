@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark light">
-<title>Banco de Horas — Meta Novembro 2026</title>
+<title>Banco de Horas</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236866f2'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='white' stroke-width='2.5'/%3E%3Cpath d='M16 11v5l3 2' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
 <script>
 /* Aplica o tema salvo antes da primeira pintura (evita "flash" de tema). */
@@ -305,7 +305,8 @@ a { color: var(--accent); }
 .clock-msgs li { display: flex; gap: 8px; align-items: flex-start; color: var(--text-2); }
 .clock-msgs li.err { color: var(--danger); }
 .clock-msgs li.warn .i { color: var(--warning); }
-.clock-result .btn { justify-content: center; }
+.clock-result { grid-template-columns: minmax(0, 1fr); }
+.clock-result .btn { justify-content: center; white-space: normal; height: auto; min-height: 34px; padding-block: 7px; text-align: center; }
 @media (max-width: 720px) { .clock-grid { grid-template-columns: 1fr; gap: 16px; } .clock-big .v { font-size: 34px; } }
 
 /* =====================================================================
@@ -627,6 +628,19 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
 .backup-row > div { min-width: 0; }
 .storage-note { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--text-3); margin-top: 14px; }
 
+/* Períodos */
+.check { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text-2); cursor: pointer; }
+.check input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--accent); flex: none; cursor: pointer; }
+.check b { color: var(--text); font-weight: 560; }
+.check-sub { display: block; font-size: 12px; color: var(--text-3); margin-top: 2px; }
+.period-list { display: grid; gap: 8px; }
+.period-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--r); border: 1px solid var(--border); background: var(--surface-2); }
+.period-row > div { min-width: 0; }
+.period-row .pt { font-weight: 600; font-size: 13px; }
+.period-row .pd { font-size: 12px; color: var(--text-3); }
+.period-row .btn { margin-left: auto; }
+.carry-chips { margin-top: 2px; }
+
 /* =====================================================================
    MODAL
    ===================================================================== */
@@ -910,7 +924,7 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
       <div class="view-head">
         <div>
           <h2 class="view-title">Ajustes</h2>
-          <p class="view-desc">Meta, saldo, período, dias indisponíveis, aparência e backup.</p>
+          <p class="view-desc">Meta, saldo, período, fechamento do mês, dias indisponíveis, aparência e backup.</p>
         </div>
       </div>
       <div class="grid-settings">
@@ -938,6 +952,7 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
               </div>
             </div>
           </form>
+          <div class="card" id="periodCard"></div>
           <div class="card">
             <div class="card-head"><h3 class="card-title" id="setTitleTheme"></h3></div>
             <div class="seg" id="themeSeg" role="radiogroup" aria-label="Tema">
@@ -1093,6 +1108,7 @@ const Core = (() => {
       baseline: { ...SEED_PLAN },      // referência para "adiantado/atrasado"
       dayNotes: {},
       clock: {},                       // ponto do dia: { 'AAAA-MM-DD': { in, lunchOut, lunchIn, out } }
+      periods: [],                     // períodos já encerrados (somente consulta)
       meta: { createdAt: new Date().toISOString(), updatedAt: null, lastPlanAt: null, goalCelebrated: false }
     };
   }
@@ -1281,7 +1297,7 @@ const Core = (() => {
     return {
       bal, goal, R, goalReached, open, caps, todo, todoMap, capacity, availableDays, deficit, feasible,
       beforeStart, deadlinePassed, avgNeeded, delta, pace, forecast, paceAvg, paceForecast, paceFinal,
-      rows, real, sinceStart, todayReal, todayPlan: state.plan[today] || 0, todayTodo: todoMap[today] || 0,
+      rows, real, sinceStart, registered: totalEntries(state), todayReal, todayPlan: state.plan[today] || 0, todayTodo: todoMap[today] || 0,
       pct: goal > 0 ? bal / goal : 1,
       limitReachedToday: inPeriod(state, today) && todayReal >= S.dailyLimitMin
     };
@@ -1411,7 +1427,103 @@ const Core = (() => {
     return r;
   }
 
+  /* ---------- Feriados nacionais ---------- */
+  /** Domingo de Páscoa (algoritmo de Meeus/Jones/Butcher). */
+  function easterKey(y) {
+    const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4;
+    const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const month = Math.floor((h + l - 7 * m + 114) / 31), day = ((h + l - 7 * m + 114) % 31) + 1;
+    return `${y}-${pad(month)}-${pad(day)}`;
+  }
+  const FIXED_HOLIDAYS = [
+    ['01-01', 'Confraternização Universal'], ['04-21', 'Tiradentes'], ['05-01', 'Dia do Trabalho'],
+    ['09-07', 'Independência do Brasil'], ['10-12', 'Nossa Senhora Aparecida'], ['11-02', 'Finados'],
+    ['11-15', 'Proclamação da República'], ['11-20', 'Consciência Negra'], ['12-25', 'Natal']
+  ];
+  /** Feriados nacionais de um ano. optional=true inclui pontos facultativos (Carnaval e Corpus Christi). */
+  function nationalHolidays(y, { optional = false } = {}) {
+    const e = easterKey(y);
+    const out = FIXED_HOLIDAYS.map(([md, label]) => ({ key: `${y}-${md}`, label }));
+    out.push({ key: addDays(e, -2), label: 'Sexta-feira Santa' });
+    if (optional) {
+      out.push({ key: addDays(e, -48), label: 'Carnaval (ponto facultativo)' }, { key: addDays(e, -47), label: 'Carnaval (ponto facultativo)' });
+      out.push({ key: addDays(e, 60), label: 'Corpus Christi (ponto facultativo)' });
+    }
+    return out.sort((a, b) => a.key < b.key ? -1 : 1);
+  }
+  /** Feriados nacionais em dias úteis dentro de [a, b]. */
+  function holidaysInRange(a, b, opts = {}) {
+    if (!isValidKey(a) || !isValidKey(b) || a > b) return [];
+    const out = [];
+    for (let y = +a.slice(0, 4); y <= +b.slice(0, 4); y++) for (const h of nationalHolidays(y, opts)) if (h.key >= a && h.key <= b && !isWeekend(h.key)) out.push(h);
+    return out;
+  }
+
+  /* ---------- Períodos ---------- */
+  /** Sugestão de próximo período: do dia seguinte ao prazo (ou do 1º dia do mês atual, se já passou) até o fim do mês. */
+  function suggestNextPeriod(state, today) {
+    const firstOfMonth = `${today.slice(0, 7)}-01`;
+    const startDate = maxKey(addDays(state.settings.endDate, 1), firstOfMonth);
+    const [y, m] = startDate.split('-').map(Number);
+    return { startDate, endDate: keyFromUTC(Date.UTC(y, m, 0)) };
+  }
+  /** next = { startDate, endDate, goalMin, initialBalanceMin, dailyLimitMin } → lista de erros. */
+  function validateNextPeriod(state, next) {
+    const errors = [];
+    const okS = isValidKey(next.startDate), okE = isValidKey(next.endDate);
+    if (!okS) errors.push('Data de início inválida.');
+    if (!okE) errors.push('Prazo final inválido.');
+    if (okS && okE && next.startDate > next.endDate) errors.push('O início deve ser anterior ou igual ao prazo final.');
+    if (okS && okE && rangeKeys(next.startDate, next.endDate).length > 400) errors.push('Período muito longo (máximo de 400 dias).');
+    if (!isInt(next.goalMin) || next.goalMin <= 0 || next.goalMin > 999 * 60) errors.push('Meta inválida. Use o formato 16h00.');
+    if (!isInt(next.initialBalanceMin) || next.initialBalanceMin < 0 || next.initialBalanceMin > 999 * 60) errors.push('Saldo inicial inválido. Use o formato 2h21.');
+    if (!isInt(next.dailyLimitMin) || next.dailyLimitMin < 5 || next.dailyLimitMin > 1440) errors.push('Limite diário inválido (entre 0h05 e 24h00).');
+    const last = state.entries.reduce((mx, e) => e.date > mx ? e.date : mx, '');
+    if (okS && last && next.startDate <= last) errors.push(`O novo período deve começar depois do último lançamento (${fmtDate(last)}).`);
+    return errors;
+  }
+  /**
+   * Encerra o período atual e inicia o próximo (função pura: devolve um novo estado).
+   * Os lançamentos atuais vão para `periods` (consulta) e saem do saldo; o saldo
+   * do novo período é apenas `next.initialBalanceMin` — nada é contado duas vezes.
+   */
+  function closePeriod(state, next, today) {
+    const st = JSON.parse(JSON.stringify(state));
+    const S = st.settings, d = derive(state, today);
+    const from = ([k]) => k >= next.startDate;
+    st.periods = [...(st.periods || []), {
+      startDate: S.startDate, endDate: S.endDate, goalMin: S.goalMin, initialBalanceMin: S.initialBalanceMin,
+      finalBalanceMin: d.bal, goalReached: d.goalReached, reachedOn: d.goalReached ? reachedDate(state) : null,
+      closedAt: new Date().toISOString(), entries: st.entries
+    }];
+    st.entries = [];
+    st.settings = { ...S, startDate: next.startDate, endDate: next.endDate, goalMin: next.goalMin, initialBalanceMin: next.initialBalanceMin, dailyLimitMin: next.dailyLimitMin };
+    st.overrides = Object.fromEntries(Object.entries(st.overrides || {}).filter(from));
+    for (const h of next.holidays || []) if (!st.overrides[h.key] && inPeriod(st, h.key) && !isWeekend(h.key)) st.overrides[h.key] = { type: 'holiday', label: h.label };
+    st.clock = Object.fromEntries(Object.entries(st.clock || {}).filter(from));
+    st.plan = {}; st.baseline = {};
+    st.meta = { ...st.meta, goalCelebrated: false };
+    return st;
+  }
+
   /* ---------- Sanitização (carregamento e importação) ---------- */
+  const newId = () => 'e' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+  /** Normaliza um lançamento vindo do armazenamento/backup. Retorna null se inválido. */
+  function cleanEntry(e) {
+    if (!e || !isValidKey(e.date)) return null;
+    const id = typeof e.id === 'string' && e.id ? e.id : newId();
+    const base = { id, ...(e.fromClock === true ? { fromClock: true } : {}), date: e.date, note: String(e.note || '').slice(0, 280), createdAt: e.createdAt || new Date().toISOString(), updatedAt: e.updatedAt || null };
+    if (e.mode === 'time') {
+      const span = spanFromClock(e.start, e.end);
+      const br = isInt(e.breakMin) && e.breakMin >= 0 ? e.breakMin : 0;
+      if (!span || br >= span.raw || span.raw - br > MAX_ENTRY_MIN) return null;
+      return { ...base, mode: 'time', start: fmtClock(span.s), end: fmtClock(span.e), breakMin: br, durationMin: span.raw - br, crossesMidnight: span.crosses };
+    }
+    if (!isInt(e.durationMin) || e.durationMin <= 0 || e.durationMin > MAX_ENTRY_MIN) return null;
+    return { ...base, mode: 'manual', start: null, end: null, breakMin: 0, durationMin: e.durationMin, crossesMidnight: false };
+  }
+
   function sanitizeState(input) {
     const def = defaultState();
     let src = input;
@@ -1439,20 +1551,10 @@ const Core = (() => {
     }
     st.entries = []; let dropped = 0; const ids = new Set();
     for (const e of src.entries) {
-      if (!e || !isValidKey(e.date)) { dropped++; continue; }
-      let id = typeof e.id === 'string' && e.id ? e.id : null;
-      if (!id || ids.has(id)) id = 'e' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
-      const base = { id, ...(e.fromClock === true ? { fromClock: true } : {}), date: e.date, note: String(e.note || '').slice(0, 280), createdAt: e.createdAt || new Date().toISOString(), updatedAt: e.updatedAt || null };
-      if (e.mode === 'time') {
-        const span = spanFromClock(e.start, e.end);
-        const br = isInt(e.breakMin) && e.breakMin >= 0 ? e.breakMin : 0;
-        if (!span || br >= span.raw || span.raw - br > MAX_ENTRY_MIN) { dropped++; continue; }
-        st.entries.push({ ...base, mode: 'time', start: fmtClock(span.s), end: fmtClock(span.e), breakMin: br, durationMin: span.raw - br, crossesMidnight: span.crosses });
-      } else {
-        if (!isInt(e.durationMin) || e.durationMin <= 0 || e.durationMin > MAX_ENTRY_MIN) { dropped++; continue; }
-        st.entries.push({ ...base, mode: 'manual', start: null, end: null, breakMin: 0, durationMin: e.durationMin, crossesMidnight: false });
-      }
-      ids.add(id);
+      const c = cleanEntry(e);
+      if (!c) { dropped++; continue; }
+      if (ids.has(c.id)) c.id = newId();
+      ids.add(c.id); st.entries.push(c);
     }
     const cleanMap = m => { const o = {}; if (m && typeof m === 'object') for (const [k, v] of Object.entries(m)) if (isValidKey(k) && isInt(v) && v >= 0 && v <= 1440) o[k] = v; return o; };
     st.plan = cleanMap(src.plan);
@@ -1468,18 +1570,33 @@ const Core = (() => {
         if (any) st.clock[k] = c;
       }
     }
+    st.periods = [];
+    if (Array.isArray(src.periods)) {
+      for (const p of src.periods) {
+        if (!p || !isValidKey(p.startDate) || !isValidKey(p.endDate)) continue;
+        st.periods.push({
+          startDate: p.startDate, endDate: p.endDate,
+          goalMin: intIn(p.goalMin, 0, 999 * 60, 0), initialBalanceMin: intIn(p.initialBalanceMin, 0, 999 * 60, 0),
+          finalBalanceMin: intIn(p.finalBalanceMin, 0, 99999 * 60, 0), goalReached: p.goalReached === true,
+          reachedOn: p.reachedOn === 'before' || isValidKey(p.reachedOn) ? p.reachedOn : null,
+          closedAt: typeof p.closedAt === 'string' ? p.closedAt : null,
+          entries: Array.isArray(p.entries) ? p.entries.map(cleanEntry).filter(Boolean) : []
+        });
+      }
+    }
     st.meta = { ...def.meta, ...(src.meta && typeof src.meta === 'object' ? src.meta : {}) };
     return { ok: true, state: st, dropped };
   }
 
   return {
     WEEKDAYS, WEEKDAYS_SHORT, MONTHS, OVERRIDE_TYPES, SEED_PLAN, STEP,
-    pad, sum, clamp, parseKey, isValidKey, addDays, dayIndex, weekday, isWeekend, rangeKeys, minKey, maxKey,
+    pad, sum, clamp, parseKey, keyFromUTC, isValidKey, addDays, dayIndex, weekday, isWeekend, rangeKeys, minKey, maxKey,
     localTodayKey, fmtDate, fmtDateShort, fmtDateLong, wdShort, wdLong,
     parseClock, fmtClock, fmtDur, parseDur, spanFromClock,
     defaultState, realizedByDate, balance, isAvailable, inPeriod, openDays,
     waterFill, removeFromEnd, computePlan, makeBaseline, reachedDate, dayStatus, derive,
-    BREAK_RIGHT, regularDayMin, dayClock, validateEntry, sanitizeState
+    BREAK_RIGHT, regularDayMin, dayClock, validateEntry, sanitizeState,
+    easterKey, nationalHolidays, holidaysInRange, suggestNextPeriod, validateNextPeriod, closePeriod
   };
 })();
 /* @core-end */
@@ -1795,12 +1912,14 @@ function renderAll() {
   renderHero(d, t);
   renderToday(d, t);
   renderClock(d, t);
+  refreshClockWidgets();
   renderSummary(d, t);
   if (currentView === 'overview') renderChart(d);
   renderPlan(d, t);
   renderCalendar(d, t);
   renderHistory(d, t);
   renderOverrides();
+  renderPeriodCard(d, t);
   renderStorageNote();
   if (inlineForm) inlineForm.refresh();
   animateNumbers(document);
@@ -1809,6 +1928,7 @@ function renderAll() {
 function renderHeader(d, t) {
   const S = state.settings;
   $('#brandSub').textContent = `Meta de ${fmtDur(S.goalMin)} até ${fmtDate(S.endDate)}`;
+  document.title = `Banco de Horas — ${fmtDur(d.bal)} de ${fmtDur(S.goalMin)} até ${fmtDateShort(S.endDate)}`;
   $('#todayChipText').textContent = `${SIM_TODAY ? 'Simulação · ' : 'Hoje · '}${wdShort(t)}, ${fmtDate(t)}`;
   $('#todayChip').classList.toggle('sim', !!SIM_TODAY);
   $('#themeBtn').innerHTML = icon(state.theme === 'dark' ? 'sun' : 'moon');
@@ -1818,13 +1938,16 @@ function renderHeader(d, t) {
 /** Lista de alertas persistentes conforme a situação atual. */
 function buildAlerts(d, t) {
   const S = state.settings, list = [];
+  const pend = pendingClockDays(t);
+  if (pend.length) list.push({ type: 'warning', icon: 'clock', title: pend.length === 1 ? 'Ponto pendente' : `${pend.length} pontos pendentes`, msg: pend.slice(0, 3).map(p => p.msg).join(' · ') + (pend.length > 3 ? ' …' : '') + '.', action: { label: 'Completar', fn: () => openDayModal(pend[0].k) } });
+  const nextAction = { label: 'Iniciar próximo período', fn: () => openClosePeriodModal() };
   if (d.goalReached) {
     const when = d.forecast === 'before' ? 'já com o saldo inicial' : d.forecast ? `em ${fmtDate(d.forecast)}` : '';
-    list.push({ type: 'success', icon: 'trophy', title: 'Meta atingida', msg: `Você acumulou ${fmtDur(d.bal)} de ${fmtDur(d.goal)} ${when}. Não há necessidade de novas horas extras.` });
+    list.push({ type: 'success', icon: 'trophy', title: 'Meta atingida', msg: `Você acumulou ${fmtDur(d.bal)} de ${fmtDur(d.goal)} ${when}. Não há necessidade de novas horas extras.`, action: d.deadlinePassed ? nextAction : null });
     return list;
   }
   if (d.deadlinePassed) {
-    list.push({ type: 'danger', icon: 'alertCircle', title: 'Prazo encerrado', msg: `O prazo terminou em ${fmtDate(S.endDate)} com ${fmtDur(d.R)} faltando para a meta.` });
+    list.push({ type: 'danger', icon: 'alertCircle', title: 'Prazo encerrado', msg: `O prazo terminou em ${fmtDate(S.endDate)} com ${fmtDur(d.R)} faltando para a meta.`, action: nextAction });
     return list;
   }
   if (!d.feasible) list.push({ type: 'danger', icon: 'alertCircle', title: 'Meta não pode ser atingida no prazo', msg: `Mesmo com ${fmtDur(S.dailyLimitMin)} em todos os ${d.availableDays} dias disponíveis, faltariam ${fmtDur(d.deficit)}. Considere liberar dias ou rever a meta.`, action: { label: 'Ver plano', fn: () => setView('plan') } });
@@ -1851,7 +1974,7 @@ function renderKpis(d) {
   const kpi = (label, ic, tone, value, foot) => `<div class="card kpi"><div class="kpi-top"><span class="kpi-label">${label}</span><span class="kpi-icon ${tone}">${icon(ic)}</span></div><div class="kpi-value">${value}</div><div class="kpi-foot">${foot}</div></div>`;
   const nextOpen = d.open.find(k => (d.todoMap[k] || 0) > 0);
   $('#kpis').innerHTML = [
-    kpi('Saldo atual', 'clock', 'accent', count('k-bal', d.bal), `${fmtDur(S.initialBalanceMin)} inicial + ${fmtDur(d.sinceStart)} registradas`),
+    kpi('Saldo atual', 'clock', 'accent', count('k-bal', d.bal), `${fmtDur(S.initialBalanceMin)} inicial + ${fmtDur(d.registered)} registradas`),
     kpi('Meta', 'target', '', count('k-goal', d.goal), `até ${fmtDate(S.endDate)}`),
     kpi('Horas restantes', 'hourglass', d.R === 0 ? 'success' : 'warning', count('k-rem', d.R), d.R === 0 ? 'Meta concluída' : `média de ${fmtDur(d.avgNeeded)}/dia`),
     kpi('Progresso', 'trend', d.goalReached ? 'success' : 'info', count('k-pct', d.pct, 'pct'), d.goalReached ? 'Concluído' : `${fmtDur(d.bal)} de ${fmtDur(d.goal)}`),
@@ -1890,7 +2013,7 @@ function renderHero(d, t) {
     </div>
     <div class="progress-legend">
       <span class="lg"><i class="sw initial"></i>Saldo inicial <b class="num">${fmtDur(S.initialBalanceMin)}</b></span>
-      <span class="lg"><i class="sw done"></i>Registrado desde ${fmtDateShort(S.startDate)} <b class="num">${fmtDur(d.sinceStart)}</b></span>
+      <span class="lg"><i class="sw done"></i>Registrado no período <b class="num">${fmtDur(d.registered)}</b></span>
       ${d.todayTodo > 0 ? `<span class="lg"><i class="sw today"></i>Previsto hoje <b class="num">${fmtDur(d.todayTodo)}</b></span>` : ''}
       <span class="lg"><i class="sw rest"></i>Restante <b class="num">${fmtDur(d.R)}</b></span>
     </div>
@@ -1949,7 +2072,8 @@ function renderToday(d, t) {
       ${sug ? `<div class="suggest">${icon('clock')}<div><div class="suggest-t">Sugestão de horário</div><div class="suggest-v num">${sug.start} → ${sug.end}${sug.crosses ? ' (+1 dia)' : ''}</div></div></div>` : (nextTxt ? `<div class="suggest">${icon('calendar')}<div><div class="suggest-t">Hoje concluído</div><div class="suggest-v" style="font-weight:500;font-size:13px">${nextTxt}</div></div></div>` : '')}`;
   }
   const canLog = inP && t >= S.startDate;
-  card.innerHTML = head + body + `<div class="spacer"></div>${canLog ? `<button class="btn ${d.goalReached ? '' : 'btn-primary'}" type="button" id="todayLogBtn">${icon('plus')} Registrar hoje</button>` : ''}`;
+  card.innerHTML = head + body + `<div class="spacer"></div>${canLog ? `<button class="btn ${d.goalReached ? '' : 'btn-primary'}" type="button" id="todayLogBtn">${icon('plus')} Registrar hoje</button>` : ''}${t > S.endDate ? `<button class="btn btn-primary" type="button" id="todayNextBtn">${icon('calendar')} Iniciar próximo período</button>` : ''}`;
+  const nb = $('#todayNextBtn'); if (nb) nb.onclick = () => openClosePeriodModal();
   const btn = $('#todayLogBtn');
   if (btn) btn.onclick = () => {
     const sug = d.todayTodo > 0 ? suggestionForToday(t, d.todayTodo) : null;
@@ -1964,12 +2088,45 @@ const CLOCK_FIELDS = [
 const nowClock = () => { const n = new Date(); return `${Core.pad(n.getHours())}:${Core.pad(n.getMinutes())}`; };
 const nowMinutes = () => { if (SIM_TODAY) return null; const n = new Date(); return n.getHours() * 60 + n.getMinutes(); };
 
-function saveClockField(t, f, value) {
-  const c = { in: '', lunchOut: '', lunchIn: '', out: '', ...(state.clock[t] || {}) };
+/* Widgets de ponto montados (cartão de hoje e modal do dia). Todos se atualizam juntos. */
+const clockWidgets = new Set();
+function refreshClockWidgets(date = null) {
+  for (const w of clockWidgets) {
+    if (!w.host.isConnected) { clockWidgets.delete(w); continue; }
+    if (!date || w.date === date) w.update();
+  }
+}
+function saveClockField(date, f, value) {
+  const c = { in: '', lunchOut: '', lunchIn: '', out: '', ...(state.clock[date] || {}) };
   c[f] = value || '';
-  if (CLOCK_FIELDS.every(([k]) => !c[k])) delete state.clock[t]; else state.clock[t] = c;
+  if (CLOCK_FIELDS.every(([k]) => !c[k])) delete state.clock[date]; else state.clock[date] = c;
   saveState();
-  updateClockResults(Core.derive(state, today()), t);
+  refreshClockWidgets(date);
+  if (date < today()) renderAlerts(Core.derive(state, today()), today());
+}
+/**
+ * Monta o formulário de ponto de um dia em `host`.
+ * Em dias passados não há botões "agora" nem contagem regressiva.
+ * onRegistered é chamado após registrar/atualizar a hora extra do ponto.
+ */
+function mountClock(host, date, { onRegistered = null } = {}) {
+  const pfx = 'ck' + Math.random().toString(36).slice(2, 7);
+  const live = date === today();
+  host.innerHTML = `
+    <div class="clock-grid">
+      <div>
+        <div class="clock-inputs">${CLOCK_FIELDS.map(([f, label]) => `<div class="field"><label for="${pfx}-${f}">${label}${live ? `<button type="button" class="clock-now" data-now="${f}">agora</button>` : ''}</label><input id="${pfx}-${f}" type="time" step="60" data-f="${f}"></div>`).join('')}</div>
+        <div class="clock-foot"><span>Intervalo a que você tem direito: <b class="num">${fmtDur(Core.BREAK_RIGHT)}</b> · jornada normal: <b class="num" data-regular></b></span><button type="button" class="btn btn-ghost btn-sm" data-clear>Limpar</button></div>
+      </div>
+      <div class="clock-result" data-out aria-live="polite"></div>
+    </div>`;
+  const w = { host, date, pfx, live, onRegistered, update: () => updateClockWidget(w) };
+  $$('input[data-f]', host).forEach(inp => inp.addEventListener('input', () => saveClockField(date, inp.dataset.f, inp.value)));
+  $$('[data-now]', host).forEach(b => b.onclick = () => { const inp = $(`#${pfx}-${b.dataset.now}`, host); inp.value = nowClock(); saveClockField(date, b.dataset.now, inp.value); });
+  $('[data-clear]', host).onclick = () => { delete state.clock[date]; saveState(); refreshClockWidgets(date); renderAlerts(Core.derive(state, today()), today()); };
+  clockWidgets.add(w);
+  w.update();
+  return w;
 }
 function renderClock(d, t) {
   const card = $('#clockCard');
@@ -1977,50 +2134,43 @@ function renderClock(d, t) {
   card.classList.remove('hidden');
   if (card.dataset.built !== t) {
     card.dataset.built = t;
-    card.innerHTML = `
-      <div class="card-head" style="margin-bottom:0"><h3 class="card-title">${icon('clock')} Jornada de hoje</h3><span class="card-sub">${esc(fmtDateLong(t))}</span></div>
-      <div class="clock-grid">
-        <div>
-          <div class="clock-inputs">${CLOCK_FIELDS.map(([f, label]) => `<div class="field"><label for="ck-${f}">${label}<button type="button" class="clock-now" data-now="${f}">agora</button></label><input id="ck-${f}" type="time" step="60" data-f="${f}"></div>`).join('')}</div>
-          <div class="clock-foot"><span>Intervalo a que você tem direito: <b class="num">${fmtDur(Core.BREAK_RIGHT)}</b> · jornada normal: <b class="num" id="ckRegular"></b></span><button type="button" class="btn btn-ghost btn-sm" id="ckClear">Limpar</button></div>
-        </div>
-        <div class="clock-result" id="clockOut" aria-live="polite"></div>
-      </div>`;
-    $$('input[data-f]', card).forEach(inp => inp.addEventListener('input', () => saveClockField(today(), inp.dataset.f, inp.value)));
-    $$('[data-now]', card).forEach(b => b.onclick = () => { const inp = $(`#ck-${b.dataset.now}`, card); inp.value = nowClock(); saveClockField(today(), b.dataset.now, inp.value); });
-    $('#ckClear', card).onclick = () => { delete state.clock[today()]; saveState(); renderClock(Core.derive(state, today()), today()); };
+    card.innerHTML = `<div class="card-head" style="margin-bottom:0"><h3 class="card-title">${icon('clock')} Jornada de hoje</h3><span class="card-sub">${esc(fmtDateLong(t))}</span></div><div data-clock-host></div>`;
+    mountClock($('[data-clock-host]', card), t);
   }
-  updateClockResults(d, t);
 }
-function updateClockResults(d, t) {
-  const card = $('#clockCard'); if (!card || card.dataset.built !== t) return;
+function updateClockWidget(w) {
+  const { host, date: t, pfx } = w;
   const c = state.clock[t] || {};
-  for (const [f] of CLOCK_FIELDS) { const inp = $(`#ck-${f}`, card); if (inp && document.activeElement !== inp && inp.value !== (c[f] || '')) inp.value = c[f] || ''; }
-  $('#ckRegular', card).textContent = fmtDur(Core.regularDayMin(state.settings));
-  const k = Core.dayClock(state, t, nowMinutes());
+  for (const [f] of CLOCK_FIELDS) { const inp = $(`#${pfx}-${f}`, host); if (inp && document.activeElement !== inp && inp.value !== (c[f] || '')) inp.value = c[f] || ''; }
+  $('[data-regular]', host).textContent = fmtDur(Core.regularDayMin(state.settings));
+  const isToday = t === today();
+  const k = Core.dayClock(state, t, isToday ? nowMinutes() : null);
+  const dayPlan = state.plan[t] || 0;
   const hhmm = m => `${Core.fmtClock(m)}${m >= 1440 ? ' <span class="badge t-info no-dot">+1 dia</span>' : ''}`;
   const row = (a, b) => `<div class="today-row"><span>${a}</span><b class="num">${b}</b></div>`;
   let html = '';
   if (!k.filled) {
-    html = `<div class="lbl">Saída prevista</div><div class="clock-big"><span class="v num" style="color:var(--text-3)">--:--</span></div><div class="muted" style="font-size:13px">Informe sua entrada${d.todayPlan ? ` e veja a que horas sair para cumprir ${fmtDur(d.todayPlan)} de hora extra hoje` : ' para ver a que horas termina sua jornada'}.</div>`;
+    html = isToday
+      ? `<div class="lbl">Saída prevista</div><div class="clock-big"><span class="v num" style="color:var(--text-3)">--:--</span></div><div class="muted" style="font-size:13px">Informe sua entrada${dayPlan ? ` e veja a que horas sair para cumprir ${fmtDur(dayPlan)} de hora extra hoje` : ' para ver a que horas termina sua jornada'}.</div>`
+      : `<div class="lbl">Hora extra do dia</div><div class="clock-big"><span class="v num" style="color:var(--text-3)">--:--</span></div><div class="muted" style="font-size:13px">Informe entrada, intervalo e saída deste dia para calcular e registrar a hora extra.</div>`;
   } else if (!k.valid) {
     html = `<ul class="clock-msgs">${k.errors.map(m => `<li class="err">${icon('alertCircle', 'i-sm')}<span>${esc(m)}</span></li>`).join('')}</ul>`;
   } else if (k.out != null) {
     const reg = state.entries.find(e => e.fromClock && e.date === t);
     const same = reg && reg.durationMin === k.overtime && reg.start === Core.fmtClock(k.regularEnd) && reg.end === Core.fmtClock(k.out);
     const diff = k.overtime - k.plan;
-    html = `<div class="lbl">Hora extra de hoje</div><div class="clock-big"><span class="v num">${fmtDur(k.overtime)}</span>${k.crosses ? '<span class="badge t-info no-dot">+1 dia</span>' : ''}</div>
+    html = `<div class="lbl">Hora extra ${isToday ? 'de hoje' : 'do dia'}</div><div class="clock-big"><span class="v num">${fmtDur(k.overtime)}</span>${k.crosses ? '<span class="badge t-info no-dot">+1 dia</span>' : ''}</div>
       <div class="clock-lines">
         ${row('Trabalhado', fmtDur(k.worked))}
         ${row('Jornada normal', fmtDur(k.regular))}
         ${row('Intervalo', fmtDur(k.breakMin) + (k.breakAssumed ? ' (assumido)' : ''))}
-        ${k.plan ? row('Previsto para hoje', `${fmtDur(k.plan)} <span class="${diff >= 0 ? 'pos' : 'neg'}">(${fmtDur(diff, { sign: true })})</span>`) : ''}
+        ${k.plan ? row(isToday ? 'Previsto para hoje' : 'Previsto para o dia', `${fmtDur(k.plan)} <span class="${diff >= 0 ? 'pos' : 'neg'}">(${fmtDur(diff, { sign: true })})</span>`) : ''}
       </div>
       ${k.short ? `<ul class="clock-msgs"><li class="warn">${icon('alert', 'i-sm')}<span>Faltaram ${fmtDur(k.short)} para completar a jornada de ${fmtDur(k.regular)}.</span></li></ul>` : ''}
       ${k.warnings.length ? `<ul class="clock-msgs">${k.warnings.map(m => `<li class="warn">${icon('info', 'i-sm')}<span>${esc(m)}</span></li>`).join('')}</ul>` : ''}
-      ${k.overtime > 0 ? (same ? `<div class="badge t-success no-dot" style="justify-self:start">${icon('check', 'i-sm')} Registrado no banco de horas</div>` : `<button type="button" class="btn btn-primary" id="ckRegister">${icon(reg ? 'check' : 'plus')} ${reg ? 'Atualizar registro' : 'Registrar'} ${fmtDur(k.overtime)} (${Core.fmtClock(k.regularEnd)} → ${Core.fmtClock(k.out)})</button>`) : ''}`;
+      ${k.overtime > 0 ? (same ? `<div class="badge t-success no-dot" style="justify-self:start">${icon('check', 'i-sm')} Registrado no banco de horas</div>` : `<button type="button" class="btn btn-primary" data-register>${icon(reg ? 'check' : 'plus')} ${reg ? 'Atualizar registro' : 'Registrar'} ${fmtDur(k.overtime)} (${Core.fmtClock(k.regularEnd)} → ${Core.fmtClock(k.out)})</button>`) : ''}`;
   } else {
-    const planTxt = k.plan ? `hora extra ${fmtDur(k.plan)}` : 'sem hora extra prevista hoje';
+    const planTxt = k.plan ? `hora extra ${fmtDur(k.plan)}` : `sem hora extra prevista ${isToday ? 'hoje' : 'no dia'}`;
     let cd = '';
     if (k.untilTarget != null) cd = k.untilTarget > 0 ? `faltam <b>${fmtDur(k.untilTarget)}</b>` : k.untilTarget === 0 ? '<b>é agora</b>' : `<b>${fmtDur(-k.untilTarget)}</b> além do previsto`;
     html = `<div class="lbl">Saída prevista</div><div class="clock-big"><span class="v num">${hhmm(k.exitTarget)}</span>${cd ? `<span class="muted" style="font-size:13px">${cd}</span>` : ''}</div>
@@ -2033,10 +2183,22 @@ function updateClockResults(d, t) {
       </div>
       <div class="muted" style="font-size:12.5px">Entrada ${Core.fmtClock(k.tIn)} + ${fmtDur(k.regular)} + intervalo ${fmtDur(k.breakMin)}${k.plan ? ` + ${planTxt}` : ` (${planTxt})`}. Informe a saída real para registrar.</div>`;
   }
-  $('#clockOut', card).innerHTML = html;
-  const b = $('#ckRegister', card); if (b) b.onclick = () => registerClockOvertime(t);
+  $('[data-out]', host).innerHTML = html;
+  const b = $('[data-register]', host); if (b) b.onclick = () => registerClockOvertime(t, w.onRegistered);
 }
-async function registerClockOvertime(t) {
+/** Dias passados do período com ponto preenchido mas sem saída, ou com hora extra calculada e não registrada. */
+function pendingClockDays(t) {
+  const S = state.settings, out = [];
+  for (const k of Object.keys(state.clock).sort()) {
+    if (k >= t || !Core.inPeriod(state, k)) continue;
+    const c = Core.dayClock(state, k);
+    if (!c.valid) continue;
+    if (c.out == null) out.push({ k, msg: `${fmtDateShort(k)}: saída não informada` });
+    else if (c.overtime > 0 && !state.entries.some(e => e.fromClock && e.date === k)) out.push({ k, msg: `${fmtDateShort(k)}: ${fmtDur(c.overtime)} de hora extra não registrada` });
+  }
+  return out;
+}
+async function registerClockOvertime(t, after = null) {
   const k = Core.dayClock(state, t);
   if (!k.valid || k.out == null || !k.overtime) return;
   const existing = state.entries.find(e => e.fromClock && e.date === t);
@@ -2061,6 +2223,7 @@ async function registerClockOvertime(t) {
     msg: dd.goalReached ? `Saldo ${fmtDur(dd.bal)} · meta concluída` : `Saldo ${fmtDur(dd.bal)} · faltam ${fmtDur(dd.R)}`,
     action: { label: 'Desfazer', fn: () => { restore(snap); toast({ type: 'info', title: 'Alteração desfeita' }); } }
   });
+  if (after) after();
 }
 
 function renderSummary(d, t) {
@@ -2292,15 +2455,15 @@ function shiftMonth(delta) {
 function entryTitle(e) {
   return e.mode === 'time' ? `${e.start} – ${e.end}${e.crossesMidnight ? ' <span class="badge t-info no-dot">+1 dia</span>' : ''}` : 'Lançamento manual';
 }
-function entryRowHTML(e) {
+function entryRowHTML(e, { readonly = false } = {}) {
   return `<div class="hist-item">
     <div class="hist-ic ${e.mode === 'manual' ? 'manual' : ''}">${icon(e.mode === 'manual' ? 'pen' : 'clock', 'i-sm')}</div>
     <div class="hist-main"><div class="hist-t num">${entryTitle(e)}${e.breakMin ? `<span class="faint" style="font-weight:450;font-size:12px">− ${e.breakMin} min intervalo</span>` : ''}</div>${e.note ? `<div class="hist-n">${esc(e.note)}</div>` : ''}</div>
     <div class="hist-d num">${fmtDur(e.durationMin)}</div>
-    <div class="hist-actions">
+    ${readonly ? '' : `<div class="hist-actions">
       <button class="icon-btn ghost" type="button" data-edit="${e.id}" aria-label="Editar lançamento" title="Editar">${icon('edit', 'i-sm')}</button>
       <button class="icon-btn ghost danger" type="button" data-del="${e.id}" aria-label="Excluir lançamento" title="Excluir">${icon('trash', 'i-sm')}</button>
-    </div></div>`;
+    </div>`}</div>`;
 }
 function bindEntryActions(root, afterDelete) {
   $$('[data-edit]', root).forEach(b => b.onclick = () => { const e = state.entries.find(x => x.id === b.dataset.edit); if (e) openEntryModal({ entry: e }); });
@@ -2318,7 +2481,7 @@ function renderHistory(d, t) {
   for (const e of state.entries) (byDate[e.date] = byDate[e.date] || []).push(e);
   const dates = Object.keys(byDate).sort().reverse();
   const sortKey = e => e.mode === 'time' ? Core.parseClock(e.start) : 9999;
-  host.innerHTML = `<div class="hist-summary"><span>Saldo inicial <b class="num">${fmtDur(S.initialBalanceMin)}</b></span><span>Registrado <b class="num">${fmtDur(d.sinceStart)}</b></span><span>Saldo atual <b class="num">${fmtDur(d.bal)}</b></span></div>` +
+  host.innerHTML = `<div class="hist-summary"><span>Saldo inicial <b class="num">${fmtDur(S.initialBalanceMin)}</b></span><span>Registrado <b class="num">${fmtDur(d.registered)}</b></span><span>Saldo atual <b class="num">${fmtDur(d.bal)}</b></span></div>` +
     dates.map(k => {
       const list = byDate[k].sort((a, b) => sortKey(a) - sortKey(b));
       const tot = Core.sum(list.map(e => e.durationMin));
@@ -2358,6 +2521,113 @@ function renderStorageNote() {
   $('#storageNote').innerHTML = storageOk
     ? `${icon('database', 'i-sm')} Dados salvos neste navegador${up ? ` · última alteração ${up.toLocaleDateString('pt-BR')} às ${up.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : ''}`
     : `<span class="neg">${icon('alert', 'i-sm')} Armazenamento local indisponível — exporte um backup.</span>`;
+}
+
+/* ---------- Período: fechamento e histórico ---------- */
+function renderPeriodCard(d, t) {
+  const S = state.settings, per = state.periods || [];
+  const status = d.goalReached ? '<span class="badge t-success">Meta atingida</span>' : d.deadlinePassed ? '<span class="badge t-danger">Prazo encerrado</span>' : '<span class="badge t-accent">Em andamento</span>';
+  $('#periodCard').innerHTML = `
+    <div class="card-head"><h3 class="card-title">${icon('calcheck')} Período e fechamento</h3>${status}</div>
+    <div class="hist-summary"><span>Período <b class="num">${fmtDateShort(S.startDate)} a ${fmtDate(S.endDate)}</b></span><span>Saldo <b class="num">${fmtDur(d.bal)}</b> de <b class="num">${fmtDur(d.goal)}</b></span><span><b class="num">${state.entries.length}</b> ${state.entries.length === 1 ? 'lançamento' : 'lançamentos'}</span></div>
+    <div class="backup-row"><div><div class="bt">Fechar período e iniciar o próximo</div><div class="bd">Arquiva os lançamentos atuais e leva o saldo para o novo período, sem contar horas em dobro.</div></div><button type="button" class="btn ${d.deadlinePassed ? 'btn-primary' : ''}" id="closePeriodBtn">${icon('calendar', 'i-sm')} Fechar período</button></div>
+    ${per.length ? `<div class="section-l"><span>Períodos anteriores</span><span class="num">${per.length}</span></div>
+      <div class="period-list">${per.map((p, i) => `<div class="period-row">
+        <span class="badge no-dot ${p.goalReached ? 't-success' : 't-danger'}">${icon(p.goalReached ? 'check' : 'x', 'i-sm')}</span>
+        <div><div class="pt num">${fmtDateShort(p.startDate)} a ${fmtDate(p.endDate)}</div><div class="pd num">Saldo final ${fmtDur(p.finalBalanceMin)} · meta ${fmtDur(p.goalMin)} · ${p.entries.length} ${p.entries.length === 1 ? 'lançamento' : 'lançamentos'}</div></div>
+        <button type="button" class="btn btn-sm" data-per="${i}">Ver</button></div>`).reverse().join('')}</div>` : ''}`;
+  $('#closePeriodBtn').onclick = () => openClosePeriodModal();
+  $$('[data-per]', $('#periodCard')).forEach(b => b.onclick = () => openPastPeriodModal(+b.dataset.per));
+}
+function openPastPeriodModal(i) {
+  const p = (state.periods || [])[i]; if (!p) return;
+  const byDate = {};
+  for (const e of p.entries) (byDate[e.date] = byDate[e.date] || []).push(e);
+  const registered = Core.sum(p.entries.map(e => e.durationMin));
+  const reached = p.goalReached ? (p.reachedOn === 'before' ? 'Meta atingida já com o saldo inicial.' : p.reachedOn ? `Meta atingida em ${fmtDate(p.reachedOn)}.` : 'Meta atingida.') : `Faltaram ${fmtDur(Math.max(0, p.goalMin - p.finalBalanceMin))} para a meta.`;
+  const html = `
+    <div class="day-stats">
+      <div class="day-stat"><div class="l">Saldo inicial</div><div class="v num">${fmtDur(p.initialBalanceMin)}</div></div>
+      <div class="day-stat"><div class="l">Registrado</div><div class="v num">${fmtDur(registered)}</div></div>
+      <div class="day-stat"><div class="l">Saldo final</div><div class="v num">${fmtDur(p.finalBalanceMin)}</div></div>
+    </div>
+    <div class="info-box">${icon(p.goalReached ? 'trophy' : 'info')}<span>Meta de <b>${fmtDur(p.goalMin)}</b>. ${reached}</span></div>
+    <div class="section-l"><span>Lançamentos</span><span class="num">${p.entries.length}</span></div>
+    ${p.entries.length ? Object.keys(byDate).sort().reverse().map(k => {
+      const list = byDate[k].sort((a, b) => (a.start || '99') < (b.start || '99') ? -1 : 1);
+      return `<div class="hist-group"><div class="hist-gh"><div class="gd num">${fmtDateShort(k)}<span>${Core.wdLong(k).replace(/^./, c => c.toUpperCase())}</span></div><div class="gt"><b class="num">${fmtDur(Core.sum(list.map(e => e.durationMin)))}</b></div></div>${list.map(e => entryRowHTML(e, { readonly: true })).join('')}</div>`;
+    }).join('') : '<div class="faint" style="font-size:13px">Nenhum lançamento neste período.</div>'}`;
+  openModal({ title: `Período de ${fmtDateShort(p.startDate)} a ${fmtDate(p.endDate)}`, subtitle: p.goalReached ? '<span class="badge t-success">Meta atingida</span>' : '<span class="badge t-danger">Meta não atingida</span>', content: html, size: 'lg' });
+}
+function openClosePeriodModal() {
+  const t = today(), S = state.settings, d = Core.derive(state, t);
+  const sug = Core.suggestNextPeriod(state, t);
+  const excess = Math.max(0, d.bal - d.goal);
+  const n = state.entries.length;
+  const form = document.createElement('form');
+  form.className = 'form-stack'; form.noValidate = true;
+  form.innerHTML = `
+    <div class="day-stats" style="margin-bottom:0">
+      <div class="day-stat"><div class="l">Saldo final</div><div class="v num">${fmtDur(d.bal)}</div></div>
+      <div class="day-stat"><div class="l">Meta</div><div class="v num">${fmtDur(d.goal)}</div></div>
+      <div class="day-stat"><div class="l">${d.goalReached ? 'Excedente' : 'Faltou'}</div><div class="v num ${d.goalReached ? 'pos' : 'neg'}">${fmtDur(d.goalReached ? excess : d.R)}</div></div>
+    </div>
+    ${t < S.endDate ? `<div class="info-box">${icon('alert')}<span>O período atual vai até <b>${fmtDate(S.endDate)}</b>. Ao fechar agora, os dias restantes dele não poderão mais receber lançamentos.</span></div>` : ''}
+    <div class="section-l" style="margin:4px 0 0"><span>Próximo período</span></div>
+    <div class="row-2">
+      <div class="field"><label for="npStart">Início</label><input id="npStart" name="start" type="date" value="${sug.startDate}"></div>
+      <div class="field"><label for="npEnd">Prazo final</label><input id="npEnd" name="end" type="date" value="${sug.endDate}"></div>
+    </div>
+    <div class="row-2">
+      <div class="field"><label for="npGoal">Meta</label><input id="npGoal" name="goal" class="num" value="${fmtDur(S.goalMin)}" autocomplete="off"></div>
+      <div class="field"><label for="npLimit">Limite diário</label><input id="npLimit" name="limit" class="num" value="${fmtDur(S.dailyLimitMin)}" autocomplete="off"></div>
+    </div>
+    <div class="field"><label for="npInit">Saldo inicial do novo período</label><input id="npInit" name="initial" class="num" value="${fmtDur(d.bal)}" autocomplete="off">
+      <div class="chips carry-chips">
+        <button type="button" class="chip" data-carry="${d.bal}">Saldo atual · ${fmtDur(d.bal)}</button>
+        <button type="button" class="chip" data-carry="${excess}">Só o excedente da meta · ${fmtDur(excess)}</button>
+        <button type="button" class="chip" data-carry="0">Zerar</button>
+      </div>
+    </div>
+    <label class="check"><input type="checkbox" name="hol" checked><span><b>Marcar feriados nacionais</b><span class="check-sub" data-holprev></span></span></label>
+    <label class="check"><input type="checkbox" name="opt"><span><b>Incluir pontos facultativos</b><span class="check-sub">Carnaval e Corpus Christi</span></span></label>
+    <div class="info-box">${icon('info')}<span>${n ? `${n === 1 ? 'O lançamento atual fica guardado' : `Os ${n} lançamentos atuais ficam guardados`} em <b>Períodos anteriores</b> e não entra${n === 1 ? '' : 'm'} de novo no saldo.` : 'O período atual fica guardado em <b>Períodos anteriores</b>.'}</span></div>
+    <ul class="pv-msgs" data-errs></ul>
+    <div class="form-actions"><button type="button" class="btn btn-ghost" data-cancel>Cancelar</button><button type="submit" class="btn btn-primary">${icon('check')} Fechar e iniciar</button></div>`;
+  const m = openModal({ title: 'Fechar período', subtitle: `${fmtDateShort(S.startDate)} a ${fmtDate(S.endDate)}`, content: form });
+  const f = name => form.elements[name];
+  const holidays = () => f('hol').checked ? Core.holidaysInRange(f('start').value, f('end').value, { optional: f('opt').checked }) : [];
+  const refresh = () => {
+    f('opt').disabled = !f('hol').checked;
+    const hs = Core.holidaysInRange(f('start').value, f('end').value, { optional: f('opt').checked });
+    $('[data-holprev]', form).textContent = hs.length ? hs.map(h => `${fmtDateShort(h.key)} ${h.label}`).join(' · ') : 'Nenhum feriado nacional em dia útil neste período.';
+  };
+  $$('[data-carry]', form).forEach(b => b.onclick = () => { f('initial').value = fmtDur(+b.dataset.carry); });
+  $('[data-cancel]', form).onclick = () => m.close();
+  form.addEventListener('change', refresh);
+  refresh();
+  form.addEventListener('submit', ev => {
+    ev.preventDefault();
+    const next = {
+      startDate: f('start').value, endDate: f('end').value,
+      goalMin: Core.parseDur(f('goal').value), initialBalanceMin: Core.parseDur(f('initial').value), dailyLimitMin: Core.parseDur(f('limit').value),
+      holidays: holidays()
+    };
+    const errs = Core.validateNextPeriod(state, next);
+    $('[data-errs]', form).innerHTML = errs.map(e => `<li class="err">${icon('alertCircle', 'i-sm')}<span>${esc(e)}</span></li>`).join('');
+    if (errs.length) { form.classList.remove('shake'); void form.offsetWidth; form.classList.add('shake'); return; }
+    const snap = snapshot();
+    m.close();
+    commit(st => Object.assign(st, Core.closePeriod(st, next, today())), { mode: 'full', rebase: true, silent: true });
+    calMonth = null; renderCalendar(Core.derive(state, today()), today()); fillSettingsForm();
+    const added = next.holidays.filter(h => state.overrides[h.key]).length;
+    toast({
+      type: 'success', iconName: 'calcheck', title: 'Novo período iniciado',
+      msg: `${fmtDateShort(next.startDate)} a ${fmtDate(next.endDate)} · saldo inicial ${fmtDur(next.initialBalanceMin)} · meta ${fmtDur(next.goalMin)}${added ? ` · ${added} feriado(s) marcado(s)` : ''}`,
+      timeout: 8000,
+      action: { label: 'Desfazer', fn: () => { restore(snap); calMonth = null; renderCalendar(Core.derive(state, today()), today()); fillSettingsForm(); toast({ type: 'info', title: 'Fechamento desfeito' }); } }
+    });
+  });
 }
 
 /* =====================================================================
@@ -2422,7 +2692,7 @@ function createEntryForm({ entry = null, date = null, preset = null, onDone = nu
     attempted = false;
   }
   function draft() {
-    return { mode, date: f('date').value, start: f('start').value, end: f('end').value, breakMin: f('breakMin').value === '' ? '' : Number(f('breakMin').value), hours: f('hours').value === '' ? '' : Number(f('hours').value), minutes: f('minutes').value === '' ? '' : Number(f('minutes').value), note: f('note').value };
+    return { mode, ignoreWorkWindow: !!(entry && entry.fromClock), date: f('date').value, start: f('start').value, end: f('end').value, breakMin: f('breakMin').value === '' ? '' : Number(f('breakMin').value), hours: f('hours').value === '' ? '' : Number(f('hours').value), minutes: f('minutes').value === '' ? '' : Number(f('minutes').value), note: f('note').value };
   }
   function update() {
     const d = draft();
@@ -2543,6 +2813,7 @@ function openDayModal(k) {
     $('.modal-sub', m.el).innerHTML = `<span class="num">${fmtDate(k)}</span>${st ? statusBadge(st) : '<span class="badge t-neutral">Fora do período</span>'}${k === t ? '<span class="today-pill">hoje</span>' : ''}`;
     const list = state.entries.filter(e => e.date === k).sort((a, b) => (a.start || '99') < (b.start || '99') ? -1 : 1);
     const canLog = inP && k <= t;
+    const canClock = canLog && !wk && !(ov && ov.type === 'holiday');
     const body = document.createElement('div');
     body.innerHTML = `
       <div class="day-stats">
@@ -2556,6 +2827,7 @@ function openDayModal(k) {
       ${inP && !ov && !wk && k > t ? `<div class="info-box">${icon('calendar')}<span>${p ? `Planejado: <b>${fmtDur(p)}</b>. ` : 'Nenhuma hora necessária neste dia. '}O registro fica liberado a partir do próprio dia.</span></div>` : ''}
       <div class="section-l"><span>Lançamentos do dia</span><span class="num">${list.length ? fmtDur(r) : ''}</span></div>
       <div class="day-entries">${list.length ? `<div class="hist-group">${list.map(entryRowHTML).join('')}</div>` : `<div class="faint" style="font-size:13px">Nenhum lançamento neste dia.</div>`}</div>
+      ${canClock ? `<div class="section-l"><span>Ponto do dia</span><span class="opt" style="text-transform:none;letter-spacing:0;font-weight:450">salvo automaticamente</span></div><div class="day-clock"></div>` : ''}
       ${canLog ? `<div class="section-l"><span>Registrar horas</span></div><div class="day-form"></div>` : ''}
       ${inP && !wk ? `<hr class="divider"><div class="section-l"><span>Disponibilidade</span></div>
         ${ov ? `<button class="btn" type="button" data-avail>${icon('calcheck')} Tornar disponível para horas extras</button>`
@@ -2576,6 +2848,7 @@ function openDayModal(k) {
       const prevLabel = host.previousElementSibling; if (prevLabel && prevLabel.classList.contains('section-l') && prevLabel.textContent.includes('Registrar')) prevLabel.remove();
       fm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
+    if (canClock) mountClock($('.day-clock', body), k, { onRegistered: draw });
     if (canLog) {
       const sug = k === t && d.todayTodo > 0 ? suggestionForToday(t, d.todayTodo) : null;
       $('.day-form', body).appendChild(createEntryForm({ date: k, preset: sug, onDone: draw }));
@@ -2620,7 +2893,12 @@ function onSettingsSubmit(ev) {
     const d = Core.derive(state, today());
     toast({ type: 'success', title: 'Configurações salvas', msg: d.goalReached ? 'Meta atingida com o saldo atual.' : `Planejamento atualizado: faltam ${fmtDur(d.R)}.`, action: { label: 'Desfazer', fn: () => { restore(snap); fillSettingsForm(); } } });
   };
-  if (outside) confirmDialog({ title: 'Lançamentos fora do período', message: `${outside} lançamento(s) ficarão fora do novo período. Eles continuam somando no saldo. Continuar?`, confirmText: 'Salvar' }).then(ok => ok && apply());
+  if (outside) confirmDialog({
+    title: 'Lançamentos fora do período',
+    message: `${outside} lançamento(s) ficarão fora do novo período e <b>continuam somando no saldo</b>.<br><br>Se você está começando um novo mês, use <b>Fechar período</b>: os lançamentos atuais são arquivados e o saldo é levado uma única vez, sem contar horas em dobro.`,
+    confirmText: 'Salvar mesmo assim',
+    extra: { label: 'Fechar período', fn: () => { if (modalStack.length) modalStack[modalStack.length - 1].close(); fillSettingsForm(); openClosePeriodModal(); } }
+  }).then(ok => ok && apply());
   else apply();
 }
 
@@ -2661,9 +2939,11 @@ function importBackup(file) {
   reader.readAsText(file);
 }
 async function resetAll() {
+  const def = Core.defaultState().settings;
+  const nPer = (state.periods || []).length;
   const ok = await confirmDialog({
     title: 'Restaurar configurações iniciais?',
-    message: `Isso apagará <b>todos os ${state.entries.length} lançamentos</b>, observações e dias marcados, e voltará à meta de 16h00, saldo inicial de 2h21 e ao planejamento original.<br><br>Recomendamos exportar um backup antes.`,
+    message: `Isso apagará <b>todos os ${state.entries.length} lançamentos</b>, observações, dias marcados${nPer ? ` e ${nPer} ${nPer === 1 ? 'período anterior' : 'períodos anteriores'}` : ''}, e voltará à meta de ${fmtDur(def.goalMin)}, saldo inicial de ${fmtDur(def.initialBalanceMin)} e ao planejamento original.<br><br>Recomendamos exportar um backup antes.`,
     confirmText: 'Apagar e restaurar', danger: true,
     extra: { label: 'Exportar backup antes', fn: exportBackup }
   });
@@ -2756,7 +3036,7 @@ function init() {
 
   // Virada do dia com a página aberta → replanejar
   let lastDay = today();
-  setInterval(() => { if (today() !== lastDay) { lastDay = today(); replan('incremental'); saveState(); renderAll(); } else updateClockResults(Core.derive(state, today()), today()); }, 60000);
+  setInterval(() => { if (today() !== lastDay) { lastDay = today(); replan('incremental'); saveState(); renderAll(); } else refreshClockWidgets(today()); }, 60000);
 
   // Sincroniza entre abas abertas
   window.addEventListener('storage', e => {
