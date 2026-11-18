@@ -324,6 +324,9 @@ a { color: var(--accent); }
 .suggest-v { font-weight: 600; font-size: 14px; }
 .today-card .spacer { flex: 1; }
 .today-card .btn { margin-top: 16px; width: 100%; justify-content: center; }
+.today-card .btn + .btn { margin-top: 8px; }
+.day-done { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: var(--r); background: var(--success-soft); color: var(--success); font-size: 13px; font-weight: 560; }
+.day-done .btn { margin: 0 0 0 auto !important; width: auto !important; height: 26px; color: var(--text-2); }
 
 /* JORNADA DE HOJE (ponto) */
 .clock-card { margin-bottom: 16px; }
@@ -956,9 +959,12 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
         </div>
       </div>
       <div class="grid-entries">
-        <div class="card">
-          <div class="card-head"><h3 class="card-title" id="formTitle"></h3></div>
-          <div id="inlineFormHost"></div>
+        <div class="grid">
+          <div class="card">
+            <div class="card-head"><h3 class="card-title" id="formTitle"></h3></div>
+            <div id="inlineFormHost"></div>
+          </div>
+          <div class="card" id="adjustCard"></div>
         </div>
         <div class="card">
           <div class="card-head"><h3 class="card-title" id="histTitle"></h3></div>
@@ -1157,6 +1163,8 @@ const Core = (() => {
       dayNotes: {},
       clock: {},                       // ponto do dia: { 'AAAA-MM-DD': { in, lunchOut, lunchIn, out } }
       periods: [],                     // períodos já encerrados (somente consulta)
+      adjustments: [],                 // ajustes para igualar ao banco real: { id, date, deltaMin, realMin, systemMin, note }
+      closedDays: {},                  // dias com expediente finalizado: { 'AAAA-MM-DD': true }
       meta: { createdAt: new Date().toISOString(), updatedAt: null, lastPlanAt: null, goalCelebrated: false }
     };
   }
@@ -1164,15 +1172,20 @@ const Core = (() => {
   /* ---------- Derivados básicos ---------- */
   function realizedByDate(entries) { const m = {}; for (const e of entries) m[e.date] = (m[e.date] || 0) + e.durationMin; return m; }
   function totalEntries(state) { return sum(state.entries.map(e => e.durationMin)); }
-  function balance(state) { return state.settings.initialBalanceMin + totalEntries(state); }
+  function totalAdjust(state) { return sum((state.adjustments || []).map(a => a.deltaMin)); }
+  /** Ajustes por data (ajustes depois do prazo contam no último dia, para o saldo final bater). */
+  function adjustByDate(state) { const m = {}; for (const a of state.adjustments || []) { const k = minKey(a.date, state.settings.endDate); m[k] = (m[k] || 0) + a.deltaMin; } return m; }
+  function balance(state) { return state.settings.initialBalanceMin + totalEntries(state) + totalAdjust(state); }
   function isAvailable(state, k) { return !isWeekend(k) && !state.overrides[k]; }
+  /** Expediente finalizado: o dia deixa de receber horas no planejamento e passa a contar como encerrado. */
+  function isClosed(state, k) { return !!(state.closedDays && state.closedDays[k]); }
   function inPeriod(state, k) { return k >= state.settings.startDate && k <= state.settings.endDate; }
   /** Dias úteis disponíveis a partir de hoje (inclusive) até o prazo. */
   function openDays(state, today) {
     const { startDate, endDate } = state.settings;
     const from = maxKey(today, startDate);
     if (from > endDate) return [];
-    return rangeKeys(from, endDate).filter(k => isAvailable(state, k));
+    return rangeKeys(from, endDate).filter(k => isAvailable(state, k) && !isClosed(state, k));
   }
 
   /* ---------- Distribuição ---------- */
@@ -1257,8 +1270,8 @@ const Core = (() => {
     const S = state.settings;
     let cum = S.initialBalanceMin;
     if (cum >= S.goalMin) return 'before';
-    const real = realizedByDate(state.entries);
-    for (const k of Object.keys(real).sort()) { cum += real[k]; if (cum >= S.goalMin) return k; }
+    const real = realizedByDate(state.entries), adj = adjustByDate(state);
+    for (const k of [...new Set([...Object.keys(real), ...Object.keys(adj)])].sort()) { cum += (real[k] || 0) + (adj[k] || 0); if (cum >= S.goalMin) return k; }
     return null;
   }
 
@@ -1267,7 +1280,7 @@ const Core = (() => {
     const r = real[k] || 0, p = state.plan[k] || 0;
     if (!isAvailable(state, k) && r === 0) { const ov = state.overrides[k]; return ov ? ov.type : 'weekend'; }
     if (r > 0) return r >= p ? 'done' : 'partial';
-    if (p > 0) return k < today ? 'missed' : 'pending';
+    if (p > 0) return k < today || isClosed(state, k) ? 'missed' : 'pending';
     return goalReached ? 'goal' : 'free';
   }
 
@@ -1298,7 +1311,8 @@ const Core = (() => {
     if (yesterday >= S.startDate) {
       for (const k of rangeKeys(S.startDate, minKey(yesterday, S.endDate))) delta += (real[k] || 0) - (state.baseline[k] || 0);
     }
-    if (inPeriod(state, today)) delta += Math.max(0, (real[today] || 0) - (state.baseline[today] || 0));
+    const todayClosed = isClosed(state, today);
+    if (inPeriod(state, today)) delta += todayClosed ? (real[today] || 0) - (state.baseline[today] || 0) : Math.max(0, (real[today] || 0) - (state.baseline[today] || 0));
     const pace = goalReached ? 'reached' : delta > 0 ? 'ahead' : delta < 0 ? 'behind' : 'ontrack';
 
     // Previsão pelo plano
@@ -1310,7 +1324,7 @@ const Core = (() => {
     let paceAvg = 0, paceForecast = null, paceFinal = null;
     if (!goalReached && today >= S.startDate) {
       const elapsed = rangeKeys(S.startDate, minKey(yesterday, S.endDate)).filter(k => isAvailable(state, k) || real[k]);
-      const countToday = inPeriod(state, today) && (real[today] || 0) > 0;
+      const countToday = inPeriod(state, today) && ((real[today] || 0) > 0 || todayClosed);
       const nDays = elapsed.length + (countToday ? 1 : 0);
       if (nDays > 0) {
         paceAvg = Math.round(sinceStart / nDays);
@@ -1328,16 +1342,18 @@ const Core = (() => {
 
     // Linhas da tabela (dias úteis + dias com lançamento)
     const rows = [];
-    let cum = S.initialBalanceMin + sum(Object.entries(real).filter(([k]) => k < S.startDate).map(([, v]) => v));
+    const adj = adjustByDate(state);
+    const before = m => sum(Object.entries(m).filter(([k]) => k < S.startDate).map(([, v]) => v));
+    let cum = S.initialBalanceMin + before(real) + before(adj);
     for (const k of rangeKeys(S.startDate, S.endDate)) {
       const r = real[k] || 0;
-      cum += r + (k >= today ? (todoMap[k] || 0) : 0);
+      cum += r + (adj[k] || 0) + (k >= today ? (todoMap[k] || 0) : 0);
       if (isWeekend(k) && r === 0) continue;
       const p = state.plan[k] || 0;
       rows.push({
         key: k, plan: p, real: r, diff: r - p, cum, todo: todoMap[k] || 0,
         status: dayStatus(state, k, today, real, goalReached),
-        override: state.overrides[k] || null, isToday: k === today, past: k < today
+        override: state.overrides[k] || null, isToday: k === today, past: k < today || isClosed(state, k), closed: isClosed(state, k)
       });
     }
 
@@ -1345,7 +1361,7 @@ const Core = (() => {
     return {
       bal, goal, R, goalReached, open, caps, todo, todoMap, capacity, availableDays, deficit, feasible,
       beforeStart, deadlinePassed, avgNeeded, delta, pace, forecast, paceAvg, paceForecast, paceFinal,
-      rows, real, sinceStart, registered: totalEntries(state), todayReal, todayPlan: state.plan[today] || 0, todayTodo: todoMap[today] || 0,
+      rows, real, sinceStart, registered: totalEntries(state), adjustTotal: totalAdjust(state), todayClosed, todayReal, todayPlan: state.plan[today] || 0, todayTodo: todoMap[today] || 0,
       pct: goal > 0 ? bal / goal : 1,
       limitReachedToday: inPeriod(state, today) && todayReal >= S.dailyLimitMin
     };
@@ -1543,9 +1559,11 @@ const Core = (() => {
     st.periods = [...(st.periods || []), {
       startDate: S.startDate, endDate: S.endDate, goalMin: S.goalMin, initialBalanceMin: S.initialBalanceMin,
       finalBalanceMin: d.bal, goalReached: d.goalReached, reachedOn: d.goalReached ? reachedDate(state) : null,
-      closedAt: new Date().toISOString(), entries: st.entries
+      closedAt: new Date().toISOString(), entries: st.entries, adjustments: st.adjustments || []
     }];
     st.entries = [];
+    st.adjustments = [];
+    st.closedDays = Object.fromEntries(Object.entries(st.closedDays || {}).filter(from));
     st.settings = { ...S, startDate: next.startDate, endDate: next.endDate, goalMin: next.goalMin, initialBalanceMin: next.initialBalanceMin, dailyLimitMin: next.dailyLimitMin };
     st.overrides = Object.fromEntries(Object.entries(st.overrides || {}).filter(from));
     for (const h of next.holidays || []) if (!st.overrides[h.key] && inPeriod(st, h.key) && !isWeekend(h.key)) st.overrides[h.key] = { type: 'holiday', label: h.label };
@@ -1570,6 +1588,12 @@ const Core = (() => {
     }
     if (!isInt(e.durationMin) || e.durationMin <= 0 || e.durationMin > MAX_ENTRY_MIN) return null;
     return { ...base, mode: 'manual', start: null, end: null, breakMin: 0, durationMin: e.durationMin, crossesMidnight: false };
+  }
+
+  function cleanAdjust(a) {
+    if (!a || !isValidKey(a.date) || !isInt(a.deltaMin) || a.deltaMin === 0 || Math.abs(a.deltaMin) > 999 * 60) return null;
+    const optInt = v => isInt(v) && v >= 0 && v <= 99999 * 60 ? v : null;
+    return { id: typeof a.id === 'string' && a.id ? a.id : newId(), date: a.date, deltaMin: a.deltaMin, realMin: optInt(a.realMin), systemMin: optInt(a.systemMin), note: String(a.note || '').slice(0, 120), createdAt: typeof a.createdAt === 'string' ? a.createdAt : new Date().toISOString() };
   }
 
   function sanitizeState(input) {
@@ -1628,10 +1652,14 @@ const Core = (() => {
           finalBalanceMin: intIn(p.finalBalanceMin, 0, 99999 * 60, 0), goalReached: p.goalReached === true,
           reachedOn: p.reachedOn === 'before' || isValidKey(p.reachedOn) ? p.reachedOn : null,
           closedAt: typeof p.closedAt === 'string' ? p.closedAt : null,
-          entries: Array.isArray(p.entries) ? p.entries.map(cleanEntry).filter(Boolean) : []
+          entries: Array.isArray(p.entries) ? p.entries.map(cleanEntry).filter(Boolean) : [],
+          adjustments: Array.isArray(p.adjustments) ? p.adjustments.map(cleanAdjust).filter(Boolean) : []
         });
       }
     }
+    st.adjustments = Array.isArray(src.adjustments) ? src.adjustments.map(cleanAdjust).filter(Boolean) : [];
+    st.closedDays = {};
+    if (src.closedDays && typeof src.closedDays === 'object') for (const [k, v] of Object.entries(src.closedDays)) if (isValidKey(k) && v === true) st.closedDays[k] = true;
     st.meta = { ...def.meta, ...(src.meta && typeof src.meta === 'object' ? src.meta : {}) };
     return { ok: true, state: st, dropped };
   }
@@ -1641,7 +1669,7 @@ const Core = (() => {
     pad, sum, clamp, parseKey, keyFromUTC, isValidKey, addDays, dayIndex, weekday, isWeekend, rangeKeys, minKey, maxKey,
     localTodayKey, fmtDate, fmtDateShort, fmtDateLong, wdShort, wdLong,
     parseClock, fmtClock, fmtDur, parseDur, spanFromClock,
-    defaultState, realizedByDate, balance, isAvailable, inPeriod, openDays,
+    defaultState, realizedByDate, balance, totalAdjust, adjustByDate, isAvailable, isClosed, inPeriod, openDays,
     waterFill, removeFromEnd, computePlan, makeBaseline, reachedDate, dayStatus, derive,
     BREAK_RIGHT, regularDayMin, dayClock, validateEntry, sanitizeState,
     easterKey, nationalHolidays, holidaysInRange, suggestNextPeriod, validateNextPeriod, closePeriod
@@ -1735,7 +1763,9 @@ const ICONS = {
   rocket: '<path d="M5 15c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.8-.9.8-2.2 0-3a2.1 2.1 0 0 0-3 0z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.9A12.9 12.9 0 0 1 22 2c0 2.7-.8 7.5-6 11a22.4 22.4 0 0 1-4 2z"/>',
   database: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
   palette: '<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16" cy="10" r="1.2"/><path d="M12 21a2 2 0 0 1 0-4h1.5a2.5 2.5 0 0 0 0-5"/>',
-  gauge: '<path d="M12 14l4-4"/><path d="M3.5 18a9 9 0 1 1 17 0"/>'
+  gauge: '<path d="M12 14l4-4"/><path d="M3.5 18a9 9 0 1 1 17 0"/>',
+  scale: '<path d="M12 3v18M7 21h10M5 7h14M5 7l-3 7a3.5 3.5 0 0 0 6 0zM19 7l-3 7a3.5 3.5 0 0 0 6 0z"/>',
+  flagDone: '<path d="M5 21V4M5 4h12l-2.5 4L17 12H5"/><path d="M9 8l1.5 1.5L13 7"/>'
 };
 const icon = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ''}</svg>`;
 
@@ -1776,7 +1806,8 @@ function toast({ type = 'info', title, msg = '', action = null, timeout = 4800, 
     el.addEventListener('mouseleave', () => { timer = setTimeout(close, 1800); });
   }
   host.appendChild(el);
-  while (host.children.length > 4) host.firstElementChild.remove();
+  const maxToasts = window.innerWidth <= 720 ? 2 : 4;
+  while (host.children.length > maxToasts) host.firstElementChild.remove();
   return close;
 }
 
@@ -1967,6 +1998,7 @@ function renderAll() {
   renderPlan(d, t);
   renderCalendar(d, t);
   renderHistory(d, t);
+  renderAdjustCard(d, t);
   renderOverrides();
   renderPeriodCard(d, t);
   renderStorageNote();
@@ -2023,7 +2055,7 @@ function renderKpis(d) {
   const kpi = (label, ic, tone, value, foot) => `<div class="card kpi"><div class="kpi-top"><span class="kpi-label">${label}</span><span class="kpi-icon ${tone}">${icon(ic)}</span></div><div class="kpi-value">${value}</div><div class="kpi-foot">${foot}</div></div>`;
   const nextOpen = d.open.find(k => (d.todoMap[k] || 0) > 0);
   $('#kpis').innerHTML = [
-    kpi('Saldo atual', 'clock', 'accent', count('k-bal', d.bal), `${fmtDur(S.initialBalanceMin)} inicial + ${fmtDur(d.registered)} registradas`),
+    kpi('Saldo atual', 'clock', 'accent', count('k-bal', d.bal), `${fmtDur(S.initialBalanceMin)} inicial + ${fmtDur(d.registered)} registradas${d.adjustTotal ? ` ${d.adjustTotal > 0 ? '+' : '−'} ${fmtDur(Math.abs(d.adjustTotal))} ajuste` : ''}`),
     kpi('Meta', 'target', '', count('k-goal', d.goal), `até ${fmtDate(S.endDate)}`),
     kpi('Horas restantes', 'hourglass', d.R === 0 ? 'success' : 'warning', count('k-rem', d.R), d.R === 0 ? 'Meta concluída' : `média de ${fmtDur(d.avgNeeded)}/dia`),
     kpi('Progresso', 'trend', d.goalReached ? 'success' : 'info', count('k-pct', d.pct, 'pct'), d.goalReached ? 'Concluído' : `${fmtDur(d.bal)} de ${fmtDur(d.goal)}`),
@@ -2091,13 +2123,16 @@ function renderHero(d, t) {
     <div class="progress-legend">
       <span class="lg"><i class="sw initial"></i>Saldo inicial <b class="num">${fmtDur(S.initialBalanceMin)}</b></span>
       <span class="lg"><i class="sw done"></i>Registrado no período <b class="num">${fmtDur(d.registered)}</b></span>
+      ${d.adjustTotal ? `<span class="lg"><i class="sw rest"></i>Ajuste do banco real <b class="num">${fmtDur(d.adjustTotal, { sign: true })}</b></span>` : ''}
       ${d.todayTodo > 0 ? `<span class="lg"><i class="sw today"></i>Previsto hoje <b class="num">${fmtDur(d.todayTodo)}</b></span>` : ''}
       <span class="lg"><i class="sw rest"></i>Restante <b class="num">${fmtDur(d.R)}</b></span>
     </div>
     <div class="hero-foot">
       <button class="btn btn-sm" type="button" data-go="plan">${icon('list', 'i-sm')} Ver planejamento</button>
       <button class="btn btn-sm btn-ghost" type="button" data-go="calendar">${icon('calendar', 'i-sm')} Calendário</button>
+      <button class="btn btn-sm btn-ghost" type="button" id="heroAdjust">${icon('scale', 'i-sm')} Conferir com o banco real</button>
     </div>`;
+  $('#heroAdjust').onclick = () => openAdjustModal();
   $$('[data-go]', $('#heroCard')).forEach(b => b.onclick = () => setView(b.dataset.go));
   lastHeroWidths = { i: wInit, d: wDone, t: wToday };
   requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -2133,6 +2168,17 @@ function renderToday(d, t) {
   } else if (!avail && !d.todayReal) {
     const ov = state.overrides[t];
     body = `<div class="today-big"><span class="v" style="font-size:22px">${ov ? Core.OVERRIDE_TYPES[ov.type] : 'Fim de semana'}</span></div><p class="muted" style="margin:0">${ov && ov.label ? esc(ov.label) + ' · ' : ''}Sem horas extras planejadas hoje.</p><div class="suggest">${icon('calendar')}<div><div class="suggest-t">A seguir</div><div class="suggest-v">${nextDay ? `${wdShort(nextDay)}, ${fmtDateShort(nextDay)} · ${fmtDur(d.todoMap[nextDay])}` : '—'}</div></div></div>`;
+  } else if (d.todayClosed) {
+    const planT = d.todayPlan, realT = d.todayReal, diff = realT - planT;
+    body = `
+      <div class="today-big"><span class="v num">${fmtDur(realT)}</span><span class="u">feitas hoje</span></div>
+      <div class="day-done" style="margin-top:6px">${icon('flagDone', 'i-sm')}<span>Expediente finalizado</span></div>
+      <div class="today-rows">
+        <div class="today-row"><span>Previsto</span><b class="num">${fmtDur(planT)}</b></div>
+        <div class="today-row"><span>Realizado</span><b class="num">${fmtDur(realT)}</b></div>
+        ${planT ? `<div class="today-row"><span>Diferença</span><b class="num ${diff > 0 ? 'pos' : diff < 0 ? 'neg' : ''}">${fmtDur(diff, { sign: true })}</b></div>` : ''}
+      </div>
+      ${nextTxt ? `<div class="suggest">${icon('calendar')}<div><div class="suggest-t">A seguir</div><div class="suggest-v" style="font-weight:500;font-size:13px">${nextTxt}</div></div></div>` : ''}`;
   } else {
     const planT = d.todayPlan, realT = d.todayReal, todoT = d.todayTodo;
     const pct = planT ? Math.min(100, realT / planT * 100) : (realT ? 100 : 0);
@@ -2149,8 +2195,11 @@ function renderToday(d, t) {
       ${sug ? `<div class="suggest">${icon('clock')}<div><div class="suggest-t">Sugestão de horário</div><div class="suggest-v num">${sug.start} → ${sug.end}${sug.crosses ? ' (+1 dia)' : ''}</div></div></div>` : (nextTxt ? `<div class="suggest">${icon('calendar')}<div><div class="suggest-t">Hoje concluído</div><div class="suggest-v" style="font-weight:500;font-size:13px">${nextTxt}</div></div></div>` : '')}`;
   }
   const canLog = inP && t >= S.startDate;
-  card.innerHTML = head + body + `<div class="spacer"></div>${canLog ? `<button class="btn ${d.goalReached ? '' : 'btn-primary'}" type="button" id="todayLogBtn">${icon('plus')} Registrar hoje</button>` : ''}${t > S.endDate ? `<button class="btn btn-primary" type="button" id="todayNextBtn">${icon('calendar')} Iniciar próximo período</button>` : ''}`;
+  const canFinish = canLog && (avail || d.todayReal > 0);
+  card.innerHTML = head + body + `<div class="spacer"></div>${canLog ? `<button class="btn ${d.goalReached || d.todayClosed ? '' : 'btn-primary'}" type="button" id="todayLogBtn">${icon('plus')} Registrar hoje</button>` : ''}${canFinish ? (d.todayClosed ? `<button class="btn btn-ghost" type="button" id="todayReopenBtn">${icon('refresh')} Reabrir expediente</button>` : `<button class="btn" type="button" id="todayFinishBtn">${icon('flagDone')} Finalizar expediente</button>`) : ''}${t > S.endDate ? `<button class="btn btn-primary" type="button" id="todayNextBtn">${icon('calendar')} Iniciar próximo período</button>` : ''}`;
   const nb = $('#todayNextBtn'); if (nb) nb.onclick = () => openClosePeriodModal();
+  const fb = $('#todayFinishBtn'); if (fb) fb.onclick = () => finishDay(t);
+  const rb = $('#todayReopenBtn'); if (rb) rb.onclick = () => reopenDay(t);
   const btn = $('#todayLogBtn');
   if (btn) btn.onclick = () => {
     const sug = d.todayTodo > 0 ? suggestionForToday(t, d.todayTodo) : null;
@@ -2221,7 +2270,7 @@ function updateClockWidget(w) {
   for (const [f] of CLOCK_FIELDS) { const inp = $(`#${pfx}-${f}`, host); if (inp && document.activeElement !== inp && inp.value !== (c[f] || '')) inp.value = c[f] || ''; }
   $('[data-regular]', host).textContent = fmtDur(Core.regularDayMin(state.settings));
   const isToday = t === today();
-  const k = Core.dayClock(state, t, isToday ? nowMinutes() : null);
+  const k = Core.dayClock(state, t, isToday && !Core.isClosed(state, t) ? nowMinutes() : null);
   const dayPlan = state.plan[t] || 0;
   const hhmm = m => `${Core.fmtClock(m)}${m >= 1440 ? ' <span class="badge t-info no-dot">+1 dia</span>' : ''}`;
   const row = (a, b) => `<div class="today-row"><span>${a}</span><b class="num">${b}</b></div>`;
@@ -2260,8 +2309,15 @@ function updateClockWidget(w) {
       </div>
       <div class="muted" style="font-size:12.5px">Entrada ${Core.fmtClock(k.tIn)} + ${fmtDur(k.regular)} + intervalo ${fmtDur(k.breakMin)}${k.plan ? ` + ${planTxt}` : ` (${planTxt})`}. Informe a saída real para registrar.</div>`;
   }
+  if (isToday && Core.inPeriod(state, t)) {
+    html += Core.isClosed(state, t)
+      ? `<div class="day-done">${icon('flagDone', 'i-sm')}<span>Expediente finalizado</span><button type="button" class="btn btn-ghost btn-sm" data-reopen>Reabrir</button></div>`
+      : `<button type="button" class="btn" data-finish>${icon('flagDone')} Finalizar expediente</button>`;
+  }
   $('[data-out]', host).innerHTML = html;
   const b = $('[data-register]', host); if (b) b.onclick = () => registerClockOvertime(t, w.onRegistered);
+  const fb = $('[data-finish]', host); if (fb) fb.onclick = async () => { await finishDay(t); if (w.onRegistered) w.onRegistered(); };
+  const rb = $('[data-reopen]', host); if (rb) rb.onclick = () => { reopenDay(t); if (w.onRegistered) w.onRegistered(); };
 }
 /** Dias passados do período com ponto preenchido mas sem saída, ou com hora extra calculada e não registrada. */
 function pendingClockDays(t) {
@@ -2275,16 +2331,16 @@ function pendingClockDays(t) {
   }
   return out;
 }
-async function registerClockOvertime(t, after = null) {
+async function registerClockOvertime(t, after = null, { quiet = false } = {}) {
   const k = Core.dayClock(state, t);
-  if (!k.valid || k.out == null || !k.overtime) return;
+  if (!k.valid || k.out == null || !k.overtime) return false;
   const existing = state.entries.find(e => e.fromClock && e.date === t);
   const draftE = { mode: 'time', date: t, start: Core.fmtClock(k.regularEnd), end: Core.fmtClock(k.out), breakMin: 0, ignoreWorkWindow: true };
   const v = Core.validateEntry(state, draftE, { excludeId: existing ? existing.id : null, today: today() });
-  if (v.errors.length) { toast({ type: 'danger', title: 'Não foi possível registrar', msg: v.errors[0].msg, timeout: 8000 }); return; }
+  if (v.errors.length) { toast({ type: 'danger', title: 'Não foi possível registrar', msg: v.errors[0].msg, timeout: 8000 }); return false; }
   if (v.warnings.length) {
     const ok = await confirmDialog({ title: 'Confirmar lançamento', message: 'Verifique os avisos abaixo antes de continuar:', items: v.warnings, confirmText: 'Registrar mesmo assim' });
-    if (!ok) return;
+    if (!ok) return false;
   }
   const now = new Date().toISOString(), c = state.clock[t] || {};
   const rec = {
@@ -2294,6 +2350,7 @@ async function registerClockOvertime(t, after = null) {
   };
   const snap = snapshot();
   commit(st => { const i = st.entries.findIndex(x => x.id === rec.id); if (i >= 0) st.entries[i] = rec; else st.entries.push(rec); });
+  if (quiet) { if (after) after(); return true; }
   const dd = Core.derive(state, today());
   toast({
     type: 'success', title: `${existing ? 'Registro atualizado' : 'Registrado'}: ${fmtDur(rec.durationMin)} em ${fmtDateShort(t)}`,
@@ -2301,6 +2358,7 @@ async function registerClockOvertime(t, after = null) {
     action: { label: 'Desfazer', fn: () => { restore(snap); toast({ type: 'info', title: 'Alteração desfeita' }); } }
   });
   if (after) after();
+  return true;
 }
 
 function renderSummary(d, t) {
@@ -2348,12 +2406,14 @@ function renderChart(d) {
   const keys = [Core.addDays(S.startDate, -1), ...Core.rangeKeys(S.startDate, S.endDate)];
   const n = keys.length;
   const real = d.real;
-  const base0 = S.initialBalanceMin + Core.sum(Object.entries(real).filter(([k]) => k < S.startDate).map(([, v]) => v));
+  const adj = Core.adjustByDate(state);
+  const before = m => Core.sum(Object.entries(m).filter(([k]) => k < S.startDate).map(([, v]) => v));
+  const base0 = S.initialBalanceMin + before(real) + before(adj);
   // séries
   const actual = [], proj = [];
   let cum = base0;
   keys.forEach((k, i) => {
-    if (i > 0) cum += real[k] || 0;
+    if (i > 0) cum += (real[k] || 0) + (adj[k] || 0);
     if (i === 0 || k <= t) actual.push({ i, k, v: cum });
   });
   const lastA = actual[actual.length - 1];
@@ -2361,7 +2421,7 @@ function renderChart(d) {
     const startI = Math.max(0, keys.indexOf(Core.addDays(Core.maxKey(t, S.startDate), -1)));
     let pc = startI === 0 ? base0 : actual.find(p => p.i === startI)?.v ?? base0;
     proj.push({ i: startI, k: keys[startI], v: pc });
-    for (let i = startI + 1; i < n; i++) { const k = keys[i]; pc += (k >= t ? (real[k] || 0) + (d.todoMap[k] || 0) : (real[k] || 0)); proj.push({ i, k, v: pc }); }
+    for (let i = startI + 1; i < n; i++) { const k = keys[i]; pc += (real[k] || 0) + (adj[k] || 0) + (k >= t ? (d.todoMap[k] || 0) : 0); proj.push({ i, k, v: pc }); }
   }
   const maxV = Math.max(d.goal * 1.1, ...actual.map(p => p.v), ...proj.map(p => p.v));
   const x = i => P.l + (W - P.l - P.r) * (i / (n - 1));
@@ -2558,7 +2618,7 @@ function renderHistory(d, t) {
   for (const e of state.entries) (byDate[e.date] = byDate[e.date] || []).push(e);
   const dates = Object.keys(byDate).sort().reverse();
   const sortKey = e => e.mode === 'time' ? Core.parseClock(e.start) : 9999;
-  host.innerHTML = `<div class="hist-summary"><span>Saldo inicial <b class="num">${fmtDur(S.initialBalanceMin)}</b></span><span>Registrado <b class="num">${fmtDur(d.registered)}</b></span><span>Saldo atual <b class="num">${fmtDur(d.bal)}</b></span></div>` +
+  host.innerHTML = `<div class="hist-summary"><span>Saldo inicial <b class="num">${fmtDur(S.initialBalanceMin)}</b></span><span>Registrado <b class="num">${fmtDur(d.registered)}</b></span>${d.adjustTotal ? `<span>Ajustes <b class="num">${fmtDur(d.adjustTotal, { sign: true })}</b></span>` : ''}<span>Saldo atual <b class="num">${fmtDur(d.bal)}</b></span></div>` +
     dates.map(k => {
       const list = byDate[k].sort((a, b) => sortKey(a) - sortKey(b));
       const tot = Core.sum(list.map(e => e.durationMin));
@@ -2598,6 +2658,127 @@ function renderStorageNote() {
   $('#storageNote').innerHTML = storageOk
     ? `${icon('database', 'i-sm')} Dados salvos neste navegador${up ? ` · última alteração ${up.toLocaleDateString('pt-BR')} às ${up.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : ''}`
     : `<span class="neg">${icon('alert', 'i-sm')} Armazenamento local indisponível — exporte um backup.</span>`;
+}
+
+/* ---------- Ajuste com o banco de horas real ---------- */
+function renderAdjustCard(d, t) {
+  const list = (state.adjustments || []).slice().sort((a, b) => a.createdAt < b.createdAt ? 1 : -1);
+  $('#adjustCard').innerHTML = `
+    <div class="card-head"><h3 class="card-title">${icon('scale')} Saldo do banco real</h3>${d.adjustTotal ? `<span class="badge t-info no-dot num">ajustes ${fmtDur(d.adjustTotal, { sign: true })}</span>` : ''}</div>
+    <p class="muted" style="margin:0 0 14px;font-size:13px">Por causa dos segundos, o banco oficial pode ficar alguns minutos diferente. Informe o saldo real e o sistema lança um ajuste com a diferença.</p>
+    <button type="button" class="btn btn-primary" id="adjustBtn" style="width:100%;justify-content:center">${icon('scale', 'i-sm')} Informar saldo real</button>
+    ${list.length ? `<div class="section-l"><span>Ajustes do período</span><span class="num">${list.length}</span></div><div class="ov-list" style="margin-bottom:0">${list.map(a => `<div class="ov-item">
+        <span class="badge no-dot num ${a.deltaMin > 0 ? 't-success' : 't-danger'}">${fmtDur(a.deltaMin, { sign: true })}</span>
+        <div style="min-width:0"><div class="od num">${fmtDateShort(a.date)}${a.realMin != null ? ` · real ${fmtDur(a.realMin)}` : ''}</div><div class="ol">${a.systemMin != null ? `sistema mostrava ${fmtDur(a.systemMin)}` : ''}${a.note ? `${a.systemMin != null ? ' · ' : ''}${esc(a.note)}` : ''}</div></div>
+        <button class="icon-btn ghost danger" type="button" data-adjdel="${a.id}" aria-label="Excluir ajuste" title="Excluir ajuste">${icon('trash', 'i-sm')}</button></div>`).join('')}</div>` : ''}`;
+  $('#adjustBtn').onclick = () => openAdjustModal();
+  $$('[data-adjdel]', $('#adjustCard')).forEach(b => b.onclick = () => deleteAdjust(b.dataset.adjdel));
+}
+function openAdjustModal() {
+  const t = today(), d = Core.derive(state, t);
+  const form = document.createElement('form');
+  form.className = 'form-stack'; form.noValidate = true;
+  form.innerHTML = `
+    <div class="day-stats" style="margin-bottom:0">
+      <div class="day-stat"><div class="l">No sistema</div><div class="v num">${fmtDur(d.bal)}</div></div>
+      <div class="day-stat"><div class="l">No banco real</div><div class="v num" data-real>—</div></div>
+      <div class="day-stat"><div class="l">Ajuste</div><div class="v num" data-diff>—</div></div>
+    </div>
+    <div class="field"><label for="adjReal">Saldo do seu banco de horas real</label><input id="adjReal" class="num" placeholder="Ex.: ${fmtDur(Math.max(0, d.bal - 2))}" autocomplete="off"><span class="hint">Formato 4h19 ou 4:19 — o valor que aparece no ponto/RH hoje.</span></div>
+    <div class="field"><label for="adjNote">Observação <span class="opt">opcional</span></label><input id="adjNote" maxlength="120" placeholder="Ex.: conferido no sistema do RH"></div>
+    <ul class="pv-msgs" data-msgs></ul>
+    <div class="info-box">${icon('info')}<span>Seus lançamentos não são alterados. O ajuste entra só no saldo e o planejamento é recalculado.</span></div>
+    <div class="form-actions"><button type="button" class="btn btn-ghost" data-cancel>Cancelar</button><button type="submit" class="btn btn-primary">${icon('check')} Aplicar ajuste</button></div>`;
+  const m = openModal({ title: 'Conferir com o banco real', subtitle: `Saldo do sistema hoje: <b class="num">${fmtDur(d.bal)}</b>`, content: form, size: 'sm' });
+  const inp = $('#adjReal', form);
+  let attempted = false;
+  const read = () => {
+    const real = Core.parseDur(inp.value);
+    const diff = real == null ? null : real - d.bal;
+    $('[data-real]', form).textContent = real == null ? '—' : fmtDur(real);
+    const dv = $('[data-diff]', form);
+    dv.textContent = diff == null ? '—' : diff === 0 ? '0h00' : fmtDur(diff, { sign: true });
+    dv.className = `v num ${diff > 0 ? 'pos' : diff < 0 ? 'neg' : ''}`;
+    const msgs = [];
+    if (real == null && (attempted || inp.value.trim())) msgs.push(['err', 'alertCircle', 'Saldo inválido. Use o formato 4h19 ou 4:19.']);
+    else if (diff === 0) msgs.push(['info', 'checkCircle', 'Os saldos já conferem — nenhum ajuste necessário.']);
+    else if (diff != null && Math.abs(diff) > 60) msgs.push(['warn', 'alert', `Diferença grande (${fmtDur(diff, { sign: true })}). Confira se não falta algum lançamento antes de ajustar.`]);
+    $('[data-msgs]', form).innerHTML = msgs.map(([c, i, t]) => `<li class="${c}">${icon(i, 'i-sm')}<span>${esc(t)}</span></li>`).join('');
+    inp.classList.toggle('invalid', real == null && attempted);
+    return { real, diff };
+  };
+  inp.addEventListener('input', read);
+  $('[data-cancel]', form).onclick = () => m.close();
+  form.addEventListener('submit', ev => {
+    ev.preventDefault(); attempted = true;
+    const { real, diff } = read();
+    if (real == null || real > 999 * 60) { form.classList.remove('shake'); void form.offsetWidth; form.classList.add('shake'); return; }
+    m.close();
+    if (diff === 0) { toast({ type: 'success', iconName: 'checkCircle', title: 'Saldo confere', msg: `O sistema e o banco real mostram ${fmtDur(real)}.` }); return; }
+    const snap = snapshot();
+    const rec = { id: uid(), date: t, deltaMin: diff, realMin: real, systemMin: d.bal, note: $('#adjNote', form).value.trim().slice(0, 120), createdAt: new Date().toISOString() };
+    commit(st => { st.adjustments = [...(st.adjustments || []), rec]; });
+    const dd = Core.derive(state, today());
+    toast({
+      type: 'success', iconName: 'scale', title: `Ajuste de ${fmtDur(diff, { sign: true })} aplicado`,
+      msg: dd.goalReached ? `Saldo ${fmtDur(dd.bal)} · meta concluída` : `Saldo ${fmtDur(dd.bal)} · faltam ${fmtDur(dd.R)}`,
+      action: { label: 'Desfazer', fn: () => { restore(snap); toast({ type: 'info', title: 'Ajuste desfeito' }); } }
+    });
+  });
+  setTimeout(() => inp.focus(), 50);
+}
+function deleteAdjust(id) {
+  const a = (state.adjustments || []).find(x => x.id === id); if (!a) return;
+  const snap = snapshot();
+  commit(st => { st.adjustments = st.adjustments.filter(x => x.id !== id); });
+  toast({ type: 'warning', iconName: 'trash', title: 'Ajuste excluído', msg: `${fmtDur(a.deltaMin, { sign: true })} removido · saldo ${fmtDur(Core.balance(state))}`, action: { label: 'Desfazer', fn: () => restore(snap) } });
+}
+
+/* ---------- Finalizar expediente ---------- */
+/** Simula o ponto de hoje com a saída marcada agora (sem salvar). */
+function clockWithOutNow(t) {
+  const c = state.clock[t];
+  if (!c || !c.in || c.out) return { k: Core.dayClock(state, t), outNow: null };
+  const outNow = nowClock();
+  const sim = { ...state, clock: { ...state.clock, [t]: { ...c, out: outNow } } };
+  return { k: Core.dayClock(sim, t), outNow };
+}
+async function finishDay(t) {
+  if (t !== today() || Core.isClosed(state, t)) return;
+  const d = Core.derive(state, t);
+  const { k, outNow } = clockWithOutNow(t);
+  const reg = state.entries.find(e => e.fromClock && e.date === t);
+  const needsReg = k.valid && k.out != null && k.overtime > 0 && !(reg && reg.durationMin === k.overtime && reg.end === Core.fmtClock(k.out));
+  const steps = [];
+  if (outNow && k.valid) steps.push(`Saída marcada agora, às <b class="num">${outNow}</b>.`);
+  if (needsReg) steps.push(`Hora extra de <b class="num">${fmtDur(k.overtime)}</b> registrada (${Core.fmtClock(k.regularEnd)} → ${Core.fmtClock(k.out)}).`);
+  steps.push(`Total de hoje: <b class="num">${fmtDur((d.real[t] || 0) - (needsReg && reg ? reg.durationMin : 0) + (needsReg ? k.overtime : 0))}</b>${d.todayPlan ? ` de ${fmtDur(d.todayPlan)} previstas` : ''}.`);
+  if (d.todayTodo > 0 && !needsReg) steps.push(`As <b class="num">${fmtDur(d.todayTodo)}</b> que ainda faltavam hoje serão redistribuídas nos próximos dias.`);
+  else steps.push('O planejamento dos próximos dias é recalculado sem contar mais com hoje.');
+  const ok = await confirmDialog({
+    title: 'Finalizar expediente de hoje?',
+    message: `<ul class="clock-msgs">${steps.map(x => `<li>${icon('check', 'i-sm')}<span>${x}</span></li>`).join('')}</ul><div class="faint" style="font-size:12.5px;margin-top:12px">Você pode reabrir o dia depois, se precisar.</div>`,
+    confirmText: 'Finalizar expediente'
+  });
+  if (!ok) return;
+  const snap = snapshot();
+  if (outNow && k.valid) { state.clock[t] = { ...state.clock[t], out: outNow }; saveState(); }
+  if (needsReg && !(await registerClockOvertime(t, null, { quiet: true }))) { restore(snap); return; }
+  commit(st => { st.closedDays = { ...(st.closedDays || {}), [t]: true }; });
+  const dd = Core.derive(state, today());
+  toast({
+    type: 'success', iconName: 'flagDone', title: 'Expediente finalizado',
+    msg: dd.goalReached ? `Hoje: ${fmtDur(dd.todayReal)} · meta concluída` : `Hoje: ${fmtDur(dd.todayReal)} · saldo ${fmtDur(dd.bal)} · faltam ${fmtDur(dd.R)}`,
+    timeout: 7000,
+    action: { label: 'Desfazer', fn: () => { restore(snap); toast({ type: 'info', title: 'Expediente reaberto' }); } }
+  });
+}
+function reopenDay(t) {
+  if (!Core.isClosed(state, t)) return;
+  const snap = snapshot();
+  commit(st => { delete st.closedDays[t]; });
+  const dd = Core.derive(state, today());
+  toast({ type: 'info', iconName: 'refresh', title: 'Expediente reaberto', msg: dd.todayTodo ? `Hoje volta a contar no plano: ${fmtDur(dd.todayTodo)} a fazer.` : 'Hoje volta a contar no planejamento.', action: { label: 'Desfazer', fn: () => restore(snap) } });
 }
 
 /* ---------- Período: fechamento e histórico ---------- */

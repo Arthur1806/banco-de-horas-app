@@ -116,3 +116,53 @@ test('ponto do dia calcula a hora extra', () => {
   assert.equal(k.regularEnd, 18 * 60);
   assert.equal(k.overtime, 90);
 });
+
+test('ajuste com o banco real entra no saldo sem mexer nos lançamentos', () => {
+  const st = Core.defaultState();
+  st.entries.push(manual('a', '2026-11-16', 120));
+  assert.equal(Core.balance(st), 261);
+  st.adjustments.push({ id: 'j1', date: '2026-11-18', deltaMin: -2, realMin: 259, systemMin: 261, note: '', createdAt: 'x' });
+  assert.equal(Core.balance(st), 259);
+  st.plan = Core.computePlan(st, '2026-11-18').plan;
+  const d = Core.derive(st, '2026-11-18');
+  assert.equal(d.bal, 259);
+  assert.equal(d.registered, 120);
+  assert.equal(d.adjustTotal, -2);
+  assert.equal(d.real['2026-11-18'] || 0, 0, 'ajuste não conta como hora feita no dia');
+  assert.equal(d.rows[d.rows.length - 1].cum, 960, 'saldo final previsto continua batendo com a meta');
+  // planejamento compensa os 2 minutos
+  const { plan } = Core.computePlan(st, '2026-11-18', 'full');
+  const todo = Core.openDays(st, '2026-11-18').reduce((s, k) => s + plan[k], 0);
+  assert.equal(todo, 960 - 259);
+  // sobrevive a salvar/carregar e vai para o histórico ao fechar o período
+  const re = Core.sanitizeState(JSON.parse(JSON.stringify(st))).state;
+  assert.equal(Core.balance(re), 259);
+  const ns = Core.closePeriod(re, { startDate: '2026-12-01', endDate: '2026-12-31', goalMin: 960, initialBalanceMin: 259, dailyLimitMin: 120 }, '2026-11-30');
+  assert.equal(Core.balance(ns), 259);
+  assert.equal(ns.adjustments.length, 0);
+  assert.equal(ns.periods[0].adjustments.length, 1);
+});
+
+test('finalizar expediente redistribui o que faltava hoje', () => {
+  const st = Core.defaultState();
+  const t = '2026-11-18';
+  st.plan = Core.computePlan(st, t, 'full').plan;
+  st.baseline = { ...st.plan };
+  st.entries.push(manual('a', t, 30));
+  st.plan = Core.computePlan(st, t).plan;
+  const before = Core.derive(st, t);
+  assert.ok(before.todayTodo > 0, 'antes de finalizar, hoje ainda tem horas a fazer');
+  st.closedDays[t] = true;
+  st.plan = Core.computePlan(st, t).plan;
+  const d = Core.derive(st, t);
+  assert.equal(d.todayTodo, 0);
+  assert.ok(!d.open.includes(t));
+  const future = d.open.reduce((s, k) => s + d.todoMap[k], 0);
+  assert.equal(d.bal + future, 960, 'o restante foi para os próximos dias');
+  assert.equal(Core.dayStatus(st, t, t, d.real, false), 'partial');
+  assert.ok(d.delta < 0, 'o que faltou hoje já conta no ritmo');
+  // reabrir devolve o dia ao planejamento
+  delete st.closedDays[t];
+  st.plan = Core.computePlan(st, t).plan;
+  assert.ok(Core.derive(st, t).open.includes(t));
+});
