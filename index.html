@@ -11,6 +11,9 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-title" content="Banco de Horas">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="application-name" content="Banco de Horas">
 <meta name="theme-color" content="#08090b" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
@@ -1021,6 +1024,48 @@ body.ob-open { overflow: hidden; }
 .ob-alt { display: grid; gap: 4px; justify-items: center; margin-top: 12px; }
 .ob-alt .ob-sub { margin: 0; }
 
+/* Instalação do app (PWA) */
+.pwa-modal .modal-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.pwa-modal .modal-head { padding-bottom: 0; }
+.pwa-head { text-align: center; margin-top: -6px; }
+.pwa-icon { width: 72px; height: 72px; border-radius: 18px; display: block; margin: 0 auto 14px; box-shadow: 0 14px 30px -14px rgba(0, 0, 0, .7), 0 0 0 1px var(--border); animation: pwaPop .5s var(--ease-spring) both; }
+@keyframes pwaPop { from { transform: scale(.8) translateY(6px); opacity: 0; } }
+.pwa-title { font-size: 20px; font-weight: 680; letter-spacing: -.025em; }
+.pwa-text { font-size: 14px; color: var(--text-2); line-height: 1.5; margin: 6px 0 0; }
+.pwa-actions { display: grid; gap: 6px; margin-top: 20px; }
+.pwa-main { height: 44px; justify-content: center; font-size: 14px; border-radius: 12px; }
+.pwa-later { justify-content: center; }
+.pwa-note { display: flex; gap: 10px; align-items: flex-start; margin-top: 16px; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); font-size: 13px; color: var(--text-2); line-height: 1.5; }
+.pwa-note .i { flex: none; margin-top: 2px; color: var(--info); }
+.pwa-note.warn { background: var(--warning-soft); border-color: color-mix(in srgb, var(--warning) 30%, transparent); color: var(--text); }
+.pwa-note.warn .i { color: var(--warning); }
+.pwa-note .btn { margin-top: 8px; display: flex; }
+.pwa-steps { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+.pwa-steps li { display: flex; gap: 12px; align-items: center; font-size: 13.5px; line-height: 1.45; color: var(--text-2); animation: rise .45s var(--ease) both; }
+.pwa-steps li:nth-child(2) { animation-delay: .06s; } .pwa-steps li:nth-child(3) { animation-delay: .12s; }
+.pwa-steps b { color: var(--text); }
+.pwa-step-n { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--accent); color: #fff; font-size: 12px; font-weight: 700; }
+.pwa-step-ic { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; flex: none; background: var(--surface-2); border: 1px solid var(--border); color: var(--accent); }
+.pwa-step-ic.ios { color: #0a84ff; }
+.pwa-step-ic .i { width: 20px; height: 20px; }
+.pwa-step-ic.wide { width: auto; min-width: 40px; padding: 0 9px; }
+.pwa-add { font-size: 11px; color: #0a84ff; font-weight: 650; }
+.pwa-preview { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; margin-top: 16px; padding: 14px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--border); }
+.pwa-sheet { display: grid; gap: 1px; border-radius: 10px; overflow: hidden; background: var(--border); font-size: 12.5px; }
+.pwa-sheet-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 11px; background: var(--surface); color: var(--text-2); }
+.pwa-sheet-row.hl { color: var(--text); font-weight: 600; background: color-mix(in srgb, #0a84ff 14%, var(--surface)); }
+.pwa-sheet-row .i { width: 16px; height: 16px; color: #0a84ff; flex: none; }
+.pwa-home { display: grid; justify-items: center; gap: 6px; font-size: 11px; color: var(--text-2); }
+.pwa-home img { width: 54px; height: 54px; border-radius: 13px; box-shadow: 0 0 0 1px var(--border); }
+
+/* App instalado (tela cheia): respeita a barra de status e o entalhe */
+@media (display-mode: standalone) {
+  .topbar-inner { padding-top: calc(14px + env(safe-area-inset-top)); }
+  .tabbar { top: env(safe-area-inset-top); }
+  .ob-top { padding-top: calc(16px + env(safe-area-inset-top)); }
+  .modal-wrap { padding-top: env(safe-area-inset-top); }
+}
+
 /* Períodos */
 .check { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text-2); cursor: pointer; }
 .check input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--accent); flex: none; cursor: pointer; }
@@ -1385,6 +1430,7 @@ body.ob-open { overflow: hidden; }
               <button type="button" data-theme-opt="light" role="radio"></button>
             </div>
           </div>
+          <div class="card" id="installCard"></div>
         </div>
         <div class="grid">
           <div class="card acc-card" id="accountCard"></div>
@@ -4863,6 +4909,224 @@ function renderAccount() {
 }
 
 /* =====================================================================
+   INSTALAÇÃO DO APP (PWA)
+   - Android/Chrome: usa o evento nativo beforeinstallprompt (só mostra o
+     botão "Instalar" quando o navegador realmente permite instalar).
+   - iPhone/iPad: não existe instalação automática; mostra um guia ilustrado
+     até "Adicionar à Tela de Início".
+   - Navegadores internos (Instagram, Facebook, etc.): orienta abrir no
+     Safari/Chrome, onde a instalação é possível.
+   - Preferências só no aparelho (localStorage), independentes do login.
+   ===================================================================== */
+const APP_BUILD = '2026.11.23-1';            // aumente a cada publicação: atualiza o service worker e o cache
+const PWA_KEYS = { dismissed: 'pwa_install_dismissed_at', done: 'pwa_install_completed', version: 'pwa_install_prompt_version', session: 'pwa_install_closed_session' };
+const PWA_PROMPT_VERSION = 1;                 // aumente para voltar a convidar todo mundo (ex.: grande novidade)
+const PWA_DISMISS_DAYS = 7;
+const Install = { deferred: null, reg: null, shown: false, timer: null };
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const ssGet = k => { try { return sessionStorage.getItem(k); } catch (e) { return null; } };
+const ssSet = (k, v) => { try { sessionStorage.setItem(k, v); } catch (e) {} };
+
+/** Plataforma e navegador (detecção centralizada). */
+function pwaPlatform() {
+  const ua = navigator.userAgent || '';
+  const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const android = /Android/i.test(ua);
+  let inApp = null;
+  if (/Instagram/i.test(ua)) inApp = 'Instagram';
+  else if (/FBAN|FBAV|FB_IAB|FBIOS/i.test(ua)) inApp = 'Facebook';
+  else if (/WhatsApp/i.test(ua)) inApp = 'WhatsApp';
+  else if (/\bLine\//i.test(ua)) inApp = 'Line';
+  else if (/Telegram/i.test(ua)) inApp = 'Telegram';
+  else if (android && /; wv\)/.test(ua)) inApp = 'app';                                   // WebView do Android
+  else if (ios && !/Safari\//.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua)) inApp = 'app';  // WKWebView no iOS
+  const iosBrowser = ios ? (/CriOS/.test(ua) ? 'Chrome' : /FxiOS/.test(ua) ? 'Firefox' : /EdgiOS/.test(ua) ? 'Edge' : 'Safari') : null;
+  return { ios, android, mobile: ios || android || /Mobi/i.test(ua), inApp, iosBrowser, ipad: ios && !/iPhone|iPod/.test(ua) };
+}
+/** O app está aberto como aplicativo instalado? (única função de verificação) */
+function isAppInstalled() {
+  try {
+    if (navigator.standalone === true) return true;                                         // iOS
+    if (['standalone', 'fullscreen', 'minimal-ui'].some(m => window.matchMedia && window.matchMedia(`(display-mode: ${m})`).matches)) return true;
+    if (document.referrer.startsWith('android-app://')) return true;                        // TWA
+  } catch (e) {}
+  return false;
+}
+/** Pode mostrar o convite agora? */
+function shouldOfferInstall() {
+  if (isAppInstalled()) return false;
+  if (lsGet(PWA_KEYS.done) === '1') return false;
+  if (ssGet(PWA_KEYS.session)) return false;
+  const ver = +(lsGet(PWA_KEYS.version) || 0), at = +(lsGet(PWA_KEYS.dismissed) || 0);
+  if (ver === PWA_PROMPT_VERSION && at && Date.now() - at < PWA_DISMISS_DAYS * 864e5) return false;
+  return true;
+}
+function rememberDismiss() {
+  lsSet(PWA_KEYS.dismissed, String(Date.now())); lsSet(PWA_KEYS.version, String(PWA_PROMPT_VERSION)); ssSet(PWA_KEYS.session, '1');
+}
+function rememberInstalled() { lsSet(PWA_KEYS.done, '1'); lsSet(PWA_KEYS.version, String(PWA_PROMPT_VERSION)); }
+
+const SHARE_ICON = '<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
+const ADD_ICON = '<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8.5v7M8.5 12h7"/></svg>';
+const DOTS_ICON = '<svg class="i" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>';
+
+/** Convite. variant: 'android' | 'ios' | 'inapp' */
+function openInstallPrompt(variant, { manual = false } = {}) {
+  if (Install.shown) return;
+  Install.shown = true;
+  const P = pwaPlatform();
+  const div = document.createElement('div');
+  div.className = 'pwa';
+  const browser = P.ios ? 'Safari' : 'Chrome';
+  div.innerHTML = `
+    <div class="pwa-head">
+      <img class="pwa-icon" src="icons/icon-192.png" alt="" width="72" height="72">
+      <div class="pwa-title" id="pwaTitle">Instale nosso aplicativo</div>
+      <p class="pwa-text">Tenha acesso rápido diretamente pela tela inicial do seu celular.</p>
+    </div>
+    ${variant === 'inapp' ? `
+      <div class="pwa-note">${icon('info', 'i-sm')}<span>Você abriu o link dentro do ${esc(P.inApp === 'app' ? 'aplicativo' : P.inApp)}. Para instalar, abra no <b>${browser}</b>:</span></div>
+      <ol class="pwa-steps">
+        <li><span class="pwa-step-ic">${DOTS_ICON}</span><span>Toque no menu <b>•••</b> ${P.ios ? 'ou no ícone de compartilhar' : ''} (geralmente no canto superior)</span></li>
+        <li><span class="pwa-step-ic">${icon('forward')}</span><span>Escolha <b>“Abrir no ${browser}”</b> ou <b>“Abrir no navegador”</b></span></li>
+        <li><span class="pwa-step-ic">${ADD_ICON}</span><span>No ${browser}, este convite aparece de novo para instalar</span></li>
+      </ol>` : ''}
+    <div class="pwa-actions">
+      ${variant === 'inapp' ? `<button type="button" class="btn btn-primary pwa-main" data-pwa="copy">${icon('note', 'i-sm')} Copiar link</button>` : `<button type="button" class="btn btn-primary pwa-main" data-pwa="install">${icon('download', 'i-sm')} Instalar aplicativo</button>`}
+      <button type="button" class="btn btn-ghost pwa-later" data-pwa="later">Agora não</button>
+    </div>`;
+  let decided = false;
+  const m = openModal({ title: 'Instalar aplicativo', content: div, size: 'sm', onClose: () => { Install.shown = false; if (!decided && !manual) rememberDismiss(); } });
+  m.el.querySelector('.modal').classList.add('pwa-modal');
+  m.el.querySelector('.modal').setAttribute('aria-labelledby', 'pwaTitle');
+  $('[data-pwa="later"]', div).onclick = () => { decided = true; if (!manual) rememberDismiss(); m.close(); };
+  const main = $('[data-pwa="install"]', div);
+  if (main) main.onclick = async () => {
+    if (variant === 'ios') { decided = true; m.close(); setTimeout(() => openIOSGuide({ manual }), 220); return; }
+    const ev = Install.deferred;
+    if (!ev) { decided = true; m.close(); return; }
+    decided = true; m.close();
+    try {
+      await ev.prompt();
+      const choice = await ev.userChoice;
+      Install.deferred = null;                              // o evento só pode ser usado uma vez
+      if (choice && choice.outcome === 'accepted') rememberInstalled();
+      else rememberDismiss();                               // recusou na janela nativa: não insiste
+    } catch (e) { rememberDismiss(); }
+    renderInstallCard();
+  };
+  const copy = $('[data-pwa="copy"]', div);
+  if (copy) copy.onclick = async () => {
+    const link = location.origin + location.pathname;
+    let ok = false;
+    try { await navigator.clipboard.writeText(link); ok = true; } catch (e) {}
+    if (!ok) { const t = document.createElement('textarea'); t.value = link; document.body.appendChild(t); t.select(); try { ok = document.execCommand('copy'); } catch (e) {} t.remove(); }
+    toast({ type: ok ? 'success' : 'info', iconName: 'check', title: ok ? 'Link copiado' : 'Copie o link', msg: ok ? `Cole no ${browser} para abrir o app.` : link });
+  };
+}
+/** Guia ilustrado do iPhone/iPad. */
+function openIOSGuide({ manual = false } = {}) {
+  const P = pwaPlatform();
+  const where = P.ipad ? 'no canto superior direito' : P.iosBrowser === 'Safari' ? 'na barra do Safari (embaixo da tela, ou no topo)' : `na barra de endereço do ${P.iosBrowser}`;
+  const needAccount = typeof Cloud !== 'undefined' && !Cloud.user && !firstRun;
+  const div = document.createElement('div');
+  div.className = 'pwa';
+  div.innerHTML = `
+    <p class="pwa-text" style="margin-top:0">No iPhone, o app é adicionado pelo menu de compartilhar do navegador. São 3 toques:</p>
+    ${needAccount ? `<div class="pwa-note warn">${icon('cloud', 'i-sm')}<span>No iPhone, o app instalado começa com os dados em branco. <b>Entre com sua conta antes</b> para seus registros aparecerem lá também. <button type="button" class="btn btn-sm" data-pwa="login">Entrar ou criar conta</button></span></div>` : ''}
+    <ol class="pwa-steps big">
+      <li><span class="pwa-step-n">1</span><span class="pwa-step-ic ios">${SHARE_ICON}</span><span>Toque em <b>Compartilhar</b> ${where}.</span></li>
+      <li><span class="pwa-step-n">2</span><span class="pwa-step-ic ios">${ADD_ICON}</span><span>Role a lista e toque em <b>“Adicionar à Tela de Início”</b>.</span></li>
+      <li><span class="pwa-step-n">3</span><span class="pwa-step-ic ios wide"><b class="pwa-add">Adicionar</b></span><span>Confirme tocando em <b>Adicionar</b>, no canto superior direito.</span></li>
+    </ol>
+    <div class="pwa-preview" aria-hidden="true">
+      <div class="pwa-sheet"><div class="pwa-sheet-row"><span>Copiar</span>${icon('note', 'i-sm')}</div><div class="pwa-sheet-row hl"><span>Adicionar à Tela de Início</span>${ADD_ICON}</div><div class="pwa-sheet-row"><span>Adicionar aos Favoritos</span>${icon('flag', 'i-sm')}</div></div>
+      <div class="pwa-home"><img src="icons/apple-touch-icon.png" alt="" width="54" height="54"><span>Banco de Horas</span></div>
+    </div>
+    <p class="faint" style="font-size:12.5px;margin:12px 0 0">Não encontrou a opção? Atualize o iOS ou abra este link no Safari.</p>
+    <div class="pwa-actions"><button type="button" class="btn btn-primary pwa-main" data-pwa="ok">${icon('check', 'i-sm')} Entendi</button></div>`;
+  const m = openModal({ title: 'Adicionar à Tela de Início', content: div, size: 'sm', onClose: () => { if (!manual) rememberDismiss(); } });
+  $('[data-pwa="ok"]', div).onclick = () => m.close();
+  const lg = $('[data-pwa="login"]', div); if (lg) lg.onclick = () => { m.close(); setTimeout(() => openLoginModal(), 220); };
+}
+/** Decide se e qual convite mostrar (chamado no carregamento e quando o Android libera a instalação). */
+function maybeOfferInstall() {
+  if (Install.shown || !shouldOfferInstall()) return;
+  const P = pwaPlatform();
+  if (!P.mobile) return;                                          // convite só no celular; no computador, pelo cartão em Ajustes
+  if (P.inApp) return openInstallPrompt('inapp');
+  if (P.ios) return openInstallPrompt('ios');
+  if (Install.deferred) return openInstallPrompt('android');      // Android: só quando o navegador permitir instalar
+}
+function initPWA() {
+  if (isAppInstalled()) rememberInstalled();
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();                                           // guarda o evento para usar no nosso botão
+    Install.deferred = e;
+    renderInstallCard();
+    clearTimeout(Install.timer);
+    Install.timer = setTimeout(maybeOfferInstall, 1200);
+  });
+  window.addEventListener('appinstalled', () => {
+    Install.deferred = null; rememberInstalled(); renderInstallCard();
+    toast({ type: 'success', iconName: 'checkCircle', title: 'Aplicativo instalado', msg: 'Procure o ícone do Banco de Horas na tela inicial.' });
+  });
+  // iOS e navegadores internos não têm evento: espera a tela carregar
+  Install.timer = setTimeout(maybeOfferInstall, 1500);
+  // Service worker (instalação + abrir sem internet). Só em HTTPS/localhost.
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.register(`sw.js?v=${encodeURIComponent(APP_BUILD)}`, { scope: './' }).then(reg => {
+      Install.reg = reg;
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+    }).catch(() => {});
+  }
+  watchForUpdates();
+  renderInstallCard();
+}
+/**
+ * Avisa quando uma nova versão foi publicada enquanto o app estava aberto
+ * (comum no app instalado, que fica em segundo plano por dias). Compara a
+ * identificação da página no servidor (ETag/Last-Modified) com a do carregamento.
+ */
+function watchForUpdates() {
+  if (!/^https?:$/.test(location.protocol)) return;
+  let base = null, last = 0, notified = false;
+  const sig = async () => {
+    const r = await fetch(location.pathname, { method: 'HEAD', cache: 'no-store' });
+    if (!r.ok) return null;
+    return r.headers.get('etag') || r.headers.get('last-modified') || r.headers.get('content-length');
+  };
+  sig().then(v => { base = v; }).catch(() => {});
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState !== 'visible' || notified || !base || Date.now() - last < 60000) return;
+    last = Date.now();
+    try {
+      const v = await sig();
+      if (v && v !== base) {
+        notified = true;
+        toast({ type: 'info', iconName: 'refresh', title: 'Nova versão disponível', msg: 'Toque em Atualizar para carregar a versão mais recente.', timeout: 0, action: { label: 'Atualizar', fn: () => location.reload() } });
+      }
+    } catch (e) {}
+  });
+}
+/** Cartão em Ajustes: sempre permite instalar manualmente (ex.: quem dispensou o convite). */
+function renderInstallCard() {
+  const card = $('#installCard'); if (!card) return;
+  const P = pwaPlatform(), installed = isAppInstalled();
+  let body;
+  if (installed) body = `<div class="acc-row"><span class="acc-ic on">${icon('checkCircle')}</span><div><div class="lt">App instalado</div><div class="ld">Você está usando o Banco de Horas pela tela inicial.</div></div></div>`;
+  else if (P.inApp) body = `<div class="acc-row"><span class="acc-ic">${icon('download')}</span><div><div class="lt">Abra no ${P.ios ? 'Safari' : 'Chrome'} para instalar</div><div class="ld">Navegadores dentro de outros apps não permitem instalar.</div></div></div><button type="button" class="btn btn-primary acc-btn" data-inst="inapp">Como fazer</button>`;
+  else if (P.ios) body = `<div class="acc-row"><span class="acc-ic">${icon('download')}</span><div><div class="lt">Adicione à Tela de Início</div><div class="ld">Abre como aplicativo, em tela cheia, com o ícone na tela inicial.</div></div></div><button type="button" class="btn btn-primary acc-btn" data-inst="ios">Ver como instalar</button>`;
+  else if (Install.deferred) body = `<div class="acc-row"><span class="acc-ic">${icon('download')}</span><div><div class="lt">Instalar o Banco de Horas</div><div class="ld">Abre como aplicativo, com ícone na tela inicial${P.mobile ? '' : ' ou na área de trabalho'}.</div></div></div><button type="button" class="btn btn-primary acc-btn" data-inst="android">${icon('download', 'i-sm')} Instalar aplicativo</button>`;
+  else body = `<div class="acc-row"><span class="acc-ic">${icon('download')}</span><div><div class="lt">Instalar o app</div><div class="ld">${P.android ? 'No Chrome, toque no menu ⋮ e escolha “Instalar app” ou “Adicionar à tela inicial”.' : 'No Chrome ou Edge, use o ícone de instalar na barra de endereço (ou o menu ⋮ → “Instalar Banco de Horas”).'}</div></div></div>`;
+  card.innerHTML = `<div class="card-head"><h3 class="card-title">${icon('download')} Aplicativo</h3></div>${body}`;
+  const b = $('[data-inst]', card);
+  if (b) b.onclick = () => { const v = b.dataset.inst; if (v === 'ios') openIOSGuide({ manual: true }); else openInstallPrompt(v, { manual: true }); };
+}
+
+/* =====================================================================
    INICIALIZAÇÃO
    ===================================================================== */
 function init() {
@@ -4952,6 +5216,7 @@ function init() {
   if (firstRun && !fromEmailLink) openOnboarding({ mode: 'new' });
   renderAccount();
   initCloud().catch(() => setCloudStatus('unavailable')).finally(() => { if (firstRun && !ob) openOnboarding({ mode: 'new' }); });
+  initPWA();
   if (!storageOk) toast({ type: 'danger', title: 'Armazenamento indisponível', msg: 'Os dados não serão mantidos após fechar o navegador. Use o backup JSON.', timeout: 0 });
 }
 

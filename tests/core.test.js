@@ -263,3 +263,21 @@ test('cada usuário escolhe quais tipos de feriado valem (sem informar onde trab
   assert.equal(re.settings.cityHolidays, true);
   assert.deepEqual(Core.localHolidayKinds({ uf: 'DF', city: 'Brasília' }), { state: 2, city: 0 });
 });
+
+test('PWA: manifest, ícones e service worker publicados com caminhos relativos', () => {
+  const root = path.join(__dirname, '..');
+  const man = JSON.parse(fs.readFileSync(path.join(root, 'manifest.webmanifest'), 'utf8'));
+  assert.equal(man.name, 'Banco de Horas');
+  assert.equal(man.display, 'standalone');
+  assert.equal(man.start_url, './');
+  assert.equal(man.scope, './');
+  for (const ic of man.icons) assert.ok(fs.existsSync(path.join(root, ic.src)), `ícone ${ic.src}`);
+  assert.ok(man.icons.some(i => i.sizes === '192x192') && man.icons.some(i => i.sizes === '512x512') && man.icons.some(i => i.purpose === 'maskable'));
+  const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
+  const shell = [...sw.matchAll(/'\.\/([^']*)'/g)].map(m => m[1]).filter(Boolean);
+  for (const f of shell) assert.ok(fs.existsSync(path.join(root, f)), `arquivo do cache ${f}`);
+  assert.ok(/url\.origin !== self\.location\.origin\) return/.test(sw), 'não intercepta outros domínios (Supabase)');
+  assert.ok(/apple-touch-icon" sizes="180x180" href="icons\//.test(html), 'apple-touch-icon relativo');
+  assert.ok(/register\(`sw\.js\?v=/.test(html) && /scope: '\.\/'/.test(html), 'registro relativo do service worker');
+  assert.ok(/const APP_BUILD = '[^']+'/.test(html), 'versão do app definida');
+});
