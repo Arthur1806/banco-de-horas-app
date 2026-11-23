@@ -240,3 +240,26 @@ test('estado novo da configuração inicial e preferências salvas', () => {
   assert.equal(ro.settings.location, null);
   assert.deepEqual(ro.settings.planning, Core.DEFAULT_PLANNING);
 });
+
+test('cada usuário escolhe quais tipos de feriado valem (sem informar onde trabalha)', () => {
+  const cfg = { goalMin: 600, initialBalanceMin: 0, startDate: '2026-11-23', endDate: '2026-11-30', dailyLimitMin: 120, workStart: '09:00', workEnd: '18:00', location: { uf: 'DF', city: 'Brasília' } };
+  const t = '2026-11-23';
+  // padrão: distritais valem
+  const a = Core.createState(cfg);
+  assert.equal(Core.dayOff(a, '2026-11-30').scope, 'distrital');
+  // quem segue o calendário federal desmarca os distritais: 30/11 vira dia útil; nacionais continuam
+  const b = Core.createState({ ...cfg, stateHolidays: false });
+  assert.equal(Core.dayOff(b, '2026-11-30'), null);
+  assert.ok(Core.openDays(b, t).includes('2026-11-30'));
+  assert.ok(Core.dayOff(b, '2026-12-25'), 'Natal continua feriado');
+  // municipais podem ser desligados separadamente
+  const sp = { ...cfg, location: { uf: 'SP', city: 'São Paulo' } };
+  const c = Core.createState({ ...sp, cityHolidays: false });
+  assert.equal(Core.dayOff(c, '2027-01-25'), null, 'aniversário de SP desligado');
+  assert.ok(Core.dayOff(c, '2027-07-09'), 'estadual continua');
+  // a escolha é salva
+  const re = Core.sanitizeState(JSON.parse(JSON.stringify(b))).state;
+  assert.equal(re.settings.stateHolidays, false);
+  assert.equal(re.settings.cityHolidays, true);
+  assert.deepEqual(Core.localHolidayKinds({ uf: 'DF', city: 'Brasília' }), { state: 2, city: 0 });
+});

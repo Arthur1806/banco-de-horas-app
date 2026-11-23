@@ -59,6 +59,7 @@ html[data-theme="dark"] {
   --shadow-lg: 0 30px 80px -20px rgba(0, 0, 0, .75), 0 0 0 1px rgba(255, 255, 255, .06);
   --overlay: rgba(4, 5, 7, .62);
   --track: rgba(255, 255, 255, .06);
+  --chart-goal: #1fa874;
 }
 html[data-theme="light"] {
   color-scheme: light;
@@ -92,13 +93,14 @@ html[data-theme="light"] {
   --shadow-lg: 0 30px 80px -20px rgba(16, 17, 20, .3), 0 0 0 1px rgba(16, 17, 20, .07);
   --overlay: rgba(20, 22, 28, .34);
   --track: rgba(16, 17, 20, .07);
+  --chart-goal: #0e9b6b;
 }
 
 /* =====================================================================
    BASE
    ===================================================================== */
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; background-color: var(--bg); overscroll-behavior-y: none; }
 body {
   margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
   font-family: var(--font); font-size: 14px; line-height: 1.5; letter-spacing: -.006em;
@@ -546,6 +548,50 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
 .chart-legend .ln.proj { border-top: 2px dashed var(--text-3); }
 .chart-legend .ln.goal { border-top: 1.5px dotted var(--success); }
 
+/* Gráfico: saldo acumulado + horas por dia */
+.chart-head { margin-bottom: 10px; }
+.chart-sub { font-size: 12.5px; color: var(--text-3); margin-top: 3px; }
+.chart-sub b { color: var(--text); font-weight: 620; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--text-2); margin-bottom: 12px; }
+.chart-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.lk { display: inline-block; flex: none; }
+.lk.line { width: 16px; height: 0; border-top: 2px solid var(--accent); border-radius: 2px; }
+.lk.dash { width: 16px; height: 0; border-top: 2px dashed color-mix(in srgb, var(--accent) 60%, transparent); }
+.lk.goal { width: 16px; height: 0; border-top: 1.5px solid var(--chart-goal); }
+.lk.bar { width: 10px; height: 10px; border-radius: 3px 3px 1px 1px; background: var(--accent); }
+.lk.hol { width: 6px; height: 6px; border-radius: 50%; background: var(--rose); margin: 0 2px; }
+.lk.ghost { width: 10px; height: 10px; border-radius: 3px 3px 1px 1px; background: color-mix(in srgb, var(--accent) 24%, transparent); }
+.chart { position: relative; width: 100%; min-height: 260px; touch-action: pan-y; }
+.chart svg { display: block; width: 100%; overflow: visible; }
+.chart .ch-wk { fill: var(--neutral-soft); opacity: .7; }
+.chart .ch-hol { fill: var(--rose); }
+.chart .ch-limit { stroke: var(--border-2); stroke-width: 1; }
+.chart .ch-panel-t { fill: var(--text-3); font-size: 11px; font-weight: 600; letter-spacing: .02em; font-family: var(--font); }
+.chart .ch-goal { stroke: var(--chart-goal); stroke-width: 1.5; }
+.chart .ch-goal-t { fill: var(--text-2); font-size: 11px; font-weight: 620; font-family: var(--font); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+.chart .ch-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.chart .ch-line-proj { fill: none; stroke: color-mix(in srgb, var(--accent) 60%, transparent); stroke-width: 2; stroke-dasharray: 5 5; stroke-linejoin: round; stroke-linecap: round; }
+.chart .ch-dot { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+.chart .ch-dot-proj { fill: var(--surface); stroke: color-mix(in srgb, var(--accent) 70%, transparent); stroke-width: 2; }
+.chart .ch-pill rect { fill: var(--surface-3); stroke: var(--border-2); stroke-width: 1; }
+.chart .ch-pill text { fill: var(--text); font-size: 11.5px; font-weight: 650; font-family: var(--font); font-variant-numeric: tabular-nums; }
+.chart .ch-proj-t { fill: var(--text-2); font-size: 11px; font-weight: 600; font-family: var(--font); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; }
+.chart .ch-today { stroke: var(--text-3); stroke-width: 1; opacity: .6; }
+.chart .ch-today-t { fill: var(--text-3); font-size: 10.5px; font-weight: 600; font-family: var(--font); }
+.chart .axis-t.is-today { fill: var(--text); font-weight: 650; }
+.chart .ch-col { fill: var(--accent); }
+.chart .ch-col-plan { fill: color-mix(in srgb, var(--accent) 24%, transparent); }
+.chart .ch-guide { stroke: var(--text-3); stroke-width: 1; opacity: 0; transition: opacity .15s; }
+.chart .ch-hdot { fill: var(--accent); stroke: var(--surface); stroke-width: 2; opacity: 0; transition: opacity .15s; }
+.chart .ch-hdot.proj { fill: var(--surface); stroke: var(--accent); }
+.chart.hovering .ch-guide, .chart.hovering .ch-hdot { opacity: 1; }
+.chart-tip .tr span { display: inline-flex; align-items: center; gap: 7px; }
+.chart-tip .tk { display: inline-block; width: 12px; height: 0; border-top: 2px solid var(--accent); }
+.chart-tip .tk.dash { border-top-style: dashed; border-top-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+.chart-tip .tk.bar { height: 8px; width: 8px; border: 0; border-radius: 2px; background: var(--accent); }
+.chart-tip .tk.ghost { height: 8px; width: 8px; border: 0; border-radius: 2px; background: color-mix(in srgb, var(--accent) 30%, transparent); }
+.chart-tip .tr.note span { color: var(--text-3); font-size: 11.5px; }
+
 /* =====================================================================
    TABELA DE PLANEJAMENTO
    ===================================================================== */
@@ -784,6 +830,13 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
 .backup-row .bd { font-size: 12px; color: var(--text-3); }
 .backup-row .btn { margin-left: auto; }
 .backup-row > div { min-width: 0; }
+.hol-kinds { display: grid; gap: 12px; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); }
+.hk-title { font-weight: 620; font-size: 13.5px; }
+.check.is-locked { opacity: .6; cursor: default; }
+.check.is-locked input { cursor: default; }
+.hk-hint { display: flex; gap: 8px; margin: 2px 0 0; font-size: 12.5px; color: var(--text-3); line-height: 1.5; }
+.hk-hint .i { margin-top: 2px; flex: none; }
+.hol-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .loc-line { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--r); background: var(--surface-2); border: 1px solid var(--border); }
 .loc-line > div { flex: 1; min-width: 0; }
 .loc-line .lt { font-weight: 600; font-size: 13.5px; }
@@ -1070,8 +1123,10 @@ body.ob-open { overflow: hidden; }
   .row-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   /* 16px evita o zoom automático do iPhone ao tocar num campo (que fazia a tela "andar" para o lado) */
   .input, .field input, .field select, .field textarea { font-size: 16px; }
-  html, body { overflow-x: hidden; }
+  body { overflow-x: clip; overscroll-behavior-y: none; }
   .app { overflow-x: clip; }
+  /* se o navegador ainda "esticar" a página, a área revelada embaixo tem a cor do menu (nunca preta) */
+  .bottom-nav::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 140px; background: var(--surface); }
   .day-stats .v { font-size: 16px; }
   .hist-gh .meter { display: none; }
   .modal-wrap { align-items: flex-end; padding: 0; }
@@ -1148,13 +1203,16 @@ body.ob-open { overflow: hidden; }
       <div class="section-l overview-more"><span>Detalhes e evolução</span></div>
       <div class="grid-2">
         <div class="card" id="chartCard">
-          <div class="card-head">
-            <h3 class="card-title" id="chartTitle"></h3>
-            <div class="chart-legend">
-              <span><i class="ln"></i>Saldo realizado</span>
-              <span><i class="ln proj"></i>Projeção pelo plano</span>
-              <span><i class="ln goal"></i>Meta</span>
-            </div>
+          <div class="card-head chart-head">
+            <div><h3 class="card-title" id="chartTitle"></h3><div class="chart-sub" id="chartSub"></div></div>
+          </div>
+          <div class="chart-legend" aria-label="Legenda">
+            <span><i class="lk line"></i>Saldo realizado</span>
+            <span><i class="lk dash"></i>Projeção pelo plano</span>
+            <span><i class="lk goal"></i>Meta</span>
+            <span><i class="lk bar"></i>Feito no dia</span>
+            <span><i class="lk ghost"></i>Planejado</span>
+            <span><i class="lk hol"></i>Feriado</span>
           </div>
           <div class="chart" id="chart"></div>
         </div>
@@ -1441,6 +1499,8 @@ const Core = (() => {
         workEnd: '18:00',
         location: null,               // { uf: 'DF', city: 'Brasília' } — feriados estaduais/municipais
         optionalHolidays: false,      // considerar pontos facultativos (Carnaval, Corpus Christi)
+        stateHolidays: true,          // considerar feriados estaduais/distritais (ex.: servidor federal no DF desmarca)
+        cityHolidays: true,           // considerar feriados municipais
         planning: { ...DEFAULT_PLANNING }
       },
       theme: 'dark',
@@ -1952,7 +2012,7 @@ const Core = (() => {
    * Todos os feriados de um ano para a localização informada.
    * Retorna [{ key, label, scope }] ordenado; feriados na mesma data são unidos.
    */
-  function holidaysForYear(y, { location = null, optional = false } = {}) {
+  function holidaysForYear(y, { location = null, optional = false, state = true, city = true } = {}) {
     const e = easterKey(y), loc = normLocation(location), map = new Map();
     const add = (rule, label, scope) => {
       const key = typeof rule === 'number' ? addDays(e, rule) : `${y}-${rule}`;
@@ -1966,8 +2026,8 @@ const Core = (() => {
     for (const [md, label] of FIXED_HOLIDAYS) add(md, label, 'nacional');
     add(-2, 'Sexta-feira Santa', 'nacional');
     if (loc) {
-      for (const [r, label] of STATE_HOLIDAYS[loc.uf] || []) add(r, label, loc.uf === 'DF' ? 'distrital' : 'estadual');
-      for (const [r, label] of CITY_HOLIDAYS[`${loc.uf}|${loc.city}`] || []) add(r, label, 'municipal');
+      if (state !== false) for (const [r, label] of STATE_HOLIDAYS[loc.uf] || []) add(r, label, loc.uf === 'DF' ? 'distrital' : 'estadual');
+      if (city !== false) for (const [r, label] of CITY_HOLIDAYS[`${loc.uf}|${loc.city}`] || []) add(r, label, 'municipal');
     }
     if (optional) { add(-48, 'Carnaval (ponto facultativo)', 'facultativo'); add(-47, 'Carnaval (ponto facultativo)', 'facultativo'); add(60, 'Corpus Christi (ponto facultativo)', 'facultativo'); }
     return [...map.values()].sort((a, b) => a.key < b.key ? -1 : 1);
@@ -1979,18 +2039,27 @@ const Core = (() => {
     for (let y = +a.slice(0, 4); y <= +b.slice(0, 4); y++) for (const h of holidaysForYear(y, opts)) if (h.key >= a && h.key <= b && !isWeekend(h.key)) out.push(h);
     return out;
   }
+  /** Opções de feriado a partir das configurações (local + tipos que valem para o usuário). */
+  function holidayOpts(S) {
+    return { location: normLocation(S.location), optional: !!S.optionalHolidays, state: S.stateHolidays !== false, city: S.cityHolidays !== false };
+  }
+  /** Quantos feriados estaduais/distritais e municipais existem para o local (para mostrar só as opções que fazem sentido). */
+  function localHolidayKinds(loc) {
+    loc = normLocation(loc);
+    return { state: loc ? (STATE_HOLIDAYS[loc.uf] || []).length : 0, city: loc ? (CITY_HOLIDAYS[`${loc.uf}|${loc.city}`] || []).length : 0 };
+  }
   const holidayCache = new Map();
   /** Feriado automático numa data (sem considerar desativações do usuário). */
   function holidayAt(state, k) {
-    const S = state.settings, loc = normLocation(S.location);
-    const ck = `${k.slice(0, 4)}|${loc ? loc.uf + '|' + loc.city : ''}|${S.optionalHolidays ? 1 : 0}`;
+    const o = holidayOpts(state.settings), loc = o.location;
+    const ck = `${k.slice(0, 4)}|${loc ? loc.uf + '|' + loc.city : ''}|${o.optional ? 1 : 0}${o.state ? 1 : 0}${o.city ? 1 : 0}`;
     let m = holidayCache.get(ck);
-    if (!m) { m = new Map(holidaysForYear(+k.slice(0, 4), { location: loc, optional: !!S.optionalHolidays }).map(h => [h.key, h])); holidayCache.set(ck, m); }
+    if (!m) { m = new Map(holidaysForYear(+k.slice(0, 4), o).map(h => [h.key, h])); holidayCache.set(ck, m); }
     return m.get(k) || null;
   }
   /** Feriados da configuração do estado num intervalo (inclui os desativados, marcados com off:true). */
   function stateHolidays(state, a, b) {
-    return holidaysInRange(a, b, { location: state.settings.location, optional: !!state.settings.optionalHolidays })
+    return holidaysInRange(a, b, holidayOpts(state.settings))
       .map(h => ({ ...h, off: !!(state.holidayOff && state.holidayOff[h.key]) }));
   }
   function locationLabel(loc) { loc = normLocation(loc); return loc ? `${loc.city ? loc.city + ' · ' : ''}${UFS[loc.uf]}` : ''; }
@@ -2085,6 +2154,8 @@ const Core = (() => {
       workEnd: parseClock(s.workEnd) != null ? s.workEnd : d.workEnd,
       location: normLocation(s.location),
       optionalHolidays: s.optionalHolidays === true,
+      stateHolidays: s.stateHolidays !== false,
+      cityHolidays: s.cityHolidays !== false,
       planning: planPrefs(s)
     };
     if (st.settings.startDate > st.settings.endDate) { st.settings.startDate = d.startDate; st.settings.endDate = d.endDate; }
@@ -2145,7 +2216,7 @@ const Core = (() => {
     pad, sum, clamp, parseKey, keyFromUTC, isValidKey, UFS, CAPITALS, DEFAULT_PLANNING, addDays, dayIndex, weekday, isWeekend, rangeKeys, minKey, maxKey,
     localTodayKey, fmtDate, fmtDateShort, fmtDateLong, wdShort, wdLong,
     parseClock, fmtClock, fmtDur, parseDur, spanFromClock,
-    defaultState, createState, planPrefs, planRoles, dayOff, holidayAt, holidaysForYear, stateHolidays, normLocation, locationLabel, realizedByDate, balance, totalAdjust, adjustByDate, isAvailable, isClosed, inPeriod, openDays,
+    defaultState, createState, planPrefs, planRoles, dayOff, holidayAt, holidaysForYear, holidayOpts, localHolidayKinds, stateHolidays, normLocation, locationLabel, realizedByDate, balance, totalAdjust, adjustByDate, isAvailable, isClosed, inPeriod, openDays,
     waterFill, removeFromEnd, computePlan, makeBaseline, reachedDate, dayStatus, derive,
     BREAK_RIGHT, regularDayMin, dayClock, validateEntry, sanitizeState,
     easterKey, nationalHolidays, holidaysInRange, suggestNextPeriod, validateNextPeriod, closePeriod
@@ -2887,92 +2958,147 @@ function renderChart(d) {
   const host = $('#chart'); if (!host || !host.offsetParent) return;
   const S = state.settings, t = today();
   $('#chartTitle').innerHTML = `${icon('trend')} Evolução do saldo`;
-  const W = Math.max(260, host.clientWidth), H = W < 520 ? 220 : 300;
-  const P = { l: 38, r: 12, t: 14, b: 26 };
+  const W = Math.max(260, host.clientWidth), small = W < 520;
+  // Dois painéis no mesmo eixo de datas (cada um com sua própria escala — nunca eixo duplo):
+  // em cima o saldo acumulado até a meta; embaixo as horas de cada dia.
+  const P = { l: 40, r: small ? 14 : 18, t: 22 };
+  const Ht = small ? 178 : 230, gap = 30, Hb = small ? 60 : 78, axisH = 24;
+  const top0 = P.t, top1 = P.t + Ht, bar0 = top1 + gap, bar1 = bar0 + Hb, H = bar1 + axisH;
   const keys = [Core.addDays(S.startDate, -1), ...Core.rangeKeys(S.startDate, S.endDate)];
-  const n = keys.length;
-  const real = d.real;
-  const adj = Core.adjustByDate(state);
+  const n = keys.length, real = d.real, adj = Core.adjustByDate(state);
   const before = m => Core.sum(Object.entries(m).filter(([k]) => k < S.startDate).map(([, v]) => v));
   const base0 = S.initialBalanceMin + before(real) + before(adj);
-  // séries
+  // ---- séries do saldo
   const actual = [], proj = [];
   let cum = base0;
-  keys.forEach((k, i) => {
-    if (i > 0) cum += (real[k] || 0) + (adj[k] || 0);
-    if (i === 0 || k <= t) actual.push({ i, k, v: cum });
-  });
+  keys.forEach((k, i) => { if (i > 0) cum += (real[k] || 0) + (adj[k] || 0); if (i === 0 || k <= t) actual.push({ i, k, v: cum }); });
   const lastA = actual[actual.length - 1];
   if (t <= S.endDate) {
     const startI = Math.max(0, keys.indexOf(Core.addDays(Core.maxKey(t, S.startDate), -1)));
-    let pc = startI === 0 ? base0 : actual.find(p => p.i === startI)?.v ?? base0;
+    let pc = (actual.find(p => p.i === startI) || { v: base0 }).v;
     proj.push({ i: startI, k: keys[startI], v: pc });
     for (let i = startI + 1; i < n; i++) { const k = keys[i]; pc += (real[k] || 0) + (adj[k] || 0) + (k >= t ? (d.todoMap[k] || 0) : 0); proj.push({ i, k, v: pc }); }
   }
-  const maxV = Math.max(d.goal * 1.1, ...actual.map(p => p.v), ...proj.map(p => p.v));
+  const lastP = proj[proj.length - 1];
+  const maxV = Math.max(d.goal * 1.12, ...actual.map(p => p.v), ...proj.map(p => p.v), 60);
   const x = i => P.l + (W - P.l - P.r) * (i / (n - 1));
-  const y = v => P.t + (H - P.t - P.b) * (1 - v / maxV);
-  const step = niceStep(maxV, 5);
-  let grid = '';
-  for (let v = 0; v <= maxV; v += step) grid += `<line class="grid-line" x1="${P.l}" x2="${W - P.r}" y1="${y(v)}" y2="${y(v)}"/><text class="axis-t" x="${P.l - 8}" y="${y(v) + 3.5}" text-anchor="end">${Math.round(v / 60)}h</text>`;
+  const y = v => top0 + Ht * (1 - v / maxV);
   const colW = (W - P.l - P.r) / (n - 1);
-  let bands = '';
+  // ---- horas por dia (planejado vs feito)
+  const dayPlan = k => k >= t && !Core.isClosed(state, k) ? (real[k] || 0) + (d.todoMap[k] || 0) : (state.plan[k] || 0);
+  const long = n > 62;   // período longo (ex.: ano todo): colunas por semana
+  const groups = [];
   keys.forEach((k, i) => {
     if (i === 0) return;
-    if (Core.isWeekend(k)) bands += `<rect class="wk" x="${x(i) - colW / 2}" y="${P.t}" width="${colW}" height="${H - P.t - P.b}"/>`;
-    else if (Core.dayOff(state, k)) bands += `<rect class="hol" x="${x(i) - 2}" y="${H - P.b + 1}" width="4" height="4" rx="2"/>`;
+    const g = long ? weekStart(k) : k;
+    let cur = groups[groups.length - 1];
+    if (!cur || cur.g !== g) { cur = { g, i0: i, i1: i, real: 0, plan: 0, keys: [] }; groups.push(cur); }
+    cur.i1 = i; cur.keys.push(k); cur.real += real[k] || 0; cur.plan += dayPlan(k);
   });
-  let xl = '';
-  if (n > 62) {
-    keys.forEach((k, i) => { if (i > 0 && k.slice(8) === '01') xl += `<text class="axis-t" x="${x(i)}" y="${H - 8}" text-anchor="middle">${Core.MONTHS[+k.slice(5, 7) - 1].slice(0, 3)}</text>`; });
-  } else {
-    const labelEvery = Math.max(1, Math.ceil((n - 1) / Math.max(1, Math.floor((W - P.l - P.r) / 28))));
-    keys.forEach((k, i) => { if (i > 0 && (i - 1) % labelEvery === 0) xl += `<text class="axis-t num" x="${x(i)}" y="${H - 8}" text-anchor="middle">${k.slice(8)}</text>`; });
+  const groupOf = new Map(); groups.forEach(g => g.keys.forEach(k => groupOf.set(k, g)));
+  const maxD = Math.max(long ? 60 : S.dailyLimitMin, ...groups.map(g => Math.max(g.real, g.plan)), 60);
+  const yb = v => bar1 - Hb * (v / maxD);
+  const bw = Math.max(2, Math.min(24, colW * (long ? 7 : 1) * 0.62));
+  const colPath = (cx, v) => {
+    const h = bar1 - yb(v); if (h <= 0.5) return '';
+    const r = Math.min(4, bw / 2, h), x0 = cx - bw / 2, y0 = yb(v);
+    return `M${x0.toFixed(1)},${bar1}V${(y0 + r).toFixed(1)}Q${x0.toFixed(1)},${y0.toFixed(1)} ${(x0 + r).toFixed(1)},${y0.toFixed(1)}H${(x0 + bw - r).toFixed(1)}Q${(x0 + bw).toFixed(1)},${y0.toFixed(1)} ${(x0 + bw).toFixed(1)},${(y0 + r).toFixed(1)}V${bar1}Z`;
+  };
+  // ---- fundo: fins de semana e feriados
+  let bands = '', marks = '', ghost = '', solid = '';
+  keys.forEach((k, i) => {
+    if (i === 0) return;
+    const off = Core.dayOff(state, k);
+    if (Core.isWeekend(k)) { if (!long) bands += `<rect class="ch-wk" x="${(x(i) - colW / 2).toFixed(1)}" y="${top0}" width="${colW.toFixed(1)}" height="${bar1 - top0}"/>`; }
+    else if (off) marks += `<circle class="ch-hol" cx="${x(i).toFixed(1)}" cy="${bar1 - 4}" r="2.5"><title>${esc(off.label || Core.OVERRIDE_TYPES[off.type])}</title></circle>`;
+  });
+  for (const g of groups) {
+    const cx = (x(g.i0) + x(g.i1)) / 2;
+    if (g.plan > g.real) ghost += `<path class="ch-col-plan" d="${colPath(cx, g.plan)}"/>`;
+    if (g.real) solid += `<path class="ch-col" d="${colPath(cx, g.real)}"/>`;
   }
+  // ---- grades e eixos
+  const step = niceStep(maxV, small ? 4 : 5);
+  let grid = '';
+  for (let v = 0; v <= maxV; v += step) grid += `<line class="grid-line" x1="${P.l}" x2="${W - P.r}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"/><text class="axis-t num" x="${P.l - 8}" y="${(y(v) + 3.5).toFixed(1)}" text-anchor="end">${Math.round(v / 60)}h</text>`;
+  const limY = yb(S.dailyLimitMin);
+  grid += `<line class="grid-line" x1="${P.l}" x2="${W - P.r}" y1="${bar1}" y2="${bar1}"/>`;
+  if (!long) grid += `<line class="ch-limit" x1="${P.l}" x2="${W - P.r}" y1="${limY.toFixed(1)}" y2="${limY.toFixed(1)}"/><text class="axis-t num" x="${P.l - 8}" y="${(limY + 3.5).toFixed(1)}" text-anchor="end">${fmtDur(S.dailyLimitMin).replace('h00', 'h')}</text>`;
+  else grid += `<text class="axis-t num" x="${P.l - 8}" y="${(yb(maxD) + 3.5).toFixed(1)}" text-anchor="end">${Math.round(maxD / 60)}h</text><line class="ch-limit" x1="${P.l}" x2="${W - P.r}" y1="${yb(maxD).toFixed(1)}" y2="${yb(maxD).toFixed(1)}"/>`;
+  grid += `<text class="ch-panel-t" x="${P.l}" y="${bar0 - 10}">${long ? 'Horas por semana' : 'Horas por dia'}</text>`;
+  let xl = '';
+  if (n > 62) keys.forEach((k, i) => { if (i > 0 && k.slice(8) === '01') xl += `<text class="axis-t" x="${x(i).toFixed(1)}" y="${H - 7}" text-anchor="middle">${Core.MONTHS[+k.slice(5, 7) - 1].slice(0, 3)}</text>`; });
+  else {
+    const every = Math.max(1, Math.ceil((n - 1) / Math.max(1, Math.floor((W - P.l - P.r) / 30))));
+    keys.forEach((k, i) => { if (i > 0 && (i - 1) % every === 0) xl += `<text class="axis-t num ${k === t ? 'is-today' : ''}" x="${x(i).toFixed(1)}" y="${H - 7}" text-anchor="middle">${k.slice(8)}</text>`; });
+  }
+  // ---- linhas
   const path = pts => pts.map((p, j) => `${j ? 'L' : 'M'}${x(p.i).toFixed(1)},${y(p.v).toFixed(1)}`).join('');
-  const area = actual.length > 1 ? `${path(actual)}L${x(lastA.i)},${y(0)}L${x(actual[0].i)},${y(0)}Z` : '';
-  const ti = keys.indexOf(t);
-  host.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolução do saldo de horas">
-    <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".28"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+  const projPts = long ? proj.filter((p, j) => j === 0 || j === proj.length - 1 || Core.weekday(p.k) === 0) : proj;
+  const area = actual.length > 1 ? `${path(actual)}L${x(lastA.i).toFixed(1)},${top1}L${x(actual[0].i).toFixed(1)},${top1}Z` : '';
+  const ti = keys.indexOf(t), gy = y(d.goal);
+  const reached = d.goalReached;
+  // rótulos diretos: valor atual (fim da linha realizada) e saldo final previsto
+  const pill = (cx, cy, txt, cls) => {
+    const w = txt.length * 7 + 14, xx = Math.min(W - P.r - w, Math.max(P.l, cx - w / 2));
+    return `<g class="${cls}"><rect x="${xx.toFixed(1)}" y="${(cy - 22).toFixed(1)}" width="${w}" height="18" rx="9"/><text x="${(xx + w / 2).toFixed(1)}" y="${(cy - 9.5).toFixed(1)}" text-anchor="middle">${txt}</text></g>`;
+  };
+  const endLabel = pill(x(lastA.i), y(lastA.v), fmtDur(lastA.v), 'ch-pill');
+  const projLabel = lastP && lastP.i > lastA.i ? `<text class="ch-proj-t num" x="${(x(lastP.i) - 2).toFixed(1)}" y="${(y(lastP.v) + (y(lastP.v) < gy + 4 ? 16 : -8)).toFixed(1)}" text-anchor="end">${fmtDur(lastP.v)}</text>` : '';
+  host.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolução do saldo: ${fmtDur(d.bal)} de ${fmtDur(d.goal)}; previsão de ${lastP ? fmtDur(lastP.v) : fmtDur(d.bal)} em ${fmtDate(S.endDate)}.">
+    <defs><linearGradient id="chArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".20"/><stop offset="1" stop-color="var(--accent)" stop-opacity=".02"/></linearGradient></defs>
     ${bands}${grid}${xl}
-    <line class="goal-line" x1="${P.l}" x2="${W - P.r}" y1="${y(d.goal)}" y2="${y(d.goal)}"/>
-    <text class="goal-t" x="${W - P.r}" y="${y(d.goal) - 6}" text-anchor="end">Meta ${fmtDur(d.goal)}</text>
-    ${ti > 0 ? `<line class="today-mark" x1="${x(ti)}" x2="${x(ti)}" y1="${P.t}" y2="${H - P.b}"/>` : ''}
-    ${area ? `<path d="${area}" fill="url(#ga)"/>` : ''}
-    ${proj.length > 1 ? `<path class="line-proj" d="${path(proj)}"/>` : ''}
-    ${actual.length > 1 ? `<path class="line-actual" d="${path(actual)}"/>` : ''}
-    <circle cx="${x(lastA.i)}" cy="${y(lastA.v)}" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>
-    <line class="guide" id="cg" x1="0" x2="0" y1="${P.t}" y2="${H - P.b}"/>
-    <circle class="dot-h" id="cd1" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>
-    <circle class="dot-h" id="cd2" r="4" fill="var(--surface)" stroke="var(--text-3)" stroke-width="2"/>
-    <rect id="hit" x="${P.l}" y="0" width="${W - P.l - P.r}" height="${H}" fill="transparent"/>
-  </svg><div class="chart-tip" id="ctip"></div>`;
-  const svg = $('svg', host), tip = $('#ctip', host);
+    <line class="ch-goal" x1="${P.l}" x2="${W - P.r}" y1="${gy.toFixed(1)}" y2="${gy.toFixed(1)}"/>
+    <text class="ch-goal-t" x="${P.l + 6}" y="${(gy - 7).toFixed(1)}">${reached ? '✓ ' : ''}Meta ${fmtDur(d.goal)}</text>
+    ${ti > 0 ? `<line class="ch-today" x1="${x(ti).toFixed(1)}" x2="${x(ti).toFixed(1)}" y1="${top0 - 6}" y2="${bar1}"/><text class="ch-today-t" x="${x(ti).toFixed(1)}" y="${top0 - 9}" text-anchor="middle">hoje</text>` : ''}
+    ${area ? `<path d="${area}" fill="url(#chArea)"/>` : ''}
+    ${proj.length > 1 ? `<path class="ch-line-proj" d="${path(projPts)}"/>` : ''}
+    ${actual.length > 1 ? `<path class="ch-line" d="${path(actual)}"/>` : ''}
+    ${lastP && lastP.i > lastA.i ? `<circle class="ch-dot-proj" cx="${x(lastP.i).toFixed(1)}" cy="${y(lastP.v).toFixed(1)}" r="4"/>` : ''}
+    <circle class="ch-dot" cx="${x(lastA.i).toFixed(1)}" cy="${y(lastA.v).toFixed(1)}" r="5"/>
+    ${endLabel}${projLabel}
+    ${ghost}${solid}${marks}
+    <line class="ch-guide" x1="0" x2="0" y1="${top0}" y2="${bar1}"/>
+    <circle class="ch-hdot" data-h="a" r="5"/><circle class="ch-hdot proj" data-h="p" r="4.5"/>
+    <rect class="ch-hit" x="${P.l - colW / 2}" y="0" width="${W - P.l - P.r + colW}" height="${H}" fill="transparent"/>
+  </svg><div class="chart-tip" role="status"></div>`;
+  $('#chartCard .lk.bar').parentElement.lastChild.textContent = long ? 'Feito na semana' : 'Feito no dia';
+  $('#chartSub').innerHTML = reached
+    ? `Meta atingida · saldo <b class="num">${fmtDur(d.bal)}</b>`
+    : `Hoje <b class="num">${fmtDur(d.bal)}</b> · previsão <b class="num">${lastP ? fmtDur(lastP.v) : fmtDur(d.bal)}</b> em ${fmtDateShort(S.endDate)}`;
+  // ---- interação: a linha-guia acha a data mais próxima
+  const svg = $('svg', host), tip = $('.chart-tip', host), guide = $('.ch-guide', svg);
+  const dA = $('[data-h="a"]', svg), dP = $('[data-h="p"]', svg);
   const aMap = new Map(actual.map(p => [p.i, p])), pMap = new Map(proj.map(p => [p.i, p]));
+  const row = (cls, label, val) => `<div class="tr"><span><i class="tk ${cls}"></i>${label}</span><b class="num">${val}</b></div>`;
   const move = ev => {
     const r = svg.getBoundingClientRect();
     const px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
     const i = Math.max(0, Math.min(n - 1, Math.round((px - P.l) / (W - P.l - P.r) * (n - 1))));
-    const k = keys[i], a = aMap.get(i), p = pMap.get(i);
+    const k = keys[i], a = aMap.get(i), p = pMap.get(i), off = i > 0 ? Core.dayOff(state, k) : null;
     host.classList.add('hovering');
-    $('#cg', svg).setAttribute('x1', x(i)); $('#cg', svg).setAttribute('x2', x(i));
-    const d1 = $('#cd1', svg), d2 = $('#cd2', svg);
-    if (a) { d1.setAttribute('cx', x(i)); d1.setAttribute('cy', y(a.v)); d1.style.display = ''; } else d1.style.display = 'none';
-    if (p && !(a && i === ti)) { d2.setAttribute('cx', x(i)); d2.setAttribute('cy', y(p.v)); d2.style.display = ''; } else d2.style.display = 'none';
-    const dayVal = i > 0 ? (real[k] || 0) : 0;
-    tip.innerHTML = `<div class="tt">${i === 0 ? `Saldo inicial (antes de ${fmtDateShort(S.startDate)})` : `${wdShort(k)}, ${fmtDateShort(k)}`}</div>
-      ${a ? `<div class="tr"><span>Saldo</span><b class="num">${fmtDur(a.v)}</b></div>` : ''}
-      ${i > 0 && a ? `<div class="tr"><span>No dia</span><b class="num">${fmtDur(dayVal, { sign: true })}</b></div>` : ''}
-      ${p && (!a || i === ti) ? `<div class="tr"><span>Projeção</span><b class="num">${fmtDur(p.v)}</b></div>` : ''}
-      ${i > 0 && (state.plan[k] || 0) ? `<div class="tr"><span>Previsto no dia</span><b class="num">${fmtDur(state.plan[k])}</b></div>` : ''}
-      ${Core.dayOff(state, k) ? `<div class="tr"><span>${esc(Core.dayOff(state, k).label || Core.OVERRIDE_TYPES[Core.dayOff(state, k).type])}</span></div>` : ''}`;
-    const tw = tip.offsetWidth, left = Math.min(W - tw - 4, Math.max(4, x(i) + 12 + tw > W ? x(i) - tw - 12 : x(i) + 12));
-    tip.style.left = left + 'px'; tip.style.top = Math.max(0, Math.min(H - tip.offsetHeight - 30, (a ? y(a.v) : p ? y(p.v) : 0) - 30)) + 'px';
+    guide.setAttribute('x1', x(i)); guide.setAttribute('x2', x(i));
+    if (a) { dA.setAttribute('cx', x(i)); dA.setAttribute('cy', y(a.v)); dA.style.display = ''; } else dA.style.display = 'none';
+    if (p && !a) { dP.setAttribute('cx', x(i)); dP.setAttribute('cy', y(p.v)); dP.style.display = ''; } else dP.style.display = 'none';
+    const pl = i > 0 ? dayPlan(k) : 0, rv = i > 0 ? (real[k] || 0) : 0, wg = long && i > 0 ? groupOf.get(k) : null;
+    tip.innerHTML = `<div class="tt">${i === 0 ? `Antes de ${fmtDateShort(S.startDate)}` : `${wdShort(k)}, ${fmtDateShort(k)}${k === t ? ' · hoje' : ''}`}</div>
+      ${a ? row('line', 'Saldo', fmtDur(a.v)) : p ? row('dash', 'Saldo previsto', fmtDur(p.v)) : ''}
+      ${wg ? `${row('bar', `Semana de ${fmtDateShort(wg.keys[0])}`, fmtDur(wg.real))}${wg.plan ? row('ghost', 'Planejado na semana', fmtDur(wg.plan)) : ''}` : `
+      ${i > 0 && (rv || k <= t) && !Core.isWeekend(k) ? row('bar', 'Feito no dia', fmtDur(rv)) : ''}
+      ${i > 0 && pl ? row('ghost', k >= t ? 'Planejado' : 'Previsto', fmtDur(pl)) : ''}`}
+      ${off ? `<div class="tr note"><span>${esc(off.label || Core.OVERRIDE_TYPES[off.type])}</span></div>` : ''}
+      ${i > 0 && Core.isWeekend(k) && !rv ? '<div class="tr note"><span>Fim de semana</span></div>' : ''}`;
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    const left = x(i) + 14 + tw > W ? x(i) - tw - 14 : x(i) + 14;
+    tip.style.left = Math.max(4, Math.min(W - tw - 4, left)) + 'px';
+    tip.style.top = Math.max(0, Math.min(H - th - 4, (a ? y(a.v) : p ? y(p.v) : top0) - th / 2)) + 'px';
   };
-  const hit = $('#hit', svg);
-  hit.addEventListener('mousemove', move); hit.addEventListener('touchstart', move, { passive: true }); hit.addEventListener('touchmove', move, { passive: true });
-  hit.addEventListener('mouseleave', () => host.classList.remove('hovering'));
-  hit.addEventListener('touchend', () => setTimeout(() => host.classList.remove('hovering'), 1200));
+  const hit = $('.ch-hit', svg), leave = () => host.classList.remove('hovering');
+  hit.addEventListener('pointermove', move);
+  hit.addEventListener('pointerdown', move);
+  hit.addEventListener('touchmove', move, { passive: true });
+  hit.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') leave(); });
+  hit.addEventListener('touchend', () => setTimeout(leave, 1600));
 }
 
 /* ---------- Planejamento (tabela) ---------- */
@@ -3042,7 +3168,7 @@ function renderPlan(d, t) {
     const slot = open && todo ? suggestedSlot(r.key, todo, t) : null;
     const role = roles[r.key];
     let main, sub = '';
-    if (isOff) { main = `<span class="pd-off">${esc(r.override ? (r.override.label || Core.OVERRIDE_TYPES[r.override.type]) : 'Fim de semana')}</span>`; sub = r.real ? `${fmtDur(r.real)} registradas` : (r.override && r.override.source === 'auto' ? `Feriado ${SCOPE_LABEL[r.override.scope][0].toLowerCase()}` : Core.OVERRIDE_TYPES[r.override ? r.override.type : ''] || ''); }
+    if (isOff) { main = `<span class="pd-off">${esc(r.override ? (r.override.label || Core.OVERRIDE_TYPES[r.override.type]) : 'Fim de semana')}</span>`; sub = r.real ? `${fmtDur(r.real)} registradas` : (r.override && r.override.source === 'auto' ? `Feriado ${SCOPE_LABEL[r.override.scope][0].toLowerCase()}${r.override.scope !== 'nacional' && !r.past ? ' · vai trabalhar? toque aqui' : ''}` : Core.OVERRIDE_TYPES[r.override ? r.override.type : ''] || ''); }
     else if (open) {
       main = todo ? `<b class="num">${fmtDur(todo)}</b> a fazer` : `<span class="faint">Livre</span>`;
       sub = todo ? (slot ? `<span class="num">${slot.start} → ${slot.end}</span>` : '') : role === 'reserve' ? 'Reserva — usado só se faltar tempo' : role === 'skip' ? 'Sem hora extra (sua preferência)' : d.goalReached ? 'Meta atingida' : 'Sem necessidade';
@@ -3182,7 +3308,7 @@ function renderCalendar(d, t) {
 }
 function renderCalHolidays(y, t) {
   const S = state.settings;
-  const list = Core.holidaysForYear(y, { location: S.location, optional: !!S.optionalHolidays });
+  const list = Core.holidaysForYear(y, Core.holidayOpts(S));
   $('#calHolTitle').innerHTML = `${icon('mapPin')} Feriados de ${y}`;
   $('#calLocBtn').textContent = S.location ? (S.location.city || S.location.uf) : 'Informar cidade';
   $('#calLocBtn').onclick = () => openLocationModal();
@@ -3266,7 +3392,7 @@ function renderOverrides() {
   $('#holSettings').innerHTML = `
     <div class="loc-line">
       <span class="loc-ic">${icon('mapPin')}</span>
-      <div><div class="lt">${S.location ? esc(Core.locationLabel(S.location)) : 'Localização não informada'}</div><div class="ld">${esc(locationNote(S.location))}${S.optionalHolidays ? ' Pontos facultativos incluídos.' : ''}</div></div>
+      <div><div class="lt">${S.location ? esc(Core.locationLabel(S.location)) : 'Localização não informada'}</div><div class="ld">${esc(locationNote(Core.holidayOpts(S)))}</div></div>
       <button type="button" class="btn btn-sm" id="locEditBtn">${icon('edit', 'i-sm')} ${S.location ? 'Alterar' : 'Informar'}</button>
     </div>
     <div class="section-l"><span>Feriados automáticos até ${fmtDateShort(S.endDate)}</span><span class="num">${hols.length}</span></div>
@@ -3498,7 +3624,7 @@ function openClosePeriodModal() {
   const m = openModal({ title: 'Fechar período', subtitle: `${fmtDateShort(S.startDate)} a ${fmtDate(S.endDate)}`, content: form });
   const f = name => form.elements[name];
   const refresh = () => {
-    const hs = Core.holidaysInRange(f('start').value, f('end').value, { location: S.location, optional: S.optionalHolidays });
+    const hs = Core.holidaysInRange(f('start').value, f('end').value, Core.holidayOpts(S));
     $('[data-holprev]', form).textContent = hs.length ? hs.map(h => `${fmtDateShort(h.key)} ${h.label}`).join(' · ') : 'nenhum em dia útil neste período.';
   };
   $$('[data-carry]', form).forEach(b => b.onclick = () => { f('initial').value = fmtDur(+b.dataset.carry); });
@@ -3698,6 +3824,14 @@ function setOverride(k, value) {
     action: { label: 'Desfazer', fn: () => restore(snap) }
   });
 }
+/** Liga/desliga um tipo inteiro de feriado (estadual/distrital ou municipal). */
+function setHolidayScope(scope, on) {
+  const key = scope === 'municipal' ? 'cityHolidays' : 'stateHolidays';
+  const snap = snapshot();
+  commit(st => { st.settings = { ...st.settings, [key]: on }; }, { mode: on ? 'incremental' : 'full', rebase: true });
+  const name = scope === 'municipal' ? 'municipais' : scope === 'distrital' ? 'distritais' : 'estaduais';
+  toast({ type: 'info', iconName: 'briefcase', title: on ? `Feriados ${name} ativados` : `Feriados ${name} desativados`, msg: on ? 'Voltam a ficar fora do planejamento.' : 'Esses dias passam a contar como úteis. Planejamento recalculado.', action: { label: 'Desfazer', fn: () => restore(snap) } });
+}
 function setHolidayOff(k, off) {
   const h = Core.holidayAt(state, k); if (!h) return;
   const snap = snapshot();
@@ -3746,7 +3880,7 @@ function openDayModal(k) {
       ${canClock ? `<div class="section-l"><span>Ponto do dia</span><span class="opt" style="text-transform:none;letter-spacing:0;font-weight:450">salvo automaticamente</span></div><div class="day-clock"></div>` : ''}
       ${canLog ? `<div class="section-l"><span>Registrar horas</span></div><div class="day-form"></div>` : ''}
       ${inP && !wk ? `<hr class="divider"><div class="section-l"><span>Disponibilidade</span></div>
-        ${ov && ov.source === 'auto' ? `<button class="btn" type="button" data-holoff>${icon('briefcase')} Vou trabalhar neste feriado</button><div class="faint" style="font-size:12.5px;margin-top:8px">O dia passa a contar como útil e pode receber horas extras.</div>`
+        ${ov && ov.source === 'auto' ? `<div class="hol-actions"><button class="btn" type="button" data-holoff>${icon('briefcase')} Vou trabalhar neste dia</button>${['estadual', 'distrital', 'municipal'].includes(ov.scope) ? `<button class="btn btn-ghost" type="button" data-holscope="${ov.scope}">${icon('ban')} Não folgo em feriados ${ov.scope === 'municipal' ? 'municipais' : ov.scope === 'distrital' ? 'distritais' : 'estaduais'}</button>` : ''}</div><div class="faint" style="font-size:12.5px;margin-top:8px">${ov.scope === 'nacional' ? 'O dia passa a contar como útil e pode receber horas extras.' : 'Ex.: quem segue o calendário federal trabalha nos feriados locais. A segunda opção vale para todos os feriados desse tipo.'}</div>`
           : holIgnored ? `<button class="btn" type="button" data-holon>${icon('ban')} Voltar a considerar feriado</button>`
           : ov ? `<button class="btn" type="button" data-avail>${icon('calcheck')} Tornar disponível para horas extras</button>`
              : `<div class="row-2" style="align-items:end"><div class="field"><label>Motivo</label><select data-ovtype><option value="unavailable">Indisponível</option><option value="event">Evento</option><option value="holiday">Feriado</option></select></div><div class="field"><label>Descrição <span class="opt">opcional</span></label><input data-ovlabel maxlength="60" placeholder="Ex.: viagem"></div></div>
@@ -3774,6 +3908,7 @@ function openDayModal(k) {
     const av = $('[data-avail]', body); if (av) av.onclick = () => { setOverride(k, null); draw(); };
     const ho = $('[data-holoff]', body); if (ho) ho.onclick = () => { setHolidayOff(k, true); draw(); };
     const hn = $('[data-holon]', body); if (hn) hn.onclick = () => { setHolidayOff(k, false); draw(); };
+    const hs = $('[data-holscope]', body); if (hs) hs.onclick = () => { setHolidayScope(hs.dataset.holscope, false); draw(); };
     const un = $('[data-unavail]', body);
     if (un) un.onclick = async () => {
       if (r > 0) { const ok = await confirmDialog({ title: 'Dia com lançamentos', message: `Este dia já possui ${fmtDur(r)} registradas. Elas continuarão contando no saldo. Marcar como indisponível mesmo assim?`, confirmText: 'Marcar' }); if (!ok) return; }
@@ -3894,41 +4029,62 @@ function setTheme(t) {
    LOCALIZAÇÃO (feriados estaduais e municipais) — componente reutilizável
    ===================================================================== */
 const OTHER_CITY = '__outra';
-function locationFieldsHTML(pfx, loc, optional) {
-  loc = Core.normLocation(loc);
+/** v = { location, optional, state, city } — mesmas chaves de Core.holidayOpts. */
+function locationFieldsHTML(pfx, v) {
+  const loc = Core.normLocation(v.location);
   const uf = loc ? loc.uf : '';
   const cap = uf ? Core.CAPITALS[uf] : '';
   const isOther = !!(loc && loc.city && loc.city !== cap);
   return `
     <div class="row-2 loc-row">
       <div class="field"><label for="${pfx}uf">Estado</label>
-        <select id="${pfx}uf" data-loc="uf"><option value="">Prefiro não informar</option>${Object.entries(Core.UFS).sort((a, b) => a[1].localeCompare(b[1], 'pt-BR')).map(([k, v]) => `<option value="${k}" ${k === uf ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+        <select id="${pfx}uf" data-loc="uf"><option value="">Prefiro não informar</option>${Object.entries(Core.UFS).sort((a, b) => a[1].localeCompare(b[1], 'pt-BR')).map(([k, n]) => `<option value="${k}" ${k === uf ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
       <div class="field"><label for="${pfx}city">Cidade</label>
         <select id="${pfx}city" data-loc="city" ${uf ? '' : 'disabled'}>${uf ? `<option value="${esc(cap)}" ${!isOther ? 'selected' : ''}>${esc(cap)} (capital)</option><option value="${OTHER_CITY}" ${isOther ? 'selected' : ''}>Outra cidade</option>` : '<option value="">Escolha o estado</option>'}</select></div>
     </div>
     <div class="field ${isOther ? '' : 'hidden'}" data-loc-other-wrap><label for="${pfx}cityname">Nome da cidade <span class="opt">opcional</span></label><input id="${pfx}cityname" data-loc="cityname" maxlength="60" value="${isOther ? esc(loc.city) : ''}" placeholder="Ex.: Taguatinga"></div>
-    <label class="check"><input type="checkbox" data-loc="optional" ${optional ? 'checked' : ''}><span><b>Considerar pontos facultativos</b><span class="check-sub">Carnaval (segunda e terça) e Corpus Christi.</span></span></label>`;
+    <div class="hol-kinds">
+      <div class="hk-title">Quais feriados valem para você?</div>
+      <label class="check is-locked"><input type="checkbox" checked disabled><span><b>Nacionais</b><span class="check-sub">Natal, Tiradentes, Sexta-feira Santa… valem para todos.</span></span></label>
+      <label class="check" data-kind-wrap="state"><input type="checkbox" data-loc="state" ${v.state !== false ? 'checked' : ''}><span><b data-kind-title="state">Estaduais</b><span class="check-sub" data-kind-sub="state"></span></span></label>
+      <label class="check" data-kind-wrap="city"><input type="checkbox" data-loc="citykind" ${v.city !== false ? 'checked' : ''}><span><b>Municipais</b><span class="check-sub" data-kind-sub="city"></span></span></label>
+      <label class="check"><input type="checkbox" data-loc="optional" ${v.optional ? 'checked' : ''}><span><b>Pontos facultativos</b><span class="check-sub">Carnaval (segunda e terça) e Corpus Christi.</span></span></label>
+      <p class="hk-hint">${icon('info', 'i-sm')}<span>Nem todo mundo folga nos feriados locais — por exemplo, quem segue o calendário federal trabalha no Dia do Evangélico, no DF. Desmarque o que não vale para você; dá para ajustar feriado por feriado depois.</span></p>
+    </div>`;
 }
-/** Liga os campos de localização; onChange recebe { location, optional }. Retorna um getter. */
+/** Liga os campos de localização; onChange recebe { location, optional, state, city }. Retorna um getter. */
 function bindLocationFields(root, onChange) {
   const ufSel = $('[data-loc="uf"]', root), citySel = $('[data-loc="city"]', root);
-  const otherWrap = $('[data-loc-other-wrap]', root), otherInp = $('[data-loc="cityname"]', root), opt = $('[data-loc="optional"]', root);
+  const otherWrap = $('[data-loc-other-wrap]', root), otherInp = $('[data-loc="cityname"]', root);
+  const opt = $('[data-loc="optional"]', root), stC = $('[data-loc="state"]', root), ctC = $('[data-loc="citykind"]', root);
   const get = () => {
     const uf = ufSel.value;
-    if (!uf) return { location: null, optional: opt.checked };
+    const base = { optional: opt.checked, state: stC.checked, city: ctC.checked };
+    if (!uf) return { ...base, location: null };
     const city = citySel.value === OTHER_CITY ? otherInp.value.trim() : Core.CAPITALS[uf];
-    return { location: { uf, city }, optional: opt.checked };
+    return { ...base, location: { uf, city } };
   };
+  const kinds = () => {
+    const v = get(), k = Core.localHolidayKinds(v.location), uf = v.location ? v.location.uf : '';
+    $('[data-kind-wrap="state"]', root).classList.toggle('hidden', !k.state);
+    $('[data-kind-wrap="city"]', root).classList.toggle('hidden', !k.city);
+    $('[data-kind-title="state"]', root).textContent = uf === 'DF' ? 'Distritais' : 'Estaduais';
+    const list = (opts) => Core.holidaysForYear(+today().slice(0, 4), { location: v.location, ...opts }).filter(h => h.scope === opts.only).map(h => h.label).slice(0, 3).join(', ');
+    if (k.state) $('[data-kind-sub="state"]', root).textContent = `${uf === 'DF' ? 'Do Distrito Federal' : `De ${Core.UFS[uf]}`}: ${list({ city: false, only: uf === 'DF' ? 'distrital' : 'estadual' })}.`;
+    if (k.city) $('[data-kind-sub="city"]', root).textContent = `De ${v.location.city}: ${list({ state: false, only: 'municipal' })}.`;
+  };
+  const changed = () => { kinds(); onChange(get()); };
   ufSel.onchange = () => {
     const uf = ufSel.value;
     citySel.disabled = !uf;
     citySel.innerHTML = uf ? `<option value="${esc(Core.CAPITALS[uf])}">${esc(Core.CAPITALS[uf])} (capital)</option><option value="${OTHER_CITY}">Outra cidade</option>` : '<option value="">Escolha o estado</option>';
     otherWrap.classList.add('hidden');
-    onChange(get());
+    changed();
   };
-  citySel.onchange = () => { otherWrap.classList.toggle('hidden', citySel.value !== OTHER_CITY); onChange(get()); };
-  otherInp.oninput = () => onChange(get());
-  opt.onchange = () => onChange(get());
+  citySel.onchange = () => { otherWrap.classList.toggle('hidden', citySel.value !== OTHER_CITY); changed(); };
+  otherInp.oninput = changed;
+  opt.onchange = stC.onchange = ctC.onchange = changed;
+  kinds();
   return get;
 }
 const SCOPE_LABEL = { nacional: ['Nacional', 't-rose'], estadual: ['Estadual', 't-info'], distrital: ['Distrital', 't-info'], municipal: ['Municipal', 't-accent'], facultativo: ['Facultativo', 't-neutral'] };
@@ -3938,13 +4094,15 @@ function holidayListHTML(list, { empty = 'Nenhum feriado em dia útil neste per�
   const shown = max ? list.slice(0, max) : list;
   return `<div class="hol-list">${shown.map(h => `<div class="hol-item ${h.off ? 'off' : ''}"><span class="hol-date num"><b>${fmtDateShort(h.key)}</b>${wdShort(h.key)}</span><span class="hol-name">${esc(h.label)}</span>${scopeBadge(h.scope)}</div>`).join('')}${max && list.length > max ? `<div class="faint" style="font-size:12.5px;padding:4px 2px">+ ${list.length - max} feriado(s)</div>` : ''}</div>`;
 }
-function locationNote(loc) {
-  loc = Core.normLocation(loc);
-  if (!loc) return 'Sem localização, apenas os feriados nacionais são considerados.';
-  if (loc.uf === 'DF') return 'Distrito Federal: feriados nacionais e distritais (ex.: Dia do Evangélico, 30/11).';
-  return loc.city === Core.CAPITALS[loc.uf]
-    ? `Incluímos feriados nacionais, estaduais (${Core.UFS[loc.uf]}) e municipais de ${loc.city}.`
-    : `Incluímos feriados nacionais e estaduais (${Core.UFS[loc.uf]}). Feriados municipais de outras cidades podem ser adicionados em Ajustes.`;
+function locationNote(v) {
+  const loc = Core.normLocation(v && v.location);
+  if (!loc) return 'Sem localização: só feriados nacionais.';
+  const k = Core.localHolidayKinds(loc), parts = ['nacionais'];
+  const st = loc.uf === 'DF' ? 'distritais' : 'estaduais';
+  if (k.state) parts.push(v.state !== false ? st : `${st} desativados`);
+  if (k.city) parts.push(v.city !== false ? `municipais de ${loc.city}` : 'municipais desativados');
+  if (v.optional) parts.push('pontos facultativos');
+  return `Feriados ${parts.join(', ')}.${!k.city && loc.uf !== 'DF' ? ' Feriados municipais de outras cidades podem ser adicionados em Ajustes.' : ''}`;
 }
 /** Modal para informar/alterar a localização (usuários que já usam o app). */
 function openLocationModal() {
@@ -3952,16 +4110,16 @@ function openLocationModal() {
   const div = document.createElement('div');
   div.className = 'form-stack';
   div.innerHTML = `<p class="muted" style="margin:0;font-size:13.5px">Com o estado e a cidade, o app considera os feriados estaduais e municipais automaticamente no planejamento e no calendário.</p>
-    ${locationFieldsHTML('lm', S.location, S.optionalHolidays)}
+    ${locationFieldsHTML('lm', Core.holidayOpts(S))}
     <div class="info-box" data-locnote>${icon('info')}<span></span></div>
     <div><div class="section-l" style="margin-top:4px"><span>Feriados no seu período</span><span class="num" data-hcount></span></div><div data-hprev></div></div>
     <div class="form-actions"><button type="button" class="btn btn-ghost" data-skip>${S.location ? 'Cancelar' : 'Não informar'}</button><button type="button" class="btn btn-primary" data-save>${icon('check')} Salvar</button></div>`;
-  const m = openModal({ title: 'Feriados da sua cidade', content: div });
+  const m = openModal({ title: 'Feriados que valem para você', content: div });
   const draw = v => {
     const list = Core.holidaysInRange(Core.maxKey(t, S.startDate), S.endDate, v);
     $('[data-hprev]', div).innerHTML = holidayListHTML(list);
     $('[data-hcount]', div).textContent = list.length || '';
-    $('[data-locnote] span', div).textContent = locationNote(v.location);
+    $('[data-locnote] span', div).textContent = locationNote(v);
   };
   const get = bindLocationFields(div, draw);
   draw(get());
@@ -3969,9 +4127,9 @@ function openLocationModal() {
   $('[data-save]', div).onclick = () => {
     const v = get(), snap = snapshot();
     m.close();
-    commit(st => { st.settings = { ...st.settings, location: Core.normLocation(v.location), optionalHolidays: v.optional }; st.meta.locationAsked = true; }, { mode: 'full', rebase: true });
+    commit(st => { st.settings = { ...st.settings, location: Core.normLocation(v.location), optionalHolidays: v.optional, stateHolidays: v.state, cityHolidays: v.city }; st.meta.locationAsked = true; }, { mode: 'full', rebase: true });
     const n = Core.stateHolidays(state, Core.maxKey(t, state.settings.startDate), state.settings.endDate).length;
-    toast({ type: 'success', iconName: 'mapPin', title: v.location ? `Local: ${Core.locationLabel(v.location)}` : 'Apenas feriados nacionais', msg: `${n} feriado(s) em dias úteis até ${fmtDateShort(state.settings.endDate)} · planejamento recalculado.`, action: { label: 'Desfazer', fn: () => restore(snap) } });
+    toast({ type: 'success', iconName: 'mapPin', title: v.location ? `Feriados: ${Core.locationLabel(v.location)}` : 'Apenas feriados nacionais', msg: `${n} feriado(s) em dias úteis até ${fmtDateShort(state.settings.endDate)} · planejamento recalculado.`, action: { label: 'Desfazer', fn: () => restore(snap) } });
   };
 }
 
@@ -3995,7 +4153,7 @@ function obConfig() {
   const d = ob.data;
   return {
     goalMin: d.goal, initialBalanceMin: d.initial, startDate: d.start, endDate: d.end, dailyLimitMin: d.limit,
-    workStart: d.ws, workEnd: d.we, location: Core.normLocation(d.location), optionalHolidays: !!d.optional,
+    workStart: d.ws, workEnd: d.we, location: Core.normLocation(d.location), optionalHolidays: !!d.optional, stateHolidays: d.stateHol !== false, cityHolidays: d.cityHol !== false,
     planning: { strategy: d.strategy, reserveDays: d.reserveDays, skipWeekdays: d.skip.slice(), minBlock: d.minBlock }
   };
 }
@@ -4007,6 +4165,7 @@ function obPreviewState() {
   st.baseline = { ...st.plan };
   return st;
 }
+const obHolOpts = d => ({ location: d.location, optional: !!d.optional, state: d.stateHol !== false, city: d.cityHol !== false });
 function workdaysCount(a, b, opts) {
   if (!Core.isValidKey(a) || !Core.isValidKey(b) || a > b) return 0;
   const hol = new Set(Core.holidaysInRange(a, b, opts).map(h => h.key));
@@ -4070,7 +4229,7 @@ const OB_STEPS = {
     render: d => {
       const presets = deadlinePresets(d.start);
       const choice = presets.find(p => p.key === d.end) ? presets.find(p => p.key === d.end).id : 'custom';
-      const opts = { location: d.location, optional: d.optional };
+      const opts = obHolOpts(d);
       return `
         <div class="ob-options" role="radiogroup">
           ${presets.map(p => `<button type="button" class="ob-opt ${choice === p.id ? 'on' : ''}" data-end="${p.key}" role="radio" aria-checked="${choice === p.id}">
@@ -4087,7 +4246,7 @@ const OB_STEPS = {
       const endInp = $('#obEnd', root), startInp = $('#obStart', root), out = $('[data-count]', root);
       let end = d.end;
       const draw = () => {
-        const st = startInp.value, n = workdaysCount(st, end, { location: d.location, optional: d.optional });
+        const st = startInp.value, n = workdaysCount(st, end, obHolOpts(d));
         out.innerHTML = Core.isValidKey(st) && Core.isValidKey(end) && st <= end
           ? `${icon('calcheck')}<span><b class="num">${n} dias úteis</b> de ${fmtDateShort(st)} a ${fmtDate(end)}, sem contar fins de semana e feriados${d.location ? '' : ' nacionais'}.</span>`
           : `${icon('alertCircle')}<span>O prazo precisa ser depois do início.</span>`;
@@ -4148,8 +4307,8 @@ const OB_STEPS = {
   },
   location: {
     icon: 'mapPin', title: 'Onde você trabalha?',
-    lead: 'Opcional. Com o estado e a cidade, o app já considera os feriados estaduais e municipais — por exemplo, o Dia do Evangélico no DF.',
-    render: d => `${locationFieldsHTML('ob', d.location, d.optional)}
+    lead: 'Opcional. Com o estado e a cidade, o app conhece os feriados locais — e você escolhe quais valem para você.',
+    render: d => `${locationFieldsHTML('ob', obHolOpts(d))}
       <div class="ob-callout soft" data-locnote></div>
       <div class="ob-hol"><div class="section-l" style="margin:4px 0 8px"><span>Feriados no seu período</span><span class="num" data-hcount></span></div><div data-hprev></div></div>`,
     bind: (root, d) => {
@@ -4157,12 +4316,12 @@ const OB_STEPS = {
         const list = Core.holidaysInRange(d.start, d.end, v);
         $('[data-hprev]', root).innerHTML = holidayListHTML(list, { max: 8 });
         $('[data-hcount]', root).textContent = list.length || '';
-        $('[data-locnote]', root).innerHTML = `${icon('info')}<span>${esc(locationNote(v.location))} Você pode ativar ou desativar qualquer feriado depois.</span>`;
+        $('[data-locnote]', root).innerHTML = `${icon('mapPin')}<span>${esc(locationNote(v))}</span>`;
       };
       root._get = bindLocationFields(root, draw);
       draw(root._get());
     },
-    read: (root, d) => { const v = root._get(); d.location = Core.normLocation(v.location); d.optional = v.optional; }
+    read: (root, d) => { const v = root._get(); d.location = Core.normLocation(v.location); d.optional = v.optional; d.stateHol = v.state; d.cityHol = v.city; }
   },
   planning: {
     icon: 'sparkles', title: 'Como prefere distribuir as horas?',
@@ -4200,7 +4359,7 @@ const OB_STEPS = {
       const bars = dd.open.slice(0, 12).map(k => `<div class="ob-bar" title="${wdShort(k)} ${fmtDateShort(k)} · ${fmtDur(dd.todoMap[k])}"><span class="num">${dd.todoMap[k] ? fmtDur(dd.todoMap[k]).replace('h00', 'h') : '–'}</span><i style="height:${Math.max(3, dd.todoMap[k] / maxV * 100)}%"></i><em class="num">${k.slice(8)}</em></div>`).join('');
       const strat = d.strategy === 'asap' ? 'O quanto antes' : 'Equilibrado';
       const extras = [d.reserveDays ? `${d.reserveDays} dia(s) de reserva` : '', d.skip.length ? `sem hora extra: ${d.skip.map(w => WD_CHIPS.find(x => x[0] === w)[1]).join(', ')}` : ''].filter(Boolean).join(' · ');
-      const nHol = Core.holidaysInRange(d.start, d.end, { location: d.location, optional: d.optional }).length;
+      const nHol = Core.holidaysInRange(d.start, d.end, obHolOpts(d)).length;
       const row = (step, ic, l, v) => `<div class="ob-sum-row">${icon(ic)}<div><span>${l}</span><b>${v}</b></div><button type="button" class="btn btn-ghost btn-sm" data-goto="${step}">Editar</button></div>`;
       return `
         <div class="ob-plan ${dd.goalReached ? 'ok' : dd.feasible ? '' : 'bad'}">
@@ -4230,7 +4389,7 @@ function openOnboarding({ mode = 'new', step = null } = {}) {
     mode,
     steps: mode === 'edit' ? ['goal', 'balance', 'deadline', 'journey', 'location', 'planning', 'summary'] : ['welcome', 'goal', 'balance', 'deadline', 'journey', 'location', 'planning', 'summary'],
     i: 0, dir: 1,
-    data: { goal: S.goalMin, initial: S.initialBalanceMin, start: S.startDate, end: S.endDate, limit: S.dailyLimitMin, ws: S.workStart, we: S.workEnd, location: Core.normLocation(S.location), optional: !!S.optionalHolidays, strategy: pr.strategy, reserveDays: pr.reserveDays, skip: pr.skipWeekdays.slice(), minBlock: pr.minBlock }
+    data: { goal: S.goalMin, initial: S.initialBalanceMin, start: S.startDate, end: S.endDate, limit: S.dailyLimitMin, ws: S.workStart, we: S.workEnd, location: Core.normLocation(S.location), optional: !!S.optionalHolidays, stateHol: S.stateHolidays !== false, cityHol: S.cityHolidays !== false, strategy: pr.strategy, reserveDays: pr.reserveDays, skip: pr.skipWeekdays.slice(), minBlock: pr.minBlock }
   };
   if (step) ob.i = Math.max(0, ob.steps.indexOf(step));
   const el = document.createElement('div');
