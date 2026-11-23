@@ -1009,7 +1009,7 @@ body.ob-open { overflow: hidden; }
 .login-btn { width: 100%; justify-content: center; height: 42px; }
 .login-links { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; }
 .login-foot { font-size: 12.5px; text-align: center; margin: 12px 0 0; }
-.code-input { text-align: center; font-size: 26px !important; letter-spacing: .4em; height: 54px !important; font-weight: 650; }
+.code-input { text-align: center; font-size: 24px !important; letter-spacing: .25em; height: 54px !important; font-weight: 650; }
 .sync-choices { display: grid; gap: 10px; }
 .sync-choice { display: flex; gap: 12px; align-items: flex-start; text-align: left; padding: 14px; border-radius: 12px; border: 1px solid var(--border-2); background: var(--surface-2); color: var(--text); }
 .sync-choice:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface-2)); }
@@ -4554,7 +4554,7 @@ function finishOnboarding() {
 
 /* =====================================================================
    CONTA E SINCRONIZAÇÃO (Supabase)
-   - Login sem senha: a pessoa informa o e-mail e recebe um código de 6 dígitos
+   - Login sem senha: a pessoa informa o e-mail e recebe um código numérico (6 a 10 dígitos, conforme o Supabase)
      de confirmação. Na primeira vez a conta é criada automaticamente.
    - Os dados continuam salvos no aparelho (funciona sem internet) e são
      enviados para a nuvem a cada alteração. Ao voltar para o app, busca o que
@@ -4722,7 +4722,7 @@ function authErrorText(err) {
   if (/not authorized|not allowed/i.test(msg)) return 'O envio de e-mails ainda não está liberado para este endereço. Peça ao administrador do app para configurar o envio de e-mails (SMTP) no Supabase.';
   if (/rate limit|only request this after|security purposes/i.test(msg)) { const s = (/after (\d+) seconds?/i.exec(msg) || [])[1]; return s ? `Aguarde ${s} segundos para pedir outro e-mail.` : 'Muitos pedidos em pouco tempo. Aguarde alguns minutos e tente de novo.'; }
   if (/invalid email|unable to validate email/i.test(msg)) return 'E-mail inválido. Confira e tente de novo.';
-  if (/expired|invalid.*(otp|token)|token has expired/i.test(msg)) return 'Código inválido ou expirado. Confira os 6 dígitos ou toque em "Reenviar e-mail".';
+  if (/expired|invalid.*(otp|token)|token has expired/i.test(msg)) return 'Código inválido ou expirado. Confira todos os números ou toque em "Reenviar e-mail" para receber um novo.';
   if (/fetch|network|Failed/i.test(msg) || navigator.onLine === false) return 'Sem conexão com a internet. Tente de novo quando estiver on-line.';
   return msg || 'Não foi possível concluir. Tente de novo.';
 }
@@ -4734,7 +4734,7 @@ function openLoginModal({ email = '' } = {}) {
   const stepEmail = () => {
     div.innerHTML = `
       <div class="login-hero">${icon('mail', 'i-lg')}</div>
-      <p class="confirm-msg" style="margin:0 0 14px;text-align:center">Sem senha: informe seu e-mail e enviaremos um <b>código de 6 dígitos</b>. Na primeira vez, sua conta é criada automaticamente.</p>
+      <p class="confirm-msg" style="margin:0 0 14px;text-align:center">Sem senha: informe seu e-mail e enviaremos um <b>código numérico</b>. Na primeira vez, sua conta é criada automaticamente.</p>
       <form class="form-stack" data-f="email" novalidate>
         <div class="field"><label for="lgEmail">E-mail</label><input id="lgEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="voce@exemplo.com" value="${esc(email || sentTo)}"></div>
         <ul class="pv-msgs" data-msg></ul>
@@ -4758,9 +4758,9 @@ function openLoginModal({ email = '' } = {}) {
     div.innerHTML = `
       <div class="login-hero ok">${icon('checkCircle', 'i-lg')}</div>
       <p class="confirm-msg" style="margin:0 0 6px;text-align:center"><b>Verifique seu e-mail</b></p>
-      <p class="confirm-msg" style="margin:0 0 16px;text-align:center">Enviamos um código de 6 dígitos para <b>${esc(sentTo)}</b>. Digite abaixo — pode abrir o e-mail em qualquer aparelho.</p>
+      <p class="confirm-msg" style="margin:0 0 16px;text-align:center">Enviamos um código para <b>${esc(sentTo)}</b>. Digite abaixo — pode abrir o e-mail em qualquer aparelho.</p>
       <form class="form-stack" data-f="code" novalidate>
-        <div class="field"><label for="lgCode">Código do e-mail</label><input id="lgCode" class="num code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"></div>
+        <div class="field"><label for="lgCode">Código do e-mail</label><input id="lgCode" class="num code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="código"></div>
         <ul class="pv-msgs" data-msg></ul>
         <button type="submit" class="btn btn-primary login-btn">${icon('check', 'i-sm')} Entrar com o código</button>
       </form>
@@ -4778,13 +4778,16 @@ function openLoginModal({ email = '' } = {}) {
     $('[data-other]', div).onclick = () => { clearInterval(cdTimer); stepEmail(); };
     const code = $('#lgCode', div);
     setTimeout(() => code.focus(), 60);
-    code.oninput = () => { code.value = code.value.replace(/\D/g, '').slice(0, 6); if (code.value.length === 6) $('[data-f="code"]', div).requestSubmit(); };
+    // o tamanho do código depende da configuração do Supabase (6 a 10 dígitos): ao colar o código inteiro, entra sozinho
+    code.oninput = ev => { code.value = code.value.replace(/\D/g, '').slice(0, 10); if (ev.inputType === 'insertFromPaste' && code.value.length >= 6) $('[data-f="code"]', div).requestSubmit(); };
+    code.onpaste = () => setTimeout(() => { if (code.value.length >= 6) $('[data-f="code"]', div).requestSubmit(); }, 0);
     $('[data-f="code"]', div).onsubmit = async ev => {
       ev.preventDefault();
-      if (code.value.length !== 6) { $('[data-msg]', div).innerHTML = `<li class="err">${icon('alertCircle', 'i-sm')}<span>Digite os 6 números do código.</span></li>`; return; }
+      if (code.value.length < 6) { $('[data-msg]', div).innerHTML = `<li class="err">${icon('alertCircle', 'i-sm')}<span>Digite todos os números do código que chegou no e-mail.</span></li>`; return; }
+      if (Cloud.verifying) return; Cloud.verifying = true;
       const btn = $('button[type=submit]', ev.target); btn.disabled = true;
       const { error } = await Cloud.sb.auth.verifyOtp({ email: sentTo, token: code.value, type: 'email' });
-      btn.disabled = false;
+      btn.disabled = false; Cloud.verifying = false;
       if (error) $('[data-msg]', div).innerHTML = `<li class="err">${icon('alertCircle', 'i-sm')}<span>${esc(authErrorText(error))}</span></li>`;
     };
   };
