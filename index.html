@@ -181,7 +181,6 @@ a { color: var(--accent); }
 .view-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .grid { display: grid; gap: 16px; }
-.kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
 .grid-hero { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: 16px; margin-bottom: 16px; }
 .grid-2 { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; }
 .grid-entries { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 16px; align-items: start; }
@@ -219,7 +218,9 @@ a { color: var(--accent); }
 .kpi-foot { margin-top: 6px; font-size: 12px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* HERO / PROGRESSO */
-.hero { padding: 24px; overflow: hidden; }
+.hero { padding: 24px; overflow: hidden; display: flex; flex-direction: column; }
+.hero .hero-foot { margin-top: auto; }
+.hero .progress-legend { margin-bottom: 18px; }
 .hero::after {
   content: ""; position: absolute; right: -80px; top: -120px; width: 320px; height: 320px; border-radius: 50%;
   background: radial-gradient(circle, var(--accent-soft), transparent 65%); pointer-events: none;
@@ -229,6 +230,9 @@ a { color: var(--accent); }
 .hero-value { font-size: 52px; font-weight: 680; letter-spacing: -.05em; line-height: 1; margin-top: 10px; }
 .hero-value .of { font-size: 22px; color: var(--text-3); font-weight: 560; letter-spacing: -.02em; margin-left: 6px; }
 .hero-pct { text-align: right; }
+.hero-comp { font-size: 13px; color: var(--text-2); margin-top: 8px; }
+.hero .card-title { flex-wrap: wrap; }
+.overview-more { margin: 26px 0 12px; }
 .hero-pct .big { font-size: 30px; font-weight: 650; letter-spacing: -.04em; line-height: 1; }
 .hero-pct .lbl { font-size: 12px; color: var(--text-3); margin-top: 4px; }
 .progress { position: relative; margin: 26px 0 12px; }
@@ -269,31 +273,40 @@ a { color: var(--accent); }
 
 /* DESTAQUE: ÍNDICE DE CONCLUSÃO DA META */
 .goal-banner {
-  display: flex; align-items: center; gap: 22px; padding: 20px 24px; margin-bottom: 16px; overflow: hidden;
-  background: linear-gradient(120deg, color-mix(in srgb, var(--accent) 17%, var(--surface)), var(--surface) 72%);
-  border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+  display: flex; align-items: center; gap: 22px; padding: 22px 26px; margin-bottom: 16px; overflow: hidden; color: #fff;
+  background: linear-gradient(125deg, #4f4be6 0%, #6d5cf3 50%, #9468ff 100%);
+  border-color: transparent;
+  box-shadow: 0 22px 44px -20px rgba(94, 88, 240, .85), inset 0 1px 0 rgba(255, 255, 255, .2);
   animation: rise .5s var(--ease) both;
 }
-.goal-banner.complete {
-  background: linear-gradient(120deg, color-mix(in srgb, var(--success) 17%, var(--surface)), var(--surface) 72%);
-  border-color: color-mix(in srgb, var(--success) 35%, transparent);
+.goal-banner::after {
+  content: ""; position: absolute; right: -70px; top: -110px; width: 300px; height: 300px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, .22), transparent 65%); pointer-events: none;
 }
+.goal-banner.complete {
+  background: linear-gradient(125deg, #0b8a5f 0%, #17a873 50%, #34cf90 100%);
+  box-shadow: 0 22px 44px -20px rgba(23, 168, 115, .85), inset 0 1px 0 rgba(255, 255, 255, .2);
+}
+.goal-banner .badge { background: rgba(255, 255, 255, .95); }
+.goal-banner .badge.t-accent { color: #4d4adb; }
+.goal-banner .badge.t-success { color: #0e9b6b; }
+.goal-banner .badge.t-danger { color: #d9434e; }
 .goal-ring { position: relative; width: 104px; height: 104px; flex: none; }
 .goal-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; }
-.goal-ring .rt { fill: none; stroke: var(--track); stroke-width: 9; }
-.goal-ring .rp { fill: none; stroke: var(--accent); stroke-width: 9; stroke-linecap: round; transition: stroke-dashoffset 1.1s var(--ease); }
-.goal-banner.complete .goal-ring .rp { stroke: var(--success); }
-.goal-ring .rc { position: absolute; inset: 0; display: grid; place-items: center; color: var(--accent); }
-.goal-banner.complete .goal-ring .rc { color: var(--success); }
+.goal-ring .rt { fill: none; stroke: rgba(255, 255, 255, .24); stroke-width: 9; }
+.goal-ring .rp { fill: none; stroke: #fff; stroke-width: 9; stroke-linecap: round; transition: stroke-dashoffset 1.1s var(--ease); }
+.goal-ring .rc { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; }
 .goal-ring .rc .i { width: 26px; height: 26px; }
 .goal-main { flex: 1; min-width: 0; }
-.goal-eyebrow { font-size: 12.5px; font-weight: 560; color: var(--text-2); text-transform: uppercase; letter-spacing: .05em; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.goal-eyebrow { font-size: 12.5px; font-weight: 600; color: rgba(255, 255, 255, .85); text-transform: uppercase; letter-spacing: .05em; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .goal-pct { font-size: 46px; font-weight: 700; letter-spacing: -.05em; line-height: 1.05; margin-top: 4px; }
-.goal-pct small { font-size: 16px; font-weight: 560; color: var(--text-2); letter-spacing: -.01em; margin-left: 8px; }
-.goal-sub { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; font-size: 13px; color: var(--text-2); }
-.goal-sub b { color: var(--text); font-weight: 600; }
+.goal-pct small { font-size: 16px; font-weight: 560; color: rgba(255, 255, 255, .82); letter-spacing: -.01em; margin-left: 8px; }
+.goal-sub { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; font-size: 13px; color: rgba(255, 255, 255, .82); }
+.goal-sub b { color: #fff; font-weight: 650; }
 .goal-side { display: grid; gap: 8px; justify-items: end; text-align: right; flex: none; }
-.goal-side .gs-l { font-size: 12px; color: var(--text-3); }
+.goal-side { position: relative; z-index: 1; }
+.goal-side .gs-l { font-size: 12px; color: rgba(255, 255, 255, .72); }
+.goal-side .faint { color: rgba(255, 255, 255, .7) !important; }
 .goal-side .gs-v { font-size: 20px; font-weight: 650; letter-spacing: -.03em; }
 @media (max-width: 720px) {
   .goal-banner { gap: 16px; padding: 16px; margin-bottom: 12px; }
@@ -760,9 +773,6 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
    RESPONSIVO
    ===================================================================== */
 @media (max-width: 1180px) {
-  .kpis { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  .kpis > * { grid-column: span 2; }
-  .kpis > :nth-child(4), .kpis > :nth-child(5) { grid-column: span 3; }
   .cal-wrap { grid-template-columns: 1fr; }
   .cal-legend { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
@@ -783,14 +793,12 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
   .tabbar { display: none; }
   .view { padding-top: 12px; }
   .view-title { font-size: 20px; }
-  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .kpis > *, .kpis > :nth-child(4), .kpis > :nth-child(5) { grid-column: span 1; }
-  .kpis > :first-child { grid-column: span 2; }
   .kpi-value { font-size: 24px; }
   .hero { padding: 18px; }
   .hero-value { font-size: 40px; }
   .hero-value .of { font-size: 17px; }
-  .hero-pct .big { font-size: 24px; }
+  .hero-pct { display: none; }
+  .clock-card .card-sub { display: none; }
   .card { padding: 16px; border-radius: 16px; }
   .table-card { padding: 0; }
   .tr-h { display: none; }
@@ -886,13 +894,13 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
     <!-- VISÃO GERAL -->
     <section class="view active" id="view-overview" aria-label="Visão geral">
       <div class="card goal-banner" id="goalBanner" role="region" aria-label="Índice de conclusão da meta"></div>
-      <div id="alerts" class="alerts"></div>
-      <div class="kpis stagger" id="kpis"></div>
       <div class="grid-hero">
         <div class="card hero" id="heroCard"></div>
         <div class="card today-card" id="todayCard"></div>
       </div>
       <div class="card clock-card hidden" id="clockCard"></div>
+      <div id="alerts" class="alerts"></div>
+      <div class="section-l overview-more"><span>Detalhes e evolução</span></div>
       <div class="grid-2">
         <div class="card" id="chartCard">
           <div class="card-head">
@@ -1988,7 +1996,6 @@ function renderAll() {
   renderHeader(d, t);
   renderGoalBanner(d, t);
   renderAlerts(d, t);
-  renderKpis(d);
   renderHero(d, t);
   renderToday(d, t);
   renderClock(d, t);
@@ -2050,18 +2057,6 @@ function renderAlerts(d, t) {
   $('#planAlerts').innerHTML = planList.map(a => alertHTML({ ...a, action: null })).join('');
 }
 
-function renderKpis(d) {
-  const S = state.settings;
-  const kpi = (label, ic, tone, value, foot) => `<div class="card kpi"><div class="kpi-top"><span class="kpi-label">${label}</span><span class="kpi-icon ${tone}">${icon(ic)}</span></div><div class="kpi-value">${value}</div><div class="kpi-foot">${foot}</div></div>`;
-  const nextOpen = d.open.find(k => (d.todoMap[k] || 0) > 0);
-  $('#kpis').innerHTML = [
-    kpi('Saldo atual', 'clock', 'accent', count('k-bal', d.bal), `${fmtDur(S.initialBalanceMin)} inicial + ${fmtDur(d.registered)} registradas${d.adjustTotal ? ` ${d.adjustTotal > 0 ? '+' : '−'} ${fmtDur(Math.abs(d.adjustTotal))} ajuste` : ''}`),
-    kpi('Meta', 'target', '', count('k-goal', d.goal), `até ${fmtDate(S.endDate)}`),
-    kpi('Horas restantes', 'hourglass', d.R === 0 ? 'success' : 'warning', count('k-rem', d.R), d.R === 0 ? 'Meta concluída' : `média de ${fmtDur(d.avgNeeded)}/dia`),
-    kpi('Progresso', 'trend', d.goalReached ? 'success' : 'info', count('k-pct', d.pct, 'pct'), d.goalReached ? 'Concluído' : `${fmtDur(d.bal)} de ${fmtDur(d.goal)}`),
-    kpi('Dias disponíveis', 'calendar', '', `${count('k-days', d.availableDays, 'int')}<small>${d.availableDays === 1 ? 'dia' : 'dias'}</small>`, nextOpen ? `próximo: ${wdShort(nextOpen)}, ${fmtDateShort(nextOpen)}` : (d.goalReached ? 'nenhum necessário' : 'sem dias restantes'))
-  ].join('');
-}
 
 /* ---------- Destaque: índice de conclusão da meta ---------- */
 let lastGoalFrac = 0;
@@ -2099,7 +2094,6 @@ function renderHero(d, t) {
   const wDone = Math.min(d.bal, scale) / scale * 100;
   const wToday = Math.min(d.bal + d.todayTodo, scale) / scale * 100;
   const prev = lastHeroWidths || { i: 0, d: 0, t: 0 };
-  const paceTxt = { reached: ['t-success', 'Meta concluída'], ahead: ['t-success', `Adiantado ${fmtDur(d.delta, { sign: true })}`], behind: ['t-danger', `Atrasado ${fmtDur(d.delta)}`], ontrack: ['t-accent', 'Dentro do planejado'] }[d.pace];
   const ticks = [];
   const tickStep = goal > 24 * 60 ? 480 : goal > 8 * 60 ? 240 : 60;
   for (let m = 0; m <= goal; m += tickStep) ticks.push(m);
@@ -2107,10 +2101,11 @@ function renderHero(d, t) {
   $('#heroCard').innerHTML = `
     <div class="hero-top">
       <div>
-        <div class="hero-eyebrow">${icon('zap', 'i-sm')} Banco de horas acumulado <span class="badge ${paceTxt[0]}">${paceTxt[1]}</span></div>
+        <h3 class="card-title">${icon('clock')} Saldo atual</h3>
         <div class="hero-value">${count('h-bal', d.bal)}<span class="of">/ ${fmtDur(d.goal)}</span></div>
+        <div class="hero-comp num">${fmtDur(S.initialBalanceMin)} inicial + ${fmtDur(d.registered)} registradas${d.adjustTotal ? ` ${d.adjustTotal > 0 ? '+' : '−'} ${fmtDur(Math.abs(d.adjustTotal))} ajuste` : ''}</div>
       </div>
-      <div class="hero-pct"><div class="big">${count('h-pct', Math.min(d.pct, 9.99), 'pct')}</div><div class="lbl">concluído</div></div>
+      <div class="hero-pct">${d.goalReached ? `<div class="big pos">${icon('trophy', 'i-lg')}</div><div class="lbl">meta concluída</div>` : `<div class="big num">${fmtDur(d.R)}</div><div class="lbl">faltam para a meta</div>`}</div>
     </div>
     <div class="progress ${d.goalReached ? 'complete' : ''}" role="progressbar" aria-valuemin="0" aria-valuemax="${d.goal}" aria-valuenow="${d.bal}" aria-label="Progresso da meta">
       <div class="progress-track">
