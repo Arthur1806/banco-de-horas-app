@@ -166,3 +166,77 @@ test('finalizar expediente redistribui o que faltava hoje', () => {
   st.plan = Core.computePlan(st, t).plan;
   assert.ok(Core.derive(st, t).open.includes(t));
 });
+
+test('feriados por estado e cidade', () => {
+  const keys = (y, loc, opt = false) => Core.holidaysForYear(y, { location: loc, optional: opt });
+  const df = keys(2026, { uf: 'DF', city: 'Brasília' });
+  const ev = df.find(h => h.key === '2026-11-30');
+  assert.equal(ev.label, 'Dia do Evangélico');
+  assert.equal(ev.scope, 'distrital');
+  assert.equal(df.find(h => h.key === '2026-04-21').label, 'Tiradentes · Fundação de Brasília', 'mesma data une os nomes');
+  assert.ok(!keys(2026, null).some(h => h.key === '2026-11-30'), 'sem local, só nacionais');
+  const sp = keys(2026, { uf: 'SP', city: 'São Paulo' });
+  assert.ok(sp.some(h => h.key === '2026-07-09' && h.scope === 'estadual'));
+  assert.ok(sp.some(h => h.key === '2026-01-25' && h.scope === 'municipal'));
+  assert.ok(sp.some(h => h.key === '2026-06-04' && h.scope === 'municipal'), 'Corpus Christi é feriado na capital paulista');
+  const spOther = keys(2026, { uf: 'SP', city: 'Campinas' });
+  assert.ok(spOther.some(h => h.key === '2026-07-09') && !spOther.some(h => h.key === '2026-01-25'), 'outra cidade: estaduais sem os municipais da capital');
+  assert.ok(keys(2027, { uf: 'RJ', city: 'Rio de Janeiro' }).some(h => h.key === '2027-02-09'), 'Carnaval (terça) é estadual no RJ');
+  assert.equal(Object.keys(Core.UFS).length, 27);
+  assert.equal(Object.keys(Core.CAPITALS).length, 27);
+});
+
+test('feriado automático tira o dia do plano e pode ser liberado', () => {
+  const st = Core.createState({ goalMin: 600, initialBalanceMin: 0, startDate: '2026-11-23', endDate: '2026-11-30', dailyLimitMin: 120, workStart: '09:00', workEnd: '18:00', location: { uf: 'DF', city: 'Brasília' } });
+  const t = '2026-11-23';
+  assert.equal(Core.dayOff(st, '2026-11-30').source, 'auto');
+  assert.ok(!Core.openDays(st, t).includes('2026-11-30'));
+  st.holidayOff['2026-11-30'] = true;
+  assert.equal(Core.dayOff(st, '2026-11-30'), null);
+  assert.ok(Core.openDays(st, t).includes('2026-11-30'));
+});
+
+test('preferências do planejamento', () => {
+  const base = { goalMin: 300, initialBalanceMin: 0, startDate: '2026-12-01', endDate: '2026-12-11', dailyLimitMin: 120, workStart: '09:00', workEnd: '18:00' };
+  const t = '2026-12-01';
+  const run = planning => { const st = Core.createState({ ...base, planning }); const { plan } = Core.computePlan(st, t, 'full'); return Core.openDays(st, t).map(k => plan[k] || 0); };
+  // equilibrado: 5h em 9 dias úteis, sem migalhas abaixo de 15 min
+  const bal = run({});
+  assert.equal(bal.reduce((a, b) => a + b, 0), 300);
+  assert.ok(bal.every(v => v === 0 || v >= 15));
+  // o quanto antes: enche os primeiros dias até o limite
+  assert.deepEqual(run({ strategy: 'asap' }).slice(0, 3), [120, 120, 60]);
+  // reserva: últimos 2 dias úteis ficam livres
+  const res = run({ reserveDays: 2 });
+  assert.deepEqual(res.slice(-2), [0, 0]);
+  assert.equal(res.reduce((a, b) => a + b, 0), 300);
+  // dias da semana sem hora extra (sexta = 5) ficam vazios quando sobra capacidade
+  const st = Core.createState({ ...base, planning: { skipWeekdays: [5] } });
+  const { plan } = Core.computePlan(st, t, 'full');
+  assert.ok(Core.openDays(st, t).filter(k => Core.weekday(k) === 5).every(k => !plan[k]));
+  // ...mas são usados se faltar capacidade
+  const tight = Core.createState({ ...base, goalMin: 17 * 60, planning: { skipWeekdays: [5] } });
+  const tp = Core.computePlan(tight, t, 'full');
+  assert.equal(tp.unallocated, 0);
+  assert.ok(Core.openDays(tight, t).some(k => Core.weekday(k) === 5 && tp.plan[k] > 0));
+  // bloco mínimo junta sobras
+  const tiny = Core.createState({ ...base, goalMin: 30 });
+  const tq = Core.computePlan(tiny, t, 'full');
+  const vals = Core.openDays(tiny, t).map(k => tq.plan[k] || 0).filter(Boolean);
+  assert.ok(vals.every(v => v >= 15), `sem blocos pequenos: ${vals}`);
+});
+
+test('estado novo da configuração inicial e preferências salvas', () => {
+  const st = Core.createState({ goalMin: 960, initialBalanceMin: 30, startDate: '2026-11-23', endDate: '2026-12-31', dailyLimitMin: 90, workStart: '08:00', workEnd: '17:00', location: { uf: 'DF', city: 'Brasília' }, planning: { strategy: 'asap', reserveDays: 1, skipWeekdays: [5], minBlock: 30 } });
+  assert.equal(st.entries.length, 0);
+  assert.deepEqual(st.plan, {});
+  assert.ok(st.meta.onboarded);
+  const re = Core.sanitizeState(JSON.parse(JSON.stringify(st))).state;
+  assert.deepEqual(re.settings.location, { uf: 'DF', city: 'Brasília' });
+  assert.deepEqual(re.settings.planning, { strategy: 'asap', reserveDays: 1, skipWeekdays: [5], minBlock: 30 });
+  // dados antigos sem os campos novos continuam válidos
+  const old = Core.defaultState(); delete old.settings.location; delete old.settings.planning; delete old.holidayOff;
+  const ro = Core.sanitizeState(old).state;
+  assert.equal(ro.settings.location, null);
+  assert.deepEqual(ro.settings.planning, Core.DEFAULT_PLANNING);
+});

@@ -553,6 +553,66 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
 .pm { padding: 14px 16px; }
 .pm-l { font-size: 12px; color: var(--text-3); }
 .pm-v { font-size: 20px; font-weight: 650; letter-spacing: -.03em; margin-top: 2px; }
+.pm-s { font-size: 11.5px; color: var(--text-3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.plan-layout { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start; }
+.plan-main { display: grid; gap: 12px; min-width: 0; }
+.plan-side { display: grid; gap: 16px; position: sticky; top: 60px; }
+.plan-next { display: flex; align-items: center; gap: 18px; padding: 18px 20px; border-color: color-mix(in srgb, var(--accent) 35%, transparent); background: linear-gradient(110deg, color-mix(in srgb, var(--accent) 13%, var(--surface)), var(--surface) 70%); }
+.plan-next.ok { border-color: color-mix(in srgb, var(--success) 35%, transparent); background: linear-gradient(110deg, var(--success-soft), var(--surface) 70%); }
+.plan-next.bad { border-color: color-mix(in srgb, var(--danger) 35%, transparent); background: linear-gradient(110deg, var(--danger-soft), var(--surface) 70%); }
+.pn-date { width: 62px; height: 68px; border-radius: 14px; display: grid; place-items: center; align-content: center; flex: none; background: var(--accent); color: #fff; line-height: 1.05; box-shadow: 0 10px 22px -12px var(--accent); }
+.pn-date span, .pn-date em { font-size: 11px; font-style: normal; text-transform: uppercase; letter-spacing: .05em; opacity: .85; }
+.pn-date b { font-size: 26px; font-weight: 700; letter-spacing: -.03em; }
+.pn-ic { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; flex: none; background: var(--surface-3); }
+.plan-next.ok .pn-ic { color: var(--success); background: var(--success-soft); }
+.plan-next.bad .pn-ic { color: var(--danger); background: var(--danger-soft); }
+.pn-main { flex: 1; min-width: 0; }
+.pn-l { font-size: 12px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .05em; }
+.pn-v { font-size: 30px; font-weight: 680; letter-spacing: -.04em; line-height: 1.15; margin-top: 2px; }
+.pn-v small { font-size: 14px; font-weight: 520; color: var(--text-2); letter-spacing: -.01em; }
+.pn-s { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+.pn-s b { color: var(--text); }
+.pn-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.wk { padding: 0; overflow: hidden; }
+.wk.is-cur { border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+.wk-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+.wk-t { font-weight: 620; font-size: 13.5px; }
+.wk.is-cur .wk-t { color: var(--accent); }
+.wk-s { font-size: 12px; color: var(--text-3); }
+.wk-head .meter { width: 90px; flex: none; }
+.wk-days { display: grid; }
+.pd { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 11px 16px; border: 0; border-bottom: 1px solid var(--border); background: transparent; color: var(--text); transition: background-color .15s var(--ease); position: relative; }
+.pd:last-child { border-bottom: 0; }
+.pd:hover { background: var(--hover); }
+.pd.is-today { background: linear-gradient(90deg, var(--accent-soft), transparent 70%); }
+.pd.is-today::before { content: ""; position: absolute; left: 0; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent); }
+.pd.is-off { color: var(--text-3); }
+.pd-date { width: 40px; display: grid; justify-items: center; line-height: 1.1; flex: none; }
+.pd-date em { font-style: normal; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-3); }
+.pd-date b { font-size: 18px; font-weight: 650; letter-spacing: -.02em; }
+.pd.is-past .pd-date b { color: var(--text-2); }
+.pd-main { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.pd-v { font-size: 14px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.pd-v b { font-size: 15px; font-weight: 650; }
+.pd-s { font-size: 12px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pd-off { font-weight: 540; color: var(--text-2); }
+.pd-side { display: flex; align-items: center; gap: 10px; flex: none; }
+.pd-side .meter { width: 46px; }
+.wk-past summary { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: var(--r-lg); border: 1px dashed var(--border-2); cursor: pointer; font-size: 13px; color: var(--text-2); list-style: none; }
+.wk-past summary::-webkit-details-marker { display: none; }
+.wk-past summary .i { transition: transform .2s var(--ease); }
+.wk-past[open] summary .i { transform: rotate(90deg); }
+.wk-past summary > span:last-child { margin-left: auto; }
+.wk-past-body { display: grid; gap: 12px; margin-top: 12px; }
+.wk-past .wk { opacity: .85; }
+.wk-more { justify-self: center; }
+.plan-foot { display: flex; align-items: baseline; gap: 10px; justify-content: flex-end; padding: 6px 4px; font-size: 13px; color: var(--text-2); }
+.plan-foot b { font-size: 18px; color: var(--text); font-weight: 650; }
+.pref-limit { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px dashed var(--border); font-size: 13px; color: var(--text-2); }
+.pref-limit b { color: var(--text); }
+.how { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-size: 13px; color: var(--text-2); line-height: 1.5; }
+.how b { color: var(--text); font-weight: 600; }
+.seg button .i { width: 14px; height: 14px; }
 .table { width: 100%; }
 .tr-h, .tr-r {
   display: grid; align-items: center; gap: 12px; padding: 0 16px;
@@ -618,6 +678,14 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
 .cal-day.is-today { box-shadow: 0 0 0 2px var(--accent), 0 8px 20px -10px var(--accent); }
 .cal-day.is-today .dn::after { content: "hoje"; margin-left: 6px; font-size: 10px; font-weight: 650; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; }
 .cal-legend { display: grid; gap: 10px; }
+.cal-side { display: grid; gap: 16px; align-content: start; }
+.cal-hols { max-height: 420px; overflow-y: auto; grid-template-columns: minmax(0, 1fr); }
+.hol-item { min-width: 0; }
+.hol-item .badge { flex: none; }
+.cal-hols .hol-item { width: 100%; text-align: left; color: var(--text); cursor: pointer; }
+.cal-hols .hol-item:hover { border-color: var(--border-2); }
+.cal-hols .hol-item.past { opacity: .55; }
+.cal-head .btn { margin-left: auto; margin-right: 8px; }
 .cal-legend .lg { font-size: 13px; }
 .lg-sw { width: 14px; height: 14px; border-radius: 4px; flex: none; border: 1px solid transparent; }
 .lg-sw.done { background: var(--success-soft); border-color: var(--success); }
@@ -655,6 +723,37 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
 .hist-summary { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12.5px; color: var(--text-2); margin-bottom: 14px; }
 .hist-summary b { color: var(--text); }
 
+/* Registro de horas: destaque do banco real */
+.realbank { margin-bottom: 16px; padding: 18px 20px; border-color: color-mix(in srgb, var(--info) 38%, transparent); background: linear-gradient(110deg, color-mix(in srgb, var(--info) 13%, var(--surface)), var(--surface) 72%); }
+.rb-main { display: flex; align-items: center; gap: 18px; }
+.rb-ic { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; flex: none; background: var(--info-soft); color: var(--info); border: 1px solid color-mix(in srgb, var(--info) 30%, transparent); }
+.rb-ic .i { width: 22px; height: 22px; }
+.rb-text { flex: 1; min-width: 0; }
+.rb-title { font-weight: 650; font-size: 15.5px; letter-spacing: -.015em; }
+.rb-desc { font-size: 13px; color: var(--text-2); margin-top: 3px; line-height: 1.5; }
+.rb-stats { display: flex; gap: 18px; flex: none; }
+.rb-stats > div { display: grid; text-align: right; }
+.rb-stats span { font-size: 11.5px; color: var(--text-3); }
+.rb-stats b { font-size: 15px; font-weight: 650; }
+.rb-btn { flex: none; height: 40px; padding: 0 18px; }
+.rb-list { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.rb-list summary { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-2); list-style: none; }
+.rb-list summary::-webkit-details-marker { display: none; }
+.rb-list summary .i { transition: transform .2s var(--ease); }
+.rb-list[open] summary .i { transform: rotate(90deg); }
+.rb-list summary .faint { margin-left: auto; }
+.date-chips { margin-top: 8px; }
+.date-chips .chip, .chip-sug { height: 28px; }
+.chip-sug { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); background: var(--accent-soft); display: inline-flex; align-items: center; gap: 6px; }
+.hist-more { display: flex; margin: 12px auto 0; }
+@media (max-width: 860px) {
+  .rb-main { flex-wrap: wrap; gap: 14px; }
+  .rb-text { flex-basis: calc(100% - 64px); }
+  .rb-stats { width: 100%; justify-content: space-between; padding: 10px 12px; border-radius: var(--r); background: var(--surface-2); border: 1px solid var(--border); }
+  .rb-stats > div { text-align: left; }
+  .rb-btn { width: 100%; justify-content: center; }
+}
+
 /* Prévia do formulário */
 .preview { border-radius: var(--r); background: var(--surface-2); border: 1px solid var(--border); padding: 12px 14px; display: grid; gap: 10px; }
 .pv-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -685,7 +784,143 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
 .backup-row .bd { font-size: 12px; color: var(--text-3); }
 .backup-row .btn { margin-left: auto; }
 .backup-row > div { min-width: 0; }
+.loc-line { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--r); background: var(--surface-2); border: 1px solid var(--border); }
+.loc-line > div { flex: 1; min-width: 0; }
+.loc-line .lt { font-weight: 600; font-size: 13.5px; }
+.loc-line .ld { font-size: 12px; color: var(--text-3); }
+.loc-ic { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); flex: none; }
+.guide-row { background: color-mix(in srgb, var(--accent) 8%, var(--surface-2)); border-color: color-mix(in srgb, var(--accent) 28%, transparent); }
 .storage-note { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--text-3); margin-top: 14px; }
+
+/* =====================================================================
+   CONFIGURAÇÃO INICIAL (assistente)
+   ===================================================================== */
+body.ob-open { overflow: hidden; }
+.ob {
+  position: fixed; inset: 0; z-index: 90; display: flex; justify-content: center; align-items: stretch;
+  background: var(--bg); animation: fade .3s var(--ease);
+}
+.ob::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(60% 50% at 50% -10%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
+              radial-gradient(40% 40% at 100% 100%, color-mix(in srgb, #9468ff 12%, transparent), transparent 70%);
+}
+.ob.closing { animation: fadeOut .25s var(--ease) forwards; }
+.ob-shell { position: relative; width: 100%; max-width: 620px; display: flex; flex-direction: column; padding: 0 24px; }
+.ob-top { display: flex; align-items: center; gap: 12px; padding: 22px 0 14px; }
+.ob-brand { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 14.5px; }
+.ob-brand .brand-mark { width: 30px; height: 30px; border-radius: 9px; }
+.ob-brand .brand-mark .i { width: 16px; height: 16px; }
+.ob-count { margin-left: auto; font-size: 12.5px; color: var(--text-3); font-weight: 520; }
+.ob-top .icon-btn { margin-left: 4px; }
+.ob-progress { height: 4px; border-radius: 4px; background: var(--track); overflow: hidden; }
+.ob-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent-strong), #9468ff); transition: width .45s var(--ease); }
+.ob-stage { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 34px 2px 24px; scrollbar-width: thin; }
+.ob-body.in-fwd { animation: obIn .42s var(--ease) both; }
+.ob-body.in-back { animation: obBack .42s var(--ease) both; }
+@keyframes obIn { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes obBack { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+.ob-head { margin-bottom: 26px; }
+.ob-ic { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; margin-bottom: 18px; color: var(--accent); background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); }
+.ob-ic .i { width: 22px; height: 22px; }
+.ob-h1 { font-size: 34px; line-height: 1.12; letter-spacing: -.04em; font-weight: 700; margin: 0; }
+.ob-h2 { font-size: 27px; line-height: 1.18; letter-spacing: -.035em; font-weight: 680; margin: 0; }
+.ob-lead { color: var(--text-2); font-size: 15px; line-height: 1.55; margin: 10px 0 0; }
+.ob-hint { color: var(--text-3); font-size: 12.5px; margin: 0; }
+.ob-q { font-weight: 600; font-size: 14px; margin-top: 8px; }
+.ob-big-wrap { display: flex; }
+.ob-big {
+  width: 100%; height: 76px; border-radius: 16px; border: 1px solid var(--border-2); background: var(--surface);
+  font-size: 40px; font-weight: 680; letter-spacing: -.04em; padding: 0 22px; color: var(--text); outline: none;
+  transition: border-color .15s var(--ease), box-shadow .15s var(--ease);
+}
+.ob-big:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.ob-chips .chip { height: 34px; padding: 0 14px; font-size: 13px; }
+.chip.on { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+.chip-input { height: 34px; width: 92px; border-radius: 999px; border: 1px dashed var(--border-2); background: transparent; color: var(--text); text-align: center; font-size: 13px; outline: none; }
+.chip-input:focus { border-style: solid; border-color: var(--accent); }
+.ob-callout { display: flex; gap: 10px; align-items: flex-start; padding: 13px 15px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); color: var(--text-2); font-size: 13.5px; line-height: 1.5; }
+.ob-callout .i { color: var(--accent); margin-top: 1px; }
+.ob-callout b { color: var(--text); }
+.ob-callout.soft { background: transparent; }
+.ob-options { display: grid; gap: 10px; }
+.ob-options.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ob-opt {
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 15px 16px; border-radius: 14px;
+  border: 1px solid var(--border-2); background: var(--surface); color: var(--text);
+  transition: border-color .15s var(--ease), background-color .15s var(--ease), box-shadow .15s var(--ease), transform .12s var(--ease);
+}
+.ob-opt:hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.ob-opt:active { transform: scale(.99); }
+.ob-opt.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, var(--surface)); box-shadow: 0 0 0 3px var(--accent-soft); }
+.ob-opt > .i { color: var(--text-3); flex: none; }
+.ob-opt.on > .i { color: var(--accent); }
+.ob-opt-main { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.ob-opt-main b { font-weight: 620; font-size: 14.5px; }
+.ob-opt-main span { font-size: 12.5px; color: var(--text-3); }
+.ob-opt-side { font-size: 12.5px; color: var(--text-2); white-space: nowrap; }
+.ob-opt.tall { flex-direction: column; align-items: flex-start; gap: 12px; padding: 18px; }
+.ob-opt.tall > .i { width: 22px; height: 22px; }
+.ob-more summary { cursor: pointer; font-size: 13px; color: var(--accent); font-weight: 540; list-style: none; }
+.ob-more summary::-webkit-details-marker { display: none; }
+.ob-hero { text-align: center; padding-top: 4vh; }
+.ob-hero-mark {
+  width: 76px; height: 76px; border-radius: 22px; margin: 0 auto 26px; display: grid; place-items: center; color: #fff;
+  background: linear-gradient(140deg, #8d8bff, #5a57e6 60%, #4440c9); box-shadow: 0 18px 40px -14px rgba(104, 102, 242, .8), inset 0 1px 0 rgba(255, 255, 255, .25);
+}
+.ob-hero-mark .i { width: 36px; height: 36px; }
+.ob-hero .ob-lead { max-width: 470px; margin: 14px auto 0; }
+.ob-features { list-style: none; padding: 0; margin: 30px auto 30px; display: grid; gap: 10px; max-width: 420px; text-align: left; }
+.ob-features li { display: flex; gap: 14px; align-items: center; padding: 13px 15px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); }
+.ob-features li > .i { color: var(--accent); width: 20px; height: 20px; }
+.ob-features b { display: block; font-size: 14px; font-weight: 620; }
+.ob-features span { font-size: 12.5px; color: var(--text-3); }
+.ob-cta { height: 48px; padding: 0 26px; font-size: 15px; border-radius: 13px; }
+.ob-sub { display: flex; margin: 12px auto 0; }
+.ob-foot { display: flex; align-items: center; gap: 12px; padding: 14px 0 calc(22px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); }
+.ob-foot [data-fwd] { margin-left: auto; height: 42px; padding: 0 20px; font-size: 14px; border-radius: 11px; }
+.ob-foot [data-back] { height: 42px; }
+.ob-err { flex: 1; min-width: 0; }
+.ob-hol .hol-list { max-height: 280px; overflow-y: auto; }
+.ob-plan { padding: 20px; border-radius: 16px; color: #fff; background: linear-gradient(125deg, #4f4be6 0%, #6d5cf3 50%, #9468ff 100%); box-shadow: 0 20px 40px -22px rgba(94, 88, 240, .9); }
+.ob-plan.ok { background: linear-gradient(125deg, #0b8a5f, #17a873 50%, #34cf90); }
+.ob-plan.bad { background: linear-gradient(125deg, #b9364a, #d9434e 55%, #ef6a72); }
+.ob-plan-big { font-size: 36px; font-weight: 700; letter-spacing: -.04em; line-height: 1.1; display: flex; align-items: center; gap: 10px; }
+.ob-plan-big small { font-size: 15px; font-weight: 560; opacity: .85; margin-left: 4px; letter-spacing: -.01em; }
+.ob-plan-sub { font-size: 13.5px; opacity: .9; margin-top: 6px; }
+.ob-bars { display: flex; align-items: flex-end; gap: 6px; height: 92px; margin-top: 18px; }
+.ob-bar { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; }
+.ob-bar i { width: 100%; max-width: 26px; border-radius: 4px 4px 2px 2px; background: rgba(255, 255, 255, .9); }
+.ob-bar span, .ob-bar em { font-size: 10.5px; font-style: normal; opacity: .85; white-space: nowrap; }
+.ob-sum { display: grid; gap: 2px; margin-top: 6px; }
+.ob-sum-row { display: flex; align-items: center; gap: 12px; padding: 11px 2px; border-bottom: 1px dashed var(--border); }
+.ob-sum-row:last-child { border-bottom: 0; }
+.ob-sum-row > .i { color: var(--text-3); }
+.ob-sum-row > div { flex: 1; min-width: 0; display: grid; }
+.ob-sum-row > div > span { font-size: 12px; color: var(--text-3); }
+.ob-sum-row b { font-weight: 580; font-size: 13.5px; }
+@media (max-width: 720px) {
+  .ob-shell { padding: 0 18px; }
+  .ob-stage { padding-top: 24px; }
+  .ob-h1 { font-size: 28px; }
+  .ob-h2 { font-size: 23px; }
+  .ob-lead { font-size: 14px; }
+  .ob-big { height: 66px; font-size: 34px; }
+  .ob-options.two { grid-template-columns: 1fr; }
+  .ob-opt.tall { flex-direction: row; align-items: center; padding: 15px 16px; }
+  .ob-plan-big { font-size: 30px; }
+  .ob-hero { padding-top: 0; }
+}
+
+/* Feriados (listas) */
+.hol-list { display: grid; gap: 6px; }
+.hol-item { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: var(--r); background: var(--surface-2); border: 1px solid var(--border); font-size: 13px; }
+.hol-item.off { opacity: .5; }
+.hol-item.off .hol-name { text-decoration: line-through; }
+.hol-date { display: grid; line-height: 1.2; min-width: 42px; font-size: 11px; color: var(--text-3); text-transform: capitalize; }
+.hol-date b { font-size: 13px; color: var(--text); font-weight: 620; }
+.hol-name { flex: 1; min-width: 0; }
+.hol-item .icon-btn { width: 28px; height: 28px; }
 
 /* Períodos */
 .check { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text-2); cursor: pointer; }
@@ -777,7 +1012,8 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
   .cal-legend { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 980px) {
-  .grid-hero, .grid-2, .grid-entries, .grid-settings { grid-template-columns: 1fr; }
+  .grid-hero, .grid-2, .grid-entries, .grid-settings, .plan-layout { grid-template-columns: 1fr; }
+  .plan-side { position: static; }
   .plan-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .tr-h, .tr-r, .tr-foot { grid-template-columns: minmax(110px, 1.3fr) 0.8fr 0.8fr 0.8fr 0.9fr minmax(120px, 1.2fr); }
   .c-cum { display: none !important; }
@@ -815,6 +1051,15 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
   .tr-foot .c-wd, .tr-foot .c-status, .tr-foot .c-sp { display: none; }
   .plan-metrics { gap: 10px; }
   .pm-v { font-size: 18px; }
+  .plan-next { flex-wrap: wrap; padding: 16px; gap: 14px; }
+  .pn-actions { width: 100%; justify-content: stretch; }
+  .pn-actions .btn { flex: 1; justify-content: center; }
+  .pn-v { font-size: 26px; }
+  .pd { padding: 10px 12px; gap: 10px; }
+  .pd-side .meter { display: none; }
+  .wk-head { padding: 11px 12px; }
+  .wk-past summary { flex-wrap: wrap; }
+  .wk-past summary > span:last-child { margin-left: 0; width: 100%; }
   .cal-grid { gap: 4px; }
   .cal-day { min-height: 64px; padding: 6px; border-radius: 10px; }
   .cal-day .dn { font-size: 12px; }
@@ -880,7 +1125,7 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
       <div class="top-actions">
         <span class="today-chip num" id="todayChip"><span class="dot"></span><span id="todayChipText">—</span></span>
         <button class="icon-btn" id="themeBtn" type="button" title="Alternar tema (claro/escuro)" aria-label="Alternar tema"></button>
-        <button class="btn btn-primary" id="newEntryBtn" type="button" title="Registrar horas extras (atalho: N)"></button>
+        <button class="btn btn-primary" id="newEntryBtn" type="button" title="Registrar horas (atalho: N)"></button>
       </div>
     </div>
   </header>
@@ -922,7 +1167,7 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
       <div class="view-head">
         <div>
           <h2 class="view-title">Planejamento inteligente</h2>
-          <p class="view-desc" id="planDesc">Distribuição das horas restantes nos dias úteis disponíveis.</p>
+          <p class="view-desc" id="planDesc"></p>
         </div>
         <div class="view-actions">
           <button class="btn btn-primary" id="recalcBtn" type="button"></button>
@@ -930,8 +1175,16 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
       </div>
       <div id="planAlerts" class="alerts"></div>
       <div class="plan-metrics stagger" id="planMetrics"></div>
-      <div class="card table-card" id="planTable"></div>
-      <div class="legend-row" id="planLegend"></div>
+      <div class="plan-layout">
+        <div class="plan-main">
+          <div class="card plan-next" id="planNext"></div>
+          <div id="planWeeks"></div>
+        </div>
+        <aside class="plan-side">
+          <div class="card" id="planPrefs"></div>
+          <div class="card" id="planHow"></div>
+        </aside>
+      </div>
     </section>
 
     <!-- CALENDÁRIO -->
@@ -939,7 +1192,7 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
       <div class="view-head">
         <div>
           <h2 class="view-title">Calendário</h2>
-          <p class="view-desc">Clique em um dia para ver detalhes, registrar ou editar horas extras.</p>
+          <p class="view-desc">Navegue pelo ano todo. Clique em um dia para ver detalhes, registrar horas ou marcar folgas.</p>
         </div>
       </div>
       <div class="cal-wrap">
@@ -947,32 +1200,37 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
           <div class="cal-head">
             <button class="icon-btn" id="calPrev" type="button" aria-label="Mês anterior"></button>
             <div class="cal-month" id="calMonth"></div>
+            <button class="btn btn-sm btn-ghost hidden" id="calToday" type="button">Hoje</button>
             <button class="icon-btn" id="calNext" type="button" aria-label="Próximo mês"></button>
           </div>
           <div class="cal-grid" id="calGrid"></div>
         </div>
-        <div class="card">
-          <div class="card-head"><h3 class="card-title" id="calLegendTitle"></h3></div>
-          <div class="cal-legend" id="calLegend"></div>
+        <div class="cal-side">
+          <div class="card">
+            <div class="card-head"><h3 class="card-title" id="calLegendTitle"></h3></div>
+            <div class="cal-legend" id="calLegend"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3 class="card-title" id="calHolTitle"></h3><button type="button" class="btn btn-ghost btn-sm" id="calLocBtn"></button></div>
+            <div id="calHolList"></div>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- LANÇAMENTOS -->
-    <section class="view" id="view-entries" aria-label="Lançamentos">
+    <section class="view" id="view-entries" aria-label="Registro de horas">
       <div class="view-head">
         <div>
-          <h2 class="view-title">Registro de horas extras</h2>
-          <p class="view-desc">Lance por horário (cálculo automático) ou manualmente. O saldo e o plano são atualizados na hora.</p>
+          <h2 class="view-title">Registro de horas</h2>
+          <p class="view-desc">Registre por horário (o app calcula a duração) ou informe as horas direto. O saldo e o plano atualizam na hora.</p>
         </div>
       </div>
+      <div class="card realbank" id="adjustCard"></div>
       <div class="grid-entries">
-        <div class="grid">
-          <div class="card">
-            <div class="card-head"><h3 class="card-title" id="formTitle"></h3></div>
-            <div id="inlineFormHost"></div>
-          </div>
-          <div class="card" id="adjustCard"></div>
+        <div class="card">
+          <div class="card-head"><h3 class="card-title" id="formTitle"></h3></div>
+          <div id="inlineFormHost"></div>
         </div>
         <div class="card">
           <div class="card-head"><h3 class="card-title" id="histTitle"></h3></div>
@@ -1026,6 +1284,8 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
         <div class="grid">
           <div class="card">
             <div class="card-head"><h3 class="card-title" id="setTitle2"></h3><span class="card-sub" id="ovCount"></span></div>
+            <div id="holSettings"></div>
+            <div class="section-l"><span>Dias marcados por você</span></div>
             <div class="ov-list" id="ovList"></div>
             <form class="form-stack" id="ovForm" novalidate>
               <div class="row-2">
@@ -1044,7 +1304,7 @@ html[data-theme="dark"] .field input::-webkit-calendar-picker-indicator { filter
             <div class="backup-actions">
               <div class="backup-row"><div><div class="bt">Exportar backup</div><div class="bd">Baixa um arquivo .json com todos os dados.</div></div><button type="button" class="btn" id="exportBtn"></button></div>
               <div class="backup-row"><div><div class="bt">Importar backup</div><div class="bd">Substitui os dados atuais por um backup .json.</div></div><button type="button" class="btn" id="importBtn"></button></div>
-              <div class="backup-row"><div><div class="bt">Restaurar configurações iniciais</div><div class="bd">Apaga lançamentos e volta ao plano original.</div></div><button type="button" class="btn btn-danger" id="resetBtn"></button></div>
+              <div class="backup-row"><div><div class="bt">Apagar tudo e recomeçar</div><div class="bd">Apaga os dados e abre a configuração inicial.</div></div><button type="button" class="btn btn-danger" id="resetBtn"></button></div>
             </div>
             <input type="file" id="importFile" accept="application/json,.json" class="hidden">
             <div class="storage-note" id="storageNote"></div>
@@ -1149,6 +1409,25 @@ const Core = (() => {
     '2026-11-23': 90, '2026-11-24': 90, '2026-11-25': 90, '2026-11-26': 90, '2026-11-27': 90,
     '2026-11-30': 69
   };
+  const DEFAULT_PLANNING = { strategy: 'balanced', reserveDays: 0, skipWeekdays: [], minBlock: 15 };
+  function planPrefs(S) {
+    const p = (S && S.planning) || {};
+    return {
+      strategy: p.strategy === 'asap' ? 'asap' : 'balanced',
+      reserveDays: isInt(p.reserveDays) ? clamp(p.reserveDays, 0, 5) : 0,
+      skipWeekdays: Array.isArray(p.skipWeekdays) ? [...new Set(p.skipWeekdays.filter(w => isInt(w) && w >= 1 && w <= 5))].sort() : [],
+      minBlock: [0, 15, 30].includes(p.minBlock) ? p.minBlock : 15
+    };
+  }
+  /** Estado novo, sem lançamentos, a partir das respostas da configuração inicial. */
+  function createState(cfg = {}, theme = 'dark') {
+    const st = defaultState();
+    st.settings = { ...st.settings, ...cfg, planning: planPrefs({ planning: cfg.planning }) };
+    st.theme = theme === 'light' ? 'light' : 'dark';
+    st.overrides = {}; st.plan = {}; st.baseline = {};
+    st.meta = { ...st.meta, onboarded: true, locationAsked: true, autoHolidays: true };
+    return st;
+  }
   function defaultState() {
     return {
       version: 1,
@@ -1159,7 +1438,10 @@ const Core = (() => {
         endDate: '2026-11-30',
         dailyLimitMin: 120,           // 2h00
         workStart: '09:00',
-        workEnd: '18:00'
+        workEnd: '18:00',
+        location: null,               // { uf: 'DF', city: 'Brasília' } — feriados estaduais/municipais
+        optionalHolidays: false,      // considerar pontos facultativos (Carnaval, Corpus Christi)
+        planning: { ...DEFAULT_PLANNING }
       },
       theme: 'dark',
       overrides: {
@@ -1173,6 +1455,7 @@ const Core = (() => {
       periods: [],                     // períodos já encerrados (somente consulta)
       adjustments: [],                 // ajustes para igualar ao banco real: { id, date, deltaMin, realMin, systemMin, note }
       closedDays: {},                  // dias com expediente finalizado: { 'AAAA-MM-DD': true }
+      holidayOff: {},                  // feriados automáticos em que o usuário vai trabalhar: { 'AAAA-MM-DD': true }
       meta: { createdAt: new Date().toISOString(), updatedAt: null, lastPlanAt: null, goalCelebrated: false }
     };
   }
@@ -1184,7 +1467,15 @@ const Core = (() => {
   /** Ajustes por data (ajustes depois do prazo contam no último dia, para o saldo final bater). */
   function adjustByDate(state) { const m = {}; for (const a of state.adjustments || []) { const k = minKey(a.date, state.settings.endDate); m[k] = (m[k] || 0) + a.deltaMin; } return m; }
   function balance(state) { return state.settings.initialBalanceMin + totalEntries(state) + totalAdjust(state); }
-  function isAvailable(state, k) { return !isWeekend(k) && !state.overrides[k]; }
+  /** Dia sem horas extras: marcação manual ou feriado automático (nacional/estadual/municipal). */
+  function dayOff(state, k) {
+    const ov = state.overrides && state.overrides[k];
+    if (ov) return { ...ov, source: 'manual' };
+    if (state.holidayOff && state.holidayOff[k]) return null;
+    const h = holidayAt(state, k);
+    return h ? { type: 'holiday', label: h.label, scope: h.scope, source: 'auto' } : null;
+  }
+  function isAvailable(state, k) { return !isWeekend(k) && !dayOff(state, k); }
   /** Expediente finalizado: o dia deixa de receber horas no planejamento e passa a contar como encerrado. */
   function isClosed(state, k) { return !!(state.closedDays && state.closedDays[k]); }
   function inPeriod(state, k) { return k >= state.settings.startDate && k <= state.settings.endDate; }
@@ -1221,24 +1512,66 @@ const Core = (() => {
     }
     return left;
   }
-  /** Remove horas excedentes a partir dos ÚLTIMOS dias (a meta é concluída mais cedo). */
-  function removeFromEnd(p, amount) {
-    for (let i = p.length - 1; i >= 0 && amount > 0; i--) { const t = Math.min(p[i], amount); p[i] -= t; amount -= t; }
+  /** Remove horas excedentes seguindo `order` (índices do que sai primeiro). */
+  function removeInOrder(p, order, amount) {
+    for (const i of order) { if (amount <= 0) break; const t = Math.min(p[i], amount); p[i] -= t; amount -= t; }
     return amount;
+  }
+  function removeFromEnd(p, amount) { return removeInOrder(p, p.map((_, i) => p.length - 1 - i), amount); }
+  /** Preenche só os índices `idx` (na ordem dada), equilibrado ou "o quanto antes". */
+  function fillGroup(p, caps, idx, amount, strategy) {
+    if (amount <= 0 || !idx.length) return Math.max(0, amount);
+    if (strategy === 'asap') {
+      for (const i of idx) { if (amount <= 0) break; const add = Math.min(caps[i] - p[i], amount); if (add > 0) { p[i] += add; amount -= add; } }
+      return amount;
+    }
+    const sp = idx.map(i => p[i]), sc = idx.map(i => caps[i]);
+    const left = waterFill(sp, sc, amount);
+    idx.forEach((i, j) => { p[i] = sp[j]; });
+    return left;
+  }
+  /**
+   * Evita dias com "migalhas" (ex.: 0h05): blocos menores que `minBlock` são
+   * juntados a outro dia que já tem horas e ainda tem folga (o mais cedo).
+   */
+  function consolidate(p, caps, minBlock, prefer) {
+    if (!minBlock) return;
+    for (let guard = 0; guard < 500; guard++) {
+      let small = -1;
+      for (let i = p.length - 1; i >= 0; i--) if (p[i] > 0 && p[i] < minBlock && (small < 0 || p[i] < p[small])) small = i;
+      if (small < 0) return;
+      let amt = p[small], moved = false;
+      const targets = [...prefer.filter(i => i !== small && p[i] > 0), ...prefer.filter(i => i !== small && p[i] === 0)];
+      p[small] = 0;
+      for (const j of targets) { const add = Math.min(caps[j] - p[j], amt); if (add > 0) { p[j] += add; amt -= add; moved = true; } if (!amt) break; }
+      if (amt) { p[small] += amt; if (!moved || p[small] < minBlock) return; }
+    }
+  }
+  /**
+   * Papéis dos dias abertos no planejamento:
+   * - main: dias preferidos;
+   * - reserve: últimos N dias preferidos, guardados como folga (só usados se faltar capacidade);
+   * - skip: dias da semana em que o usuário prefere não fazer hora extra (último recurso).
+   */
+  function planRoles(state, open) {
+    const pr = planPrefs(state.settings);
+    const roles = open.map(k => pr.skipWeekdays.includes(weekday(k)) ? 'skip' : 'main');
+    let r = pr.reserveDays;
+    for (let i = open.length - 1; i >= 0 && r > 0; i--) if (roles[i] === 'main') { roles[i] = 'reserve'; r--; }
+    return roles;
   }
 
   /**
    * Recalcula o planejamento.
    * plan[dia] = total de horas extras previsto para o dia (inclui o que já foi feito nele).
-   * - Dias passados ficam congelados (histórico do que estava previsto).
-   * - Dias de hoje em diante: o "a fazer" de cada dia é ajustado para que
-   *   saldo + soma do "a fazer" = meta, respeitando o limite diário.
-   * mode 'incremental': preserva o plano atual e só ajusta a diferença
-   *   (falta → distribui equilibrado; sobra → retira dos últimos dias).
-   * mode 'full': redistribui tudo do zero de forma equilibrada.
+   * - Dias passados (ou com expediente finalizado) ficam congelados.
+   * - Dias de hoje em diante recebem o que falta para a meta, respeitando o limite
+   *   diário, as preferências (estratégia, folga no fim, dias da semana) e o bloco mínimo.
+   * mode 'incremental': preserva o plano atual e só ajusta a diferença.
+   * mode 'full': redistribui tudo do zero.
    */
   function computePlan(state, today, mode = 'incremental') {
-    const S = state.settings;
+    const S = state.settings, pr = planPrefs(S);
     const real = realizedByDate(state.entries);
     const plan = {};
     for (const [k, v] of Object.entries(state.plan || {})) {
@@ -1247,20 +1580,39 @@ const Core = (() => {
       plan[k] = v;
     }
     const open = openDays(state, today);
+    const roles = planRoles(state, open);
     const R = Math.max(0, S.goalMin - balance(state));
     const caps = open.map(k => Math.max(0, S.dailyLimitMin - (real[k] || 0)));
     const before = open.map((k, i) => mode === 'full' ? 0 : clamp((plan[k] || 0) - (real[k] || 0), 0, caps[i]));
     const p = before.slice();
+    const idx = role => open.map((_, i) => i).filter(i => roles[i] === role);
+    const main = idx('main'), reserve = idx('reserve'), skip = idx('skip');
     const S0 = sum(p);
     let unallocated = 0;
-    if (R > S0) unallocated = waterFill(p, caps, R - S0);
-    else if (R < S0) removeFromEnd(p, S0 - R);
+    if (R > S0) {
+      let left = R - S0;
+      // com poucas horas, usa só os primeiros dias necessários (evita migalhas espalhadas)
+      let mainUse = main;
+      if (pr.strategy === 'balanced' && pr.minBlock && mode === 'full') {
+        const need = Math.max(1, Math.floor(left / pr.minBlock));
+        if (need < main.length) mainUse = main.slice(0, need);
+      }
+      left = fillGroup(p, caps, mainUse, left, pr.strategy);
+      if (left && mainUse.length < main.length) left = fillGroup(p, caps, main, left, pr.strategy);
+      left = fillGroup(p, caps, reserve, left, pr.strategy);
+      left = fillGroup(p, caps, skip, left, 'balanced');
+      unallocated = left;
+    } else if (R < S0) {
+      const rev = a => a.slice().reverse();
+      removeInOrder(p, [...rev(skip), ...rev(reserve), ...rev(main)], S0 - R);
+    }
+    consolidate(p, caps, pr.minBlock, [...main, ...reserve, ...skip]);
     open.forEach((k, i) => {
       const r = real[k] || 0;
       const keep = mode !== 'full' && p[i] === before[i] && plan[k] !== undefined && plan[k] <= S.dailyLimitMin;
       plan[k] = keep ? plan[k] : r + p[i];
     });
-    return { plan, R, unallocated, open, caps, todo: p };
+    return { plan, R, unallocated, open, caps, todo: p, roles };
   }
 
   /** Recria a linha de referência (usada para adiantado/atrasado). */
@@ -1286,7 +1638,7 @@ const Core = (() => {
   /** Status de um dia. */
   function dayStatus(state, k, today, real, goalReached) {
     const r = real[k] || 0, p = state.plan[k] || 0;
-    if (!isAvailable(state, k) && r === 0) { const ov = state.overrides[k]; return ov ? ov.type : 'weekend'; }
+    if (!isAvailable(state, k) && r === 0) { const ov = dayOff(state, k); return ov ? ov.type : 'weekend'; }
     if (r > 0) return r >= p ? 'done' : 'partial';
     if (p > 0) return k < today || isClosed(state, k) ? 'missed' : 'pending';
     return goalReached ? 'goal' : 'free';
@@ -1361,7 +1713,7 @@ const Core = (() => {
       rows.push({
         key: k, plan: p, real: r, diff: r - p, cum, todo: todoMap[k] || 0,
         status: dayStatus(state, k, today, real, goalReached),
-        override: state.overrides[k] || null, isToday: k === today, past: k < today || isClosed(state, k), closed: isClosed(state, k)
+        override: dayOff(state, k), isToday: k === today, past: k < today || isClosed(state, k), closed: isClosed(state, k)
       });
     }
 
@@ -1440,7 +1792,7 @@ const Core = (() => {
       dayTotal = sum(others.filter(o => o.date === d.date).map(o => o.durationMin)) + dur;
       if (dayTotal > S.dailyLimitMin) warnings.push(`O total de ${fmtDateShort(d.date)} ficará em ${fmtDur(dayTotal)}, acima do limite de ${fmtDur(S.dailyLimitMin)} por dia.`);
       if (isWeekend(d.date)) warnings.push(`${fmtDateShort(d.date)} é fim de semana (fora do planejamento).`);
-      else if (state.overrides[d.date]) { const ov = state.overrides[d.date]; warnings.push(`${fmtDateShort(d.date)} está marcado como ${OVERRIDE_TYPES[ov.type].toLowerCase()}${ov.label ? ` (${ov.label})` : ''}.`); }
+      else if (dayOff(state, d.date)) { const ov = dayOff(state, d.date); warnings.push(`${fmtDateShort(d.date)} está marcado como ${OVERRIDE_TYPES[ov.type].toLowerCase()}${ov.label ? ` (${ov.label})` : ''}.`); }
     }
     return { errors, warnings, infos, durationMin: errors.length ? null : dur, rawDuration: dur, crosses: span ? span.crosses : false, dayTotal };
   }
@@ -1524,13 +1876,124 @@ const Core = (() => {
     }
     return out.sort((a, b) => a.key < b.key ? -1 : 1);
   }
-  /** Feriados nacionais em dias úteis dentro de [a, b]. */
+
+  /* Estados e capitais. Regras: 'MM-DD' fixo ou número = dias a partir da Páscoa. */
+  const UFS = {
+    AC: 'Acre', AL: 'Alagoas', AP: 'Amapá', AM: 'Amazonas', BA: 'Bahia', CE: 'Ceará', DF: 'Distrito Federal',
+    ES: 'Espírito Santo', GO: 'Goiás', MA: 'Maranhão', MT: 'Mato Grosso', MS: 'Mato Grosso do Sul', MG: 'Minas Gerais',
+    PA: 'Pará', PB: 'Paraíba', PR: 'Paraná', PE: 'Pernambuco', PI: 'Piauí', RJ: 'Rio de Janeiro', RN: 'Rio Grande do Norte',
+    RS: 'Rio Grande do Sul', RO: 'Rondônia', RR: 'Roraima', SC: 'Santa Catarina', SP: 'São Paulo', SE: 'Sergipe', TO: 'Tocantins'
+  };
+  const CAPITALS = {
+    AC: 'Rio Branco', AL: 'Maceió', AP: 'Macapá', AM: 'Manaus', BA: 'Salvador', CE: 'Fortaleza', DF: 'Brasília',
+    ES: 'Vitória', GO: 'Goiânia', MA: 'São Luís', MT: 'Cuiabá', MS: 'Campo Grande', MG: 'Belo Horizonte', PA: 'Belém',
+    PB: 'João Pessoa', PR: 'Curitiba', PE: 'Recife', PI: 'Teresina', RJ: 'Rio de Janeiro', RN: 'Natal', RS: 'Porto Alegre',
+    RO: 'Porto Velho', RR: 'Boa Vista', SC: 'Florianópolis', SP: 'São Paulo', SE: 'Aracaju', TO: 'Palmas'
+  };
+  const STATE_HOLIDAYS = {
+    AC: [['01-23', 'Dia do Evangélico'], ['06-15', 'Aniversário do Acre'], ['08-06', 'Início da Revolução Acreana'], ['09-05', 'Dia da Amazônia'], ['11-17', 'Tratado de Petrópolis']],
+    AL: [['06-24', 'São João'], ['06-29', 'São Pedro'], ['09-16', 'Emancipação política de Alagoas']],
+    AP: [['03-19', 'Dia de São José'], ['09-13', 'Criação do Território do Amapá']],
+    AM: [['09-05', 'Elevação do Amazonas à categoria de província']],
+    BA: [['07-02', 'Independência da Bahia']],
+    CE: [['03-19', 'Dia de São José'], ['03-25', 'Data Magna do Ceará']],
+    DF: [['04-21', 'Fundação de Brasília'], ['11-30', 'Dia do Evangélico']],
+    ES: [], GO: [], MT: [], SC: [],
+    MA: [['07-28', 'Adesão do Maranhão à Independência']],
+    MS: [['10-11', 'Criação do Estado de Mato Grosso do Sul']],
+    MG: [['04-21', 'Data Magna de Minas Gerais']],
+    PA: [['08-15', 'Adesão do Pará à Independência']],
+    PB: [['08-05', 'Fundação do Estado da Paraíba']],
+    PR: [['12-19', 'Emancipação política do Paraná']],
+    PE: [['03-06', 'Revolução Pernambucana (Data Magna)']],
+    PI: [['03-13', 'Batalha do Jenipapo'], ['10-19', 'Dia do Piauí']],
+    RJ: [['04-23', 'Dia de São Jorge'], [-47, 'Carnaval']],
+    RN: [['10-03', 'Mártires de Cunhaú e Uruaçu']],
+    RS: [['09-20', 'Revolução Farroupilha']],
+    RO: [['01-04', 'Criação do Estado de Rondônia'], ['06-18', 'Dia do Evangélico']],
+    RR: [['10-05', 'Criação do Estado de Roraima']],
+    SP: [['07-09', 'Revolução Constitucionalista']],
+    SE: [['07-08', 'Emancipação política de Sergipe']],
+    TO: [['03-18', 'Autonomia do Tocantins'], ['09-08', 'Nossa Senhora da Natividade'], ['10-05', 'Criação do Estado do Tocantins']]
+  };
+  const CITY_HOLIDAYS = {
+    'AC|Rio Branco': [['12-28', 'Aniversário de Rio Branco']],
+    'AL|Maceió': [['08-27', 'Nossa Senhora dos Prazeres'], ['12-08', 'Nossa Senhora da Conceição']],
+    'AP|Macapá': [['02-04', 'Aniversário de Macapá']],
+    'AM|Manaus': [['10-24', 'Aniversário de Manaus'], ['12-08', 'Nossa Senhora da Conceição']],
+    'BA|Salvador': [['06-24', 'São João'], ['12-08', 'Nossa Senhora da Conceição da Praia']],
+    'CE|Fortaleza': [['08-15', 'Nossa Senhora da Assunção']],
+    'ES|Vitória': [[8, 'Nossa Senhora da Penha'], ['09-08', 'Nossa Senhora da Vitória']],
+    'GO|Goiânia': [['05-24', 'Nossa Senhora Auxiliadora'], ['10-24', 'Aniversário de Goiânia']],
+    'MA|São Luís': [['06-29', 'São Pedro'], ['09-08', 'Aniversário de São Luís'], ['12-08', 'Nossa Senhora da Conceição']],
+    'MT|Cuiabá': [['04-08', 'Aniversário de Cuiabá']],
+    'MS|Campo Grande': [['06-13', 'Santo Antônio'], ['08-26', 'Aniversário de Campo Grande']],
+    'MG|Belo Horizonte': [['08-15', 'Assunção de Nossa Senhora'], ['12-08', 'Imaculada Conceição']],
+    'PA|Belém': [['01-12', 'Aniversário de Belém'], ['12-08', 'Nossa Senhora da Conceição']],
+    'PR|Curitiba': [['09-08', 'Nossa Senhora da Luz dos Pinhais']],
+    'PE|Recife': [['06-24', 'São João'], ['07-16', 'Nossa Senhora do Carmo'], ['12-08', 'Nossa Senhora da Conceição']],
+    'PI|Teresina': [['08-16', 'Aniversário de Teresina']],
+    'RJ|Rio de Janeiro': [['01-20', 'Dia de São Sebastião']],
+    'RN|Natal': [['01-06', 'Santos Reis'], ['11-21', 'Nossa Senhora da Apresentação']],
+    'RS|Porto Alegre': [['02-02', 'Nossa Senhora dos Navegantes']],
+    'RO|Porto Velho': [['10-02', 'Aniversário de Porto Velho']],
+    'RR|Boa Vista': [['07-09', 'Aniversário de Boa Vista']],
+    'SC|Florianópolis': [['03-23', 'Aniversário de Florianópolis']],
+    'SP|São Paulo': [['01-25', 'Aniversário de São Paulo'], [60, 'Corpus Christi']],
+    'SE|Aracaju': [['03-17', 'Aniversário de Aracaju'], ['12-08', 'Nossa Senhora da Conceição']],
+    'TO|Palmas': [['05-20', 'Aniversário de Palmas']]
+  };
+  const SCOPE_RANK = { nacional: 3, estadual: 2, distrital: 2, municipal: 1, facultativo: 0 };
+  function normLocation(loc) {
+    if (!loc || typeof loc !== 'object' || !UFS[loc.uf]) return null;
+    return { uf: loc.uf, city: typeof loc.city === 'string' ? loc.city.trim().slice(0, 60) : '' };
+  }
+  /**
+   * Todos os feriados de um ano para a localização informada.
+   * Retorna [{ key, label, scope }] ordenado; feriados na mesma data são unidos.
+   */
+  function holidaysForYear(y, { location = null, optional = false } = {}) {
+    const e = easterKey(y), loc = normLocation(location), map = new Map();
+    const add = (rule, label, scope) => {
+      const key = typeof rule === 'number' ? addDays(e, rule) : `${y}-${rule}`;
+      const cur = map.get(key);
+      if (!cur) map.set(key, { key, label, scope });
+      else {
+        if (!cur.label.split(' · ').includes(label)) cur.label += ` · ${label}`;
+        if (SCOPE_RANK[scope] > SCOPE_RANK[cur.scope]) cur.scope = scope;
+      }
+    };
+    for (const [md, label] of FIXED_HOLIDAYS) add(md, label, 'nacional');
+    add(-2, 'Sexta-feira Santa', 'nacional');
+    if (loc) {
+      for (const [r, label] of STATE_HOLIDAYS[loc.uf] || []) add(r, label, loc.uf === 'DF' ? 'distrital' : 'estadual');
+      for (const [r, label] of CITY_HOLIDAYS[`${loc.uf}|${loc.city}`] || []) add(r, label, 'municipal');
+    }
+    if (optional) { add(-48, 'Carnaval (ponto facultativo)', 'facultativo'); add(-47, 'Carnaval (ponto facultativo)', 'facultativo'); add(60, 'Corpus Christi (ponto facultativo)', 'facultativo'); }
+    return [...map.values()].sort((a, b) => a.key < b.key ? -1 : 1);
+  }
+  /** Feriados em dias úteis dentro de [a, b]. opts = { location, optional }. */
   function holidaysInRange(a, b, opts = {}) {
     if (!isValidKey(a) || !isValidKey(b) || a > b) return [];
     const out = [];
-    for (let y = +a.slice(0, 4); y <= +b.slice(0, 4); y++) for (const h of nationalHolidays(y, opts)) if (h.key >= a && h.key <= b && !isWeekend(h.key)) out.push(h);
+    for (let y = +a.slice(0, 4); y <= +b.slice(0, 4); y++) for (const h of holidaysForYear(y, opts)) if (h.key >= a && h.key <= b && !isWeekend(h.key)) out.push(h);
     return out;
   }
+  const holidayCache = new Map();
+  /** Feriado automático numa data (sem considerar desativações do usuário). */
+  function holidayAt(state, k) {
+    const S = state.settings, loc = normLocation(S.location);
+    const ck = `${k.slice(0, 4)}|${loc ? loc.uf + '|' + loc.city : ''}|${S.optionalHolidays ? 1 : 0}`;
+    let m = holidayCache.get(ck);
+    if (!m) { m = new Map(holidaysForYear(+k.slice(0, 4), { location: loc, optional: !!S.optionalHolidays }).map(h => [h.key, h])); holidayCache.set(ck, m); }
+    return m.get(k) || null;
+  }
+  /** Feriados da configuração do estado num intervalo (inclui os desativados, marcados com off:true). */
+  function stateHolidays(state, a, b) {
+    return holidaysInRange(a, b, { location: state.settings.location, optional: !!state.settings.optionalHolidays })
+      .map(h => ({ ...h, off: !!(state.holidayOff && state.holidayOff[h.key]) }));
+  }
+  function locationLabel(loc) { loc = normLocation(loc); return loc ? `${loc.city ? loc.city + ' · ' : ''}${UFS[loc.uf]}` : ''; }
 
   /* ---------- Períodos ---------- */
   /** Sugestão de próximo período: do dia seguinte ao prazo (ou do 1º dia do mês atual, se já passou) até o fim do mês. */
@@ -1619,7 +2082,10 @@ const Core = (() => {
       endDate: isValidKey(s.endDate) ? s.endDate : d.endDate,
       dailyLimitMin: intIn(s.dailyLimitMin, 5, 24 * 60, d.dailyLimitMin),
       workStart: parseClock(s.workStart) != null ? s.workStart : d.workStart,
-      workEnd: parseClock(s.workEnd) != null ? s.workEnd : d.workEnd
+      workEnd: parseClock(s.workEnd) != null ? s.workEnd : d.workEnd,
+      location: normLocation(s.location),
+      optionalHolidays: s.optionalHolidays === true,
+      planning: planPrefs(s)
     };
     if (st.settings.startDate > st.settings.endDate) { st.settings.startDate = d.startDate; st.settings.endDate = d.endDate; }
     st.theme = src.theme === 'light' ? 'light' : 'dark';
@@ -1666,6 +2132,8 @@ const Core = (() => {
       }
     }
     st.adjustments = Array.isArray(src.adjustments) ? src.adjustments.map(cleanAdjust).filter(Boolean) : [];
+    st.holidayOff = {};
+    if (src.holidayOff && typeof src.holidayOff === 'object') for (const [k, v] of Object.entries(src.holidayOff)) if (isValidKey(k) && v === true) st.holidayOff[k] = true;
     st.closedDays = {};
     if (src.closedDays && typeof src.closedDays === 'object') for (const [k, v] of Object.entries(src.closedDays)) if (isValidKey(k) && v === true) st.closedDays[k] = true;
     st.meta = { ...def.meta, ...(src.meta && typeof src.meta === 'object' ? src.meta : {}) };
@@ -1674,10 +2142,10 @@ const Core = (() => {
 
   return {
     WEEKDAYS, WEEKDAYS_SHORT, MONTHS, OVERRIDE_TYPES, SEED_PLAN, STEP,
-    pad, sum, clamp, parseKey, keyFromUTC, isValidKey, addDays, dayIndex, weekday, isWeekend, rangeKeys, minKey, maxKey,
+    pad, sum, clamp, parseKey, keyFromUTC, isValidKey, UFS, CAPITALS, DEFAULT_PLANNING, addDays, dayIndex, weekday, isWeekend, rangeKeys, minKey, maxKey,
     localTodayKey, fmtDate, fmtDateShort, fmtDateLong, wdShort, wdLong,
     parseClock, fmtClock, fmtDur, parseDur, spanFromClock,
-    defaultState, realizedByDate, balance, totalAdjust, adjustByDate, isAvailable, isClosed, inPeriod, openDays,
+    defaultState, createState, planPrefs, planRoles, dayOff, holidayAt, holidaysForYear, stateHolidays, normLocation, locationLabel, realizedByDate, balance, totalAdjust, adjustByDate, isAvailable, isClosed, inPeriod, openDays,
     waterFill, removeFromEnd, computePlan, makeBaseline, reachedDate, dayStatus, derive,
     BREAK_RIGHT, regularDayMin, dayClock, validateEntry, sanitizeState,
     easterKey, nationalHolidays, holidaysInRange, suggestNextPeriod, validateNextPeriod, closePeriod
@@ -1696,17 +2164,29 @@ let state;
 const SIM_TODAY = (() => { try { const v = new URLSearchParams(location.search).get('hoje'); return Core.isValidKey(v) ? v : null; } catch (e) { return null; } })();
 const today = () => SIM_TODAY || Core.localTodayKey();
 
+let firstRun = false;
+/** Fim do mês de `k` (plus = meses à frente). */
+function lastDayOfMonth(k, plus = 0) { const [y, m] = k.split('-').map(Number); return Core.keyFromUTC(Date.UTC(y, m + plus, 0)); }
+/** Respostas padrão da configuração inicial. */
+function defaultSetup(t) {
+  return { goalMin: 960, initialBalanceMin: 0, startDate: t, endDate: lastDayOfMonth(t), dailyLimitMin: 120, workStart: '09:00', workEnd: '18:00', location: null, optionalHolidays: false, planning: { ...Core.DEFAULT_PLANNING } };
+}
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) { const d = Core.defaultState(); d.meta.evento19Liberado = true; return d; }
+    if (!raw) { firstRun = true; return Core.createState(defaultSetup(today())); }
     const res = Core.sanitizeState(JSON.parse(raw));
-    if (!res.ok) return Core.defaultState();
+    if (!res.ok) { firstRun = true; return Core.createState(defaultSetup(today())); }
     // Migração única: o dia do evento (19/11) passou a permitir hora extra.
     const st = res.state, ov = st.overrides['2026-11-19'];
     if (!st.meta.evento19Liberado) {
       if (ov && ov.type === 'event' && ov.label === 'Evento') delete st.overrides['2026-11-19'];
       st.meta.evento19Liberado = true;
+    }
+    // Migração única: feriados agora são automáticos; remove marcações manuais que repetem um feriado nacional.
+    if (!st.meta.autoHolidays) {
+      for (const [k, v] of Object.entries(st.overrides)) if (v.type === 'holiday' && Core.holidayAt(st, k)) delete st.overrides[k];
+      st.meta.autoHolidays = true;
     }
     return st;
   } catch (e) {
@@ -1772,6 +2252,11 @@ const ICONS = {
   database: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
   palette: '<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16" cy="10" r="1.2"/><path d="M12 21a2 2 0 0 1 0-4h1.5a2.5 2.5 0 0 0 0-5"/>',
   gauge: '<path d="M12 14l4-4"/><path d="M3.5 18a9 9 0 1 1 17 0"/>',
+  mapPin: '<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  briefcase: '<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3 12.5h18"/>',
+  wallet: '<path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="8" width="17" height="12" rx="2.5"/><path d="M16 14h.01"/>',
+  split: '<path d="M4 6h16M4 12h10M4 18h6"/>',
+  forward: '<path d="M5 12h14M13 6l6 6-6 6"/>',
   scale: '<path d="M12 3v18M7 21h10M5 7h14M5 7l-3 7a3.5 3.5 0 0 0 6 0zM19 7l-3 7a3.5 3.5 0 0 0 6 0z"/>',
   flagDone: '<path d="M5 21V4M5 4h12l-2.5 4L17 12H5"/><path d="M9 8l1.5 1.5L13 7"/>'
 };
@@ -1967,7 +2452,7 @@ const VIEWS = [
   { id: 'overview', label: 'Visão geral', short: 'Início', icon: 'grid' },
   { id: 'plan', label: 'Planejamento', short: 'Plano', icon: 'list' },
   { id: 'calendar', label: 'Calendário', short: 'Calendário', icon: 'calendar' },
-  { id: 'entries', label: 'Lançamentos', short: 'Registros', icon: 'clock' },
+  { id: 'entries', label: 'Registro de horas', short: 'Registros', icon: 'clock' },
   { id: 'settings', label: 'Ajustes', short: 'Ajustes', icon: 'sliders' }
 ];
 let currentView = 'overview';
@@ -2029,6 +2514,7 @@ function buildAlerts(d, t) {
   const pend = pendingClockDays(t);
   if (pend.length) list.push({ type: 'warning', icon: 'clock', title: pend.length === 1 ? 'Ponto pendente' : `${pend.length} pontos pendentes`, msg: pend.slice(0, 3).map(p => p.msg).join(' · ') + (pend.length > 3 ? ' …' : '') + '.', action: { label: 'Completar', fn: () => openDayModal(pend[0].k) } });
   const nextAction = { label: 'Iniciar próximo período', fn: () => openClosePeriodModal() };
+  if (!S.location && !state.meta.locationAsked && !d.deadlinePassed) list.push({ type: 'info', icon: 'mapPin', title: 'Feriados da sua cidade', msg: 'Informe seu estado e cidade para o app considerar automaticamente os feriados estaduais e municipais (ex.: Dia do Evangélico no DF).', action: { label: 'Informar cidade', fn: () => openLocationModal() } });
   if (d.goalReached) {
     const when = d.forecast === 'before' ? 'já com o saldo inicial' : d.forecast ? `em ${fmtDate(d.forecast)}` : '';
     list.push({ type: 'success', icon: 'trophy', title: 'Meta atingida', msg: `Você acumulou ${fmtDur(d.bal)} de ${fmtDur(d.goal)} ${when}. Não há necessidade de novas horas extras.`, action: d.deadlinePassed ? nextAction : null });
@@ -2095,7 +2581,7 @@ function renderHero(d, t) {
   const wToday = Math.min(d.bal + d.todayTodo, scale) / scale * 100;
   const prev = lastHeroWidths || { i: 0, d: 0, t: 0 };
   const ticks = [];
-  const tickStep = goal > 24 * 60 ? 480 : goal > 8 * 60 ? 240 : 60;
+  const tickStep = niceStep(goal, 5);
   for (let m = 0; m <= goal; m += tickStep) ticks.push(m);
   if (ticks[ticks.length - 1] !== goal) ticks.push(goal);
   $('#heroCard').innerHTML = `
@@ -2161,7 +2647,7 @@ function renderToday(d, t) {
   } else if (!inP) {
     body = `<p class="muted" style="margin:16px 0 0">${t < S.startDate ? `O planejamento começa em ${fmtDate(S.startDate)}.` : `O prazo terminou em ${fmtDate(S.endDate)}.`}</p>`;
   } else if (!avail && !d.todayReal) {
-    const ov = state.overrides[t];
+    const ov = Core.dayOff(state, t);
     body = `<div class="today-big"><span class="v" style="font-size:22px">${ov ? Core.OVERRIDE_TYPES[ov.type] : 'Fim de semana'}</span></div><p class="muted" style="margin:0">${ov && ov.label ? esc(ov.label) + ' · ' : ''}Sem horas extras planejadas hoje.</p><div class="suggest">${icon('calendar')}<div><div class="suggest-t">A seguir</div><div class="suggest-v">${nextDay ? `${wdShort(nextDay)}, ${fmtDateShort(nextDay)} · ${fmtDur(d.todoMap[nextDay])}` : '—'}</div></div></div>`;
   } else if (d.todayClosed) {
     const planT = d.todayPlan, realT = d.todayReal, diff = realT - planT;
@@ -2359,10 +2845,10 @@ async function registerClockOvertime(t, after = null, { quiet = false } = {}) {
 function renderSummary(d, t) {
   const S = state.settings;
   const full = Core.computePlan(state, t, 'full');
-  const days = d.open;
+  const days = d.open.slice(0, 14);
   const fcTxt = d.goalReached ? (d.forecast === 'before' ? 'Antes do início' : d.forecast ? fmtDate(d.forecast) : '—') : d.feasible && d.forecast ? `${wdShort(d.forecast)}, ${fmtDate(d.forecast)}` : 'Não atingível';
   const paceFc = d.goalReached ? '—' : d.paceAvg > 0 ? (d.paceForecast ? `${wdShort(d.paceForecast)}, ${fmtDateShort(d.paceForecast)}` : `Não atinge (${fmtDur(d.paceFinal)})`) : 'Sem histórico';
-  const differs = days.some((k, i) => (full.plan[k] || 0) !== (state.plan[k] || 0));
+  const differs = d.open.some(k => (full.plan[k] || 0) !== (state.plan[k] || 0));
   const maxV = Math.max(S.dailyLimitMin, 1);
   const bars = days.map((k, i) => {
     const cur = d.todo[i];
@@ -2376,7 +2862,7 @@ function renderSummary(d, t) {
       <span class="dist-lbl num">${fmtDateShort(k).slice(0, 2)}</span></div>`;
   }).join('');
   $('#summaryCard').innerHTML = `
-    <div class="card-head"><h3 class="card-title">${icon('sparkles')} Resumo</h3><span class="card-sub">${days.length} dias restantes</span></div>
+    <div class="card-head"><h3 class="card-title">${icon('sparkles')} Resumo</h3><span class="card-sub">${d.open.length} dias restantes</span></div>
     <div class="stat-list">
       <div class="stat"><span class="stat-l">${icon('gauge', 'i-sm')} Média necessária por dia</span><span class="stat-v num">${d.R ? fmtDur(d.avgNeeded) : '0h00'}<small>${d.availableDays} dias disponíveis</small></span></div>
       <div class="stat"><span class="stat-l">${icon('database', 'i-sm')} Capacidade restante</span><span class="stat-v num">${fmtDur(d.capacity)}<small>limite ${fmtDur(S.dailyLimitMin)}/dia</small></span></div>
@@ -2384,13 +2870,18 @@ function renderSummary(d, t) {
       <div class="stat"><span class="stat-l">${icon('trend', 'i-sm')} No ritmo atual</span><span class="stat-v num">${paceFc}${d.paceAvg ? `<small>média ${fmtDur(d.paceAvg)}/dia</small>` : ''}</span></div>
     </div>
     ${days.length ? `<div class="dist">
-      <div class="dist-head"><span class="label" style="display:block">Distribuição dos próximos dias${differs ? '<span class="opt" style="display:block">tracejado = distribuição ideal equilibrada</span>' : ''}</span>
+      <div class="dist-head"><span class="label" style="display:block">Próximos ${days.length} dias${differs ? '<span class="opt" style="display:block">tracejado = distribuição ideal equilibrada</span>' : ''}</span>
       ${differs && !d.goalReached ? `<button class="btn btn-sm" type="button" id="applyIdeal">${icon('sparkles', 'i-sm')} Aplicar ideal</button>` : `<span class="badge t-success no-dot">${icon('check', 'i-sm')} Equilibrado</span>`}</div>
       <div class="dist-bars">${bars}</div>
     </div>` : ''}`;
   const ap = $('#applyIdeal'); if (ap) ap.onclick = () => doRecalc();
 }
 
+/** Passo "redondo" (em minutos) para no máximo ~`max` divisões. */
+function niceStep(total, max) {
+  for (const st of [60, 120, 180, 240, 360, 480, 600, 720, 1200, 1800, 2400, 3000, 6000, 12000, 30000]) if (total / st <= max) return st;
+  return 60000;
+}
 /* ---------- Gráfico de evolução ---------- */
 function renderChart(d) {
   const host = $('#chart'); if (!host || !host.offsetParent) return;
@@ -2421,7 +2912,7 @@ function renderChart(d) {
   const maxV = Math.max(d.goal * 1.1, ...actual.map(p => p.v), ...proj.map(p => p.v));
   const x = i => P.l + (W - P.l - P.r) * (i / (n - 1));
   const y = v => P.t + (H - P.t - P.b) * (1 - v / maxV);
-  const step = maxV > 40 * 60 ? 600 : maxV > 20 * 60 ? 300 : 240;
+  const step = niceStep(maxV, 5);
   let grid = '';
   for (let v = 0; v <= maxV; v += step) grid += `<line class="grid-line" x1="${P.l}" x2="${W - P.r}" y1="${y(v)}" y2="${y(v)}"/><text class="axis-t" x="${P.l - 8}" y="${y(v) + 3.5}" text-anchor="end">${Math.round(v / 60)}h</text>`;
   const colW = (W - P.l - P.r) / (n - 1);
@@ -2429,11 +2920,15 @@ function renderChart(d) {
   keys.forEach((k, i) => {
     if (i === 0) return;
     if (Core.isWeekend(k)) bands += `<rect class="wk" x="${x(i) - colW / 2}" y="${P.t}" width="${colW}" height="${H - P.t - P.b}"/>`;
-    else if (state.overrides[k]) bands += `<rect class="hol" x="${x(i) - 2}" y="${H - P.b + 1}" width="4" height="4" rx="2"/>`;
+    else if (Core.dayOff(state, k)) bands += `<rect class="hol" x="${x(i) - 2}" y="${H - P.b + 1}" width="4" height="4" rx="2"/>`;
   });
-  const labelEvery = W < 420 ? 4 : W < 700 ? 2 : 1;
   let xl = '';
-  keys.forEach((k, i) => { if (i > 0 && (i - 1) % labelEvery === 0) xl += `<text class="axis-t num" x="${x(i)}" y="${H - 8}" text-anchor="middle">${k.slice(8)}</text>`; });
+  if (n > 62) {
+    keys.forEach((k, i) => { if (i > 0 && k.slice(8) === '01') xl += `<text class="axis-t" x="${x(i)}" y="${H - 8}" text-anchor="middle">${Core.MONTHS[+k.slice(5, 7) - 1].slice(0, 3)}</text>`; });
+  } else {
+    const labelEvery = Math.max(1, Math.ceil((n - 1) / Math.max(1, Math.floor((W - P.l - P.r) / 28))));
+    keys.forEach((k, i) => { if (i > 0 && (i - 1) % labelEvery === 0) xl += `<text class="axis-t num" x="${x(i)}" y="${H - 8}" text-anchor="middle">${k.slice(8)}</text>`; });
+  }
   const path = pts => pts.map((p, j) => `${j ? 'L' : 'M'}${x(p.i).toFixed(1)},${y(p.v).toFixed(1)}`).join('');
   const area = actual.length > 1 ? `${path(actual)}L${x(lastA.i)},${y(0)}L${x(actual[0].i)},${y(0)}Z` : '';
   const ti = keys.indexOf(t);
@@ -2470,7 +2965,7 @@ function renderChart(d) {
       ${i > 0 && a ? `<div class="tr"><span>No dia</span><b class="num">${fmtDur(dayVal, { sign: true })}</b></div>` : ''}
       ${p && (!a || i === ti) ? `<div class="tr"><span>Projeção</span><b class="num">${fmtDur(p.v)}</b></div>` : ''}
       ${i > 0 && (state.plan[k] || 0) ? `<div class="tr"><span>Previsto no dia</span><b class="num">${fmtDur(state.plan[k])}</b></div>` : ''}
-      ${state.overrides[k] ? `<div class="tr"><span>${Core.OVERRIDE_TYPES[state.overrides[k].type]}</span></div>` : ''}`;
+      ${Core.dayOff(state, k) ? `<div class="tr"><span>${esc(Core.dayOff(state, k).label || Core.OVERRIDE_TYPES[Core.dayOff(state, k).type])}</span></div>` : ''}`;
     const tw = tip.offsetWidth, left = Math.min(W - tw - 4, Math.max(4, x(i) + 12 + tw > W ? x(i) - tw - 12 : x(i) + 12));
     tip.style.left = left + 'px'; tip.style.top = Math.max(0, Math.min(H - tip.offsetHeight - 30, (a ? y(a.v) : p ? y(p.v) : 0) - 30)) + 'px';
   };
@@ -2481,47 +2976,156 @@ function renderChart(d) {
 }
 
 /* ---------- Planejamento (tabela) ---------- */
+const WD_NAMES = { 1: 'seg', 2: 'ter', 3: 'qua', 4: 'qui', 5: 'sex' };
+let planShowAllWeeks = false;
+/** Segunda-feira da semana de k. */
+const weekStart = k => Core.addDays(k, -((Core.weekday(k) + 6) % 7));
+/** Horário sugerido para fazer `min` de hora extra em k. */
+function suggestedSlot(k, min, t) {
+  if (!min) return null;
+  if (k === t) return suggestionForToday(t, min);
+  const st = Core.parseClock(state.settings.workEnd) ?? 1080;
+  return { start: Core.fmtClock(st), end: Core.fmtClock(st + min), crosses: st + min >= 1440 };
+}
 function renderPlan(d, t) {
-  const S = state.settings;
-  $('#recalcBtn').innerHTML = `${icon('refresh')} Recalcular planejamento`;
-  $('#planDesc').textContent = `Distribuição das horas restantes em dias úteis de ${fmtDateShort(S.startDate)} a ${fmtDateShort(S.endDate)}, com no máximo ${fmtDur(S.dailyLimitMin)} por dia.`;
-  const pm = (l, v) => `<div class="card pm"><div class="pm-l">${l}</div><div class="pm-v num">${v}</div></div>`;
+  const S = state.settings, pr = Core.planPrefs(S);
+  $('#recalcBtn').innerHTML = `${icon('refresh')} Redistribuir do zero`;
+  const nHol = Core.stateHolidays(state, S.startDate, S.endDate).filter(h => !h.off).length;
+  $('#planDesc').textContent = `${fmtDateShort(S.startDate)} a ${fmtDate(S.endDate)} · até ${fmtDur(S.dailyLimitMin)} por dia · fins de semana${nHol ? `, ${nHol} feriado(s)` : ' e feriados'} e dias indisponíveis ficam de fora.`;
+  const used = d.open.filter(k => (d.todoMap[k] || 0) > 0);
+  const avgUsed = used.length ? Math.round(d.R / used.length) : 0;
+  const pm = (l, v, sub = '') => `<div class="card pm"><div class="pm-l">${l}</div><div class="pm-v num">${v}</div>${sub ? `<div class="pm-s">${sub}</div>` : ''}</div>`;
   $('#planMetrics').innerHTML = [
-    pm('Horas restantes', fmtDur(d.R)),
-    pm('Dias disponíveis', d.availableDays),
-    pm('Média necessária/dia', d.R ? fmtDur(d.avgNeeded) : '0h00'),
-    pm('Previsão de conclusão', d.goalReached ? 'Concluída' : d.feasible && d.forecast ? fmtDateShort(d.forecast) : '—')
+    pm('Falta para a meta', fmtDur(d.R), `${fmtDur(d.bal)} de ${fmtDur(d.goal)}`),
+    pm('Dias com hora extra', used.length, `de ${d.availableDays} ${d.availableDays === 1 ? 'dia útil' : 'dias úteis'}`),
+    pm('Média nesses dias', d.R ? fmtDur(avgUsed) : '0h00', `limite ${fmtDur(S.dailyLimitMin)}`),
+    pm('Conclusão prevista', d.goalReached ? 'Concluída' : d.feasible && d.forecast ? `${wdShort(d.forecast)}, ${fmtDateShort(d.forecast)}` : '—', d.goalReached ? '' : d.feasible ? `prazo ${fmtDateShort(S.endDate)}` : `faltam ${fmtDur(d.deficit)}`)
   ].join('');
-  const head = `<div class="tr-h"><span>Data</span><span class="c-wd">Dia</span><span class="c-r">Previsto</span><span class="c-r">Realizado</span><span class="c-r">Diferença</span><span class="c-r c-cum">Acumulado</span><span class="c-r">Status</span></div>`;
-  const init = `<div class="tr-r tr-init is-off" style="cursor:default"><div class="c-date"><b>Saldo anterior</b><span>antes de ${fmtDateShort(S.startDate)}</span></div><span class="c-wd">—</span><span class="c-r c-plan">—</span><span class="c-r c-real num c-num">${fmtDur(S.initialBalanceMin)}</span><span class="c-r c-diff">—</span><span class="c-r c-cum num">${fmtDur(S.initialBalanceMin)}</span><div class="c-status"><span class="badge t-neutral no-dot">Inicial</span></div>
-    <div class="c-mobile c-nums-wrap"><span>Saldo <b class="num">${fmtDur(S.initialBalanceMin)}</b></span></div></div>`;
-  let totP = 0, totR = 0;
-  const rows = d.rows.map(r => {
-    const off = ['holiday', 'event', 'unavailable', 'weekend'].includes(r.status);
-    totP += r.plan; totR += r.real;
-    const diffTxt = off && !r.real ? '—' : (r.past || r.isToday || r.real) ? `<span class="${r.diff > 0 ? 'pos' : r.diff < 0 ? (r.past ? 'neg' : '') : ''}">${fmtDur(r.diff, { sign: true })}</span>` : '<span class="faint">—</span>';
+
+  // ---- destaque: próximo dia com hora extra
+  const nextK = d.open.find(k => (d.todoMap[k] || 0) > 0);
+  const nextEl = $('#planNext');
+  if (d.goalReached) {
+    nextEl.className = 'card plan-next ok';
+    nextEl.innerHTML = `<div class="pn-ic">${icon('trophy')}</div><div class="pn-main"><div class="pn-l">Meta concluída</div><div class="pn-v">Nenhuma hora extra necessária</div><div class="pn-s">Você tem ${fmtDur(d.bal)} de ${fmtDur(d.goal)}.</div></div>`;
+  } else if (!nextK) {
+    nextEl.className = 'card plan-next bad';
+    nextEl.innerHTML = `<div class="pn-ic">${icon('alertCircle')}</div><div class="pn-main"><div class="pn-l">${d.deadlinePassed ? 'Prazo encerrado' : 'Sem dias disponíveis'}</div><div class="pn-v">${d.deadlinePassed ? `Faltaram ${fmtDur(d.R)}` : 'Não há dias úteis até o prazo'}</div><div class="pn-s">${d.deadlinePassed ? 'Inicie o próximo período em Ajustes.' : 'Libere dias, aumente o prazo ou o limite diário.'}</div></div>`;
+  } else {
+    const todo = d.todoMap[nextK], slot = suggestedSlot(nextK, todo, t), isT = nextK === t;
+    const realK = d.real[nextK] || 0, planK = state.plan[nextK] || 0;
+    nextEl.className = `card plan-next ${isT ? 'today' : ''}`;
+    nextEl.innerHTML = `
+      <div class="pn-date"><span>${wdShort(nextK)}</span><b class="num">${nextK.slice(8)}</b><em>${Core.MONTHS[+nextK.slice(5, 7) - 1].slice(0, 3)}</em></div>
+      <div class="pn-main">
+        <div class="pn-l">${isT ? 'Hoje' : 'Próximo dia com hora extra'}</div>
+        <div class="pn-v num">${fmtDur(todo)} <small>a fazer</small></div>
+        <div class="pn-s num">${slot ? `Sugestão: <b>${slot.start} → ${slot.end}</b>${slot.crosses ? ' (+1 dia)' : ''}` : ''}${isT && realK ? ` · já feito ${fmtDur(realK)} de ${fmtDur(planK)}` : ''}</div>
+      </div>
+      <div class="pn-actions">${nextK <= t ? `<button type="button" class="btn btn-primary" id="pnLog">${icon('plus', 'i-sm')} Registrar</button>` : ''}<button type="button" class="btn ${nextK <= t ? 'btn-ghost' : ''}" id="pnDay">Ver dia</button></div>`;
+    const lb = $('#pnLog'); if (lb) lb.onclick = () => openEntryModal({ date: nextK, preset: slot ? { start: slot.start, end: slot.end } : null });
+    $('#pnDay').onclick = () => openDayModal(nextK);
+  }
+
+  // ---- semanas
+  const roles = {}; Core.planRoles(state, d.open).forEach((r, i) => { roles[d.open[i]] = r; });
+  const weeks = [];
+  for (const r of d.rows) {
+    const ws = weekStart(r.key);
+    let w = weeks[weeks.length - 1];
+    if (!w || w.ws !== ws) { w = { ws, days: [] }; weeks.push(w); }
+    w.days.push(r);
+  }
+  const off = r => ['holiday', 'event', 'unavailable', 'weekend'].includes(r.status);
+  const dayRow = r => {
+    const isOff = off(r), open = !r.past && !isOff, todo = r.todo || 0;
+    const slot = open && todo ? suggestedSlot(r.key, todo, t) : null;
+    const role = roles[r.key];
+    let main, sub = '';
+    if (isOff) { main = `<span class="pd-off">${esc(r.override ? (r.override.label || Core.OVERRIDE_TYPES[r.override.type]) : 'Fim de semana')}</span>`; sub = r.real ? `${fmtDur(r.real)} registradas` : (r.override && r.override.source === 'auto' ? `Feriado ${SCOPE_LABEL[r.override.scope][0].toLowerCase()}` : Core.OVERRIDE_TYPES[r.override ? r.override.type : ''] || ''); }
+    else if (open) {
+      main = todo ? `<b class="num">${fmtDur(todo)}</b> a fazer` : `<span class="faint">Livre</span>`;
+      sub = todo ? (slot ? `<span class="num">${slot.start} → ${slot.end}</span>` : '') : role === 'reserve' ? 'Reserva — usado só se faltar tempo' : role === 'skip' ? 'Sem hora extra (sua preferência)' : d.goalReached ? 'Meta atingida' : 'Sem necessidade';
+      if (r.real) sub = `já feito ${fmtDur(r.real)} de ${fmtDur(r.plan)}${sub ? ' · ' + sub : ''}`;
+    } else {
+      main = `<b class="num">${fmtDur(r.real)}</b> <span class="faint">de ${fmtDur(r.plan)}</span>`;
+      sub = r.plan || r.real ? `<span class="num ${r.diff > 0 ? 'pos' : r.diff < 0 ? 'neg' : ''}">${fmtDur(r.diff, { sign: true })}</span>${r.closed && !( r.key < t) ? ' · expediente finalizado' : ''}` : 'Sem hora extra prevista';
+    }
     const pct = r.plan ? Math.min(100, r.real / r.plan * 100) : (r.real ? 100 : 0);
-    const meterTone = r.status === 'done' ? 'success' : r.status === 'partial' ? 'warning' : r.status === 'missed' ? 'danger' : '';
-    const label = r.override ? (r.override.label || Core.OVERRIDE_TYPES[r.override.type]) : Core.wdLong(r.key);
-    return `<div class="tr-r ${r.isToday ? 'is-today' : ''} ${off ? 'is-off' : ''} ${r.past ? 'is-past' : ''}" data-day="${r.key}" tabindex="0" role="button" aria-label="Detalhes de ${fmtDate(r.key)}">
-      <div class="c-date"><b class="num">${fmtDate(r.key)}${r.isToday ? '<span class="today-pill">hoje</span>' : ''}</b><span>${esc(label)}</span></div>
-      <span class="c-wd" style="text-transform:capitalize">${wdShort(r.key)}</span>
-      <span class="c-r c-plan num c-num">${off && !r.plan ? '—' : fmtDur(r.plan)}</span>
-      <span class="c-r c-real num c-num">${r.real ? fmtDur(r.real) : '<span class="faint">0h00</span>'}</span>
-      <span class="c-r c-diff num">${diffTxt}</span>
-      <span class="c-r c-cum num faint">${fmtDur(r.cum)}</span>
-      <div class="c-status">${!off ? `<div class="meter ${meterTone}"><span style="width:${pct}%"></span></div>` : ''}${statusBadge(r.status)}</div>
-      <div class="c-mobile c-nums-wrap"><span>Previsto <b class="num">${off && !r.plan ? '—' : fmtDur(r.plan)}</b></span><span>Realizado <b class="num">${fmtDur(r.real)}</b></span><span>Dif. <b class="num">${off && !r.real ? '—' : fmtDur(r.diff, { sign: true })}</b></span></div>
+    const tone = r.status === 'done' ? 'success' : r.status === 'partial' ? 'warning' : r.status === 'missed' ? 'danger' : '';
+    const roleBadge = open && !todo && role === 'reserve' ? '<span class="badge no-dot t-info">Reserva</span>' : open && !todo && role === 'skip' ? '<span class="badge no-dot t-neutral">Folga</span>' : statusBadge(r.status);
+    return `<button type="button" class="pd ${r.isToday ? 'is-today' : ''} ${isOff ? 'is-off' : ''} ${r.past ? 'is-past' : ''}" data-day="${r.key}" aria-label="Detalhes de ${fmtDate(r.key)}">
+      <span class="pd-date"><em>${wdShort(r.key)}</em><b class="num">${r.key.slice(8)}</b></span>
+      <span class="pd-main"><span class="pd-v">${main}${r.isToday ? '<span class="today-pill">hoje</span>' : ''}</span>${sub ? `<span class="pd-s">${sub}</span>` : ''}</span>
+      <span class="pd-side">${roleBadge}${!isOff && (r.plan || r.real) ? `<span class="meter ${tone}"><span style="width:${pct}%"></span></span>` : ''}</span>
+    </button>`;
+  };
+  const weekHTML = (w, collapsedPast = false) => {
+    const work = w.days.filter(r => !off(r) || r.real);
+    const plan = Core.sum(work.map(r => r.plan)), done = Core.sum(work.map(r => r.real)), todo = Core.sum(work.map(r => r.past ? 0 : (r.todo || 0)));
+    const last = w.days[w.days.length - 1].key, first = w.days[0].key;
+    const cur = first <= t && t <= Core.addDays(w.ws, 6);
+    const label = cur ? 'Esta semana' : first === last ? fmtDateShort(first) : first.slice(5, 7) === last.slice(5, 7) ? `${first.slice(8)} a ${fmtDateShort(last)}` : `${fmtDateShort(first)} a ${fmtDateShort(last)}`;
+    const allPast = w.days.every(r => r.past);
+    const stats = allPast ? `${fmtDur(done)} feitas de ${fmtDur(plan)}` : `${todo ? `${fmtDur(todo)} a fazer` : 'nada a fazer'}${done ? ` · ${fmtDur(done)} feitas` : ''}`;
+    return `<div class="card wk ${cur ? 'is-cur' : ''} ${collapsedPast ? 'is-past' : ''}">
+      <div class="wk-head"><div><div class="wk-t">${label}${cur ? '' : ''}</div><div class="wk-s num">${stats}</div></div>${plan ? `<div class="meter ${done >= plan ? 'success' : ''}"><span style="width:${Math.min(100, done / plan * 100)}%"></span></div>` : ''}</div>
+      <div class="wk-days">${w.days.map(dayRow).join('')}</div></div>`;
+  };
+  const pastWeeks = weeks.filter(w => w.days.every(r => r.past));
+  const nowWeeks = weeks.filter(w => !w.days.every(r => r.past));
+  const LIMIT = 4;
+  const shown = planShowAllWeeks ? nowWeeks : nowWeeks.slice(0, LIMIT);
+  const pastPlan = Core.sum(pastWeeks.flatMap(w => w.days.map(r => r.plan))), pastDone = Core.sum(pastWeeks.flatMap(w => w.days.map(r => r.real)));
+  $('#planWeeks').innerHTML = `
+    ${pastWeeks.length ? `<details class="wk-past"><summary>${icon('chevR', 'i-sm')}<span>Semanas anteriores <b class="num">${pastWeeks.length}</b></span><span class="num faint">${fmtDur(pastDone)} feitas de ${fmtDur(pastPlan)} previstas</span></summary><div class="wk-past-body">${pastWeeks.map(w => weekHTML(w, true)).join('')}</div></details>` : ''}
+    ${shown.map(w => weekHTML(w)).join('')}
+    ${nowWeeks.length > LIMIT ? `<button type="button" class="btn wk-more" id="wkMore">${planShowAllWeeks ? `${icon('chevL', 'i-sm')} Mostrar menos` : `Mostrar mais ${nowWeeks.length - LIMIT} ${nowWeeks.length - LIMIT === 1 ? 'semana' : 'semanas'} ${icon('chevR', 'i-sm')}`}</button>` : ''}
+    <div class="plan-foot num"><span>Saldo final previsto</span><b>${fmtDur(d.bal + Core.sum(d.todo))}</b><span class="faint">em ${fmtDate(S.endDate)}</span></div>`;
+  $$('[data-day]', $('#planWeeks')).forEach(el => el.onclick = () => openDayModal(el.dataset.day));
+  const more = $('#wkMore'); if (more) more.onclick = () => { planShowAllWeeks = !planShowAllWeeks; renderPlan(Core.derive(state, today()), today()); };
+
+  // ---- preferências
+  const seg = (name, opts, cur) => `<div class="seg" data-pref="${name}">${opts.map(([v, l]) => `<button type="button" data-v="${v}" class="${String(cur) === String(v) ? 'active' : ''}">${l}</button>`).join('')}</div>`;
+  $('#planPrefs').innerHTML = `
+    <div class="card-head"><h3 class="card-title">${icon('sliders')} Preferências do plano</h3></div>
+    <div class="form-stack">
+      <div class="field"><span class="label">Estratégia</span>${seg('strategy', [['balanced', `${icon('split', 'i-sm')} Equilibrado`], ['asap', `${icon('rocket', 'i-sm')} O quanto antes`]], pr.strategy)}
+        <span class="hint">${pr.strategy === 'asap' ? 'Faz o máximo permitido nos primeiros dias e termina mais cedo.' : 'Divide as horas por igual entre os dias úteis.'}</span></div>
+      <div class="field"><span class="label">Folga no fim (reserva)</span>${seg('reserveDays', [[0, 'Não'], [1, '1 dia'], [2, '2 dias'], [3, '3 dias']], pr.reserveDays)}
+        <span class="hint">Os últimos dias ficam livres para imprevistos.</span></div>
+      <div class="field"><span class="label">Dias sem hora extra</span><div class="chips">${Object.entries(WD_NAMES).map(([w, l]) => `<button type="button" class="chip ${pr.skipWeekdays.includes(+w) ? 'on' : ''}" data-skipwd="${w}">${l}</button>`).join('')}</div>
+        <span class="hint">Usados só se faltar tempo para a meta.</span></div>
+      <div class="field"><span class="label">Bloco mínimo por dia</span>${seg('minBlock', [[0, 'Livre'], [15, '15 min'], [30, '30 min']], pr.minBlock)}
+        <span class="hint">Evita dias com poucos minutos (ex.: 0h05).</span></div>
+      <div class="pref-limit"><span>Limite diário <b class="num">${fmtDur(S.dailyLimitMin)}</b></span><button type="button" class="btn btn-ghost btn-sm" id="prefLimit">Alterar</button></div>
     </div>`;
-  }).join('');
-  const projected = S.initialBalanceMin + totR + Core.sum(d.todo);
-  const foot = `<div class="tr-foot"><span>Total</span><span class="c-wd"></span><span class="c-r num">${fmtDur(totP)}</span><span class="c-r num">${fmtDur(totR)}</span><span class="c-r num c-sp">${fmtDur(totR - totP, { sign: true })}</span><span class="c-r num c-cum">${fmtDur(projected)}</span><span class="c-r c-status" style="font-weight:500;color:var(--text-3);font-size:12.5px">saldo final previsto</span></div>`;
-  $('#planTable').innerHTML = `<div class="table">${head}${init}${rows}</div>${foot}`;
-  $$('[data-day]', $('#planTable')).forEach(el => {
-    el.onclick = () => openDayModal(el.dataset.day);
-    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDayModal(el.dataset.day); } };
+  const applyPrefs = patch => {
+    const snap = snapshot();
+    commit(st => { st.settings.planning = { ...Core.planPrefs(st.settings), ...patch }; }, { mode: 'full', rebase: true });
+    const dd = Core.derive(state, today());
+    toast({ type: 'success', iconName: 'sliders', title: 'Plano atualizado', msg: dd.goalReached ? 'Meta já atingida.' : `${fmtDur(dd.R)} em ${dd.todo.filter(x => x > 0).length} dias · conclusão ${dd.forecast ? fmtDateShort(dd.forecast) : '—'}.`, action: { label: 'Desfazer', fn: () => restore(snap) } });
+  };
+  $$('[data-pref]', $('#planPrefs')).forEach(g => $$('button', g).forEach(b => b.onclick = () => {
+    const name = g.dataset.pref, v = name === 'strategy' ? b.dataset.v : +b.dataset.v;
+    if (String(pr[name]) !== String(v)) applyPrefs({ [name]: v });
+  }));
+  $$('[data-skipwd]', $('#planPrefs')).forEach(b => b.onclick = () => {
+    const w = +b.dataset.skipwd, cur = pr.skipWeekdays.slice(), i = cur.indexOf(w);
+    if (i >= 0) cur.splice(i, 1); else { if (cur.length >= 4) { toast({ type: 'warning', title: 'Deixe pelo menos um dia', msg: 'É preciso ao menos um dia da semana para fazer hora extra.' }); return; } cur.push(w); }
+    applyPrefs({ skipWeekdays: cur.sort() });
   });
-  $('#planLegend').innerHTML = ['done', 'partial', 'pending', 'missed', 'free', 'goal', 'holiday', 'event', 'unavailable'].map(statusBadge).join('');
+  $('#prefLimit').onclick = () => { setView('settings'); setTimeout(() => $('#sLimit').focus(), 300); };
+
+  $('#planHow').innerHTML = `
+    <div class="card-head"><h3 class="card-title">${icon('info')} Como o plano é calculado</h3></div>
+    <ol class="how">
+      <li><b>O que falta</b> = meta − saldo (saldo inicial + registros + ajustes).</li>
+      <li>Distribui nos <b>dias úteis de hoje até o prazo</b>, sem fins de semana, feriados${S.location ? ` de ${esc(S.location.city || Core.UFS[S.location.uf])}` : ''} e dias indisponíveis.</li>
+      <li>Respeita o <b>limite de ${fmtDur(S.dailyLimitMin)}</b> por dia${pr.minBlock ? ` e evita blocos menores que ${pr.minBlock} min` : ''}.</li>
+      <li>Fez a mais ou a menos? <b>Os próximos dias se ajustam sozinhos.</b> Dias passados ficam como histórico.</li>
+      ${pr.reserveDays || pr.skipWeekdays.length ? '<li>Reserva e dias sem hora extra só entram <b>se faltar tempo</b>.</li>' : ''}
+    </ol>`;
 }
 
 /* ---------- Calendário ---------- */
@@ -2545,7 +3149,7 @@ function renderCalendar(d, t) {
     const k = `${calMonth}-${Core.pad(day)}`;
     const inP = Core.inPeriod(state, k);
     const r = real[k] || 0, p = state.plan[k] || 0;
-    const ov = state.overrides[k];
+    const ov = Core.dayOff(state, k);
     let cls = 'cal-day', dl = '', ds = '', bar = '';
     if (!inP) {
       cls += ' out' + (Core.isWeekend(k) ? ' weekend' : '');
@@ -2567,14 +3171,26 @@ function renderCalendar(d, t) {
   }
   $('#calGrid').innerHTML = html;
   $$('[data-cal]', $('#calGrid')).forEach(b => b.onclick = () => openDayModal(b.dataset.cal));
-  const minM = S.startDate.slice(0, 7), maxM = S.endDate.slice(0, 7);
-  $('#calPrev').disabled = calMonth <= minM && calMonth <= t.slice(0, 7);
-  $('#calNext').disabled = calMonth >= maxM && calMonth >= t.slice(0, 7);
+  $('#calPrev').disabled = false; $('#calNext').disabled = false;
+  $('#calToday').classList.toggle('hidden', calMonth === t.slice(0, 7));
+  renderCalHolidays(+calMonth.slice(0, 4), t);
   $('#calLegendTitle').innerHTML = `${icon('palette')} Legenda`;
   $('#calLegend').innerHTML = [
     ['done', 'Horas extras realizadas'], ['partial', 'Parcialmente realizado'], ['planned', 'Planejado'], ['missed', 'Planejado e não realizado'],
     ['holiday', 'Feriado'], ['unavail', 'Indisponível / evento'], ['free', 'Sem necessidade de horas'], ['weekend', 'Fim de semana']
   ].map(([c, l]) => `<span class="lg"><i class="lg-sw ${c}"></i>${l}</span>`).join('');
+}
+function renderCalHolidays(y, t) {
+  const S = state.settings;
+  const list = Core.holidaysForYear(y, { location: S.location, optional: !!S.optionalHolidays });
+  $('#calHolTitle').innerHTML = `${icon('mapPin')} Feriados de ${y}`;
+  $('#calLocBtn').textContent = S.location ? (S.location.city || S.location.uf) : 'Informar cidade';
+  $('#calLocBtn').onclick = () => openLocationModal();
+  $('#calHolList').innerHTML = `<div class="hol-list cal-hols">${list.map(h => {
+    const wk = Core.isWeekend(h.key), off = !!state.holidayOff[h.key];
+    return `<button type="button" class="hol-item ${h.key < t ? 'past' : ''} ${off ? 'off' : ''}" data-holday="${h.key}"><span class="hol-date num"><b>${fmtDateShort(h.key)}</b>${wdShort(h.key)}</span><span class="hol-name">${esc(h.label)}${wk ? ' <span class="faint">· fim de semana</span>' : ''}</span>${scopeBadge(h.scope)}</button>`;
+  }).join('')}</div>`;
+  $$('[data-holday]', $('#calHolList')).forEach(b => b.onclick = () => { calMonth = b.dataset.holday.slice(0, 7); renderCalendar(Core.derive(state, today()), today()); openDayModal(b.dataset.holday); });
 }
 function shiftMonth(delta) {
   const [y, m] = calMonth.split('-').map(Number);
@@ -2603,7 +3219,7 @@ function bindEntryActions(root, afterDelete) {
 }
 function renderHistory(d, t) {
   const S = state.settings;
-  $('#histTitle').innerHTML = `${icon('list')} Histórico <span class="card-sub" style="font-weight:450">${state.entries.length} ${state.entries.length === 1 ? 'lançamento' : 'lançamentos'}</span>`;
+  $('#histTitle').innerHTML = `${icon('list')} Histórico <span class="card-sub" style="font-weight:450">${state.entries.length} ${state.entries.length === 1 ? 'registro' : 'registros'}</span>`;
   const host = $('#history');
   if (!state.entries.length) {
     host.innerHTML = `<div class="empty-state"><div class="ic">${icon('clock', 'i-lg')}</div><div class="t">Nenhum lançamento ainda</div><div>O saldo inicial de ${fmtDur(S.initialBalanceMin)} já está considerado. Registre suas horas extras a partir de ${fmtDate(S.startDate)}.</div></div>`;
@@ -2611,7 +3227,9 @@ function renderHistory(d, t) {
   }
   const byDate = {};
   for (const e of state.entries) (byDate[e.date] = byDate[e.date] || []).push(e);
-  const dates = Object.keys(byDate).sort().reverse();
+  const allDates = Object.keys(byDate).sort().reverse();
+  const HIST_LIMIT = 10;
+  const dates = histShowAll ? allDates : allDates.slice(0, HIST_LIMIT);
   const sortKey = e => e.mode === 'time' ? Core.parseClock(e.start) : 9999;
   host.innerHTML = `<div class="hist-summary"><span>Saldo inicial <b class="num">${fmtDur(S.initialBalanceMin)}</b></span><span>Registrado <b class="num">${fmtDur(d.registered)}</b></span>${d.adjustTotal ? `<span>Ajustes <b class="num">${fmtDur(d.adjustTotal, { sign: true })}</b></span>` : ''}<span>Saldo atual <b class="num">${fmtDur(d.bal)}</b></span></div>` +
     dates.map(k => {
@@ -2621,9 +3239,11 @@ function renderHistory(d, t) {
       return `<div class="hist-group"><div class="hist-gh"><div class="gd num">${fmtDateShort(k)}<span>${Core.wdLong(k).replace(/^./, c => c.toUpperCase())}</span></div>
         <div class="gt"><div class="meter ${over ? 'danger' : tot >= S.dailyLimitMin ? 'success' : ''}"><span style="width:${Math.min(100, tot / S.dailyLimitMin * 100)}%"></span></div><b class="num ${over ? 'neg' : ''}">${fmtDur(tot)}</b>${over ? `<span class="badge t-danger no-dot" title="Acima do limite diário">${icon('alert', 'i-sm')} limite</span>` : ''}</div></div>
         ${list.map(entryRowHTML).join('')}</div>`;
-    }).join('');
+    }).join('') + (allDates.length > HIST_LIMIT ? `<button type="button" class="btn btn-sm hist-more" id="histMore">${histShowAll ? 'Mostrar só os recentes' : `Mostrar todos os ${allDates.length} dias`}</button>` : '');
   bindEntryActions(host);
+  const hm = $('#histMore'); if (hm) hm.onclick = () => { histShowAll = !histShowAll; renderHistory(Core.derive(state, today()), today()); };
 }
+let histShowAll = false;
 
 /* ---------- Ajustes ---------- */
 function fillSettingsForm() {
@@ -2640,12 +3260,25 @@ function fillSettingsForm() {
 }
 function renderOverrides() {
   const entries = Object.entries(state.overrides).sort(([a], [b]) => a < b ? -1 : 1);
-  $('#ovCount').textContent = `${entries.length} ${entries.length === 1 ? 'dia' : 'dias'}`;
+  const S = state.settings, t = today();
+  const hols = Core.stateHolidays(state, Core.maxKey(t, S.startDate), S.endDate);
+  $('#ovCount').textContent = `${hols.filter(h => !h.off).length + entries.length} no período`;
+  $('#holSettings').innerHTML = `
+    <div class="loc-line">
+      <span class="loc-ic">${icon('mapPin')}</span>
+      <div><div class="lt">${S.location ? esc(Core.locationLabel(S.location)) : 'Localização não informada'}</div><div class="ld">${esc(locationNote(S.location))}${S.optionalHolidays ? ' Pontos facultativos incluídos.' : ''}</div></div>
+      <button type="button" class="btn btn-sm" id="locEditBtn">${icon('edit', 'i-sm')} ${S.location ? 'Alterar' : 'Informar'}</button>
+    </div>
+    <div class="section-l"><span>Feriados automáticos até ${fmtDateShort(S.endDate)}</span><span class="num">${hols.length}</span></div>
+    ${hols.length ? `<div class="hol-list">${hols.map(h => `<div class="hol-item ${h.off ? 'off' : ''}"><span class="hol-date num"><b>${fmtDateShort(h.key)}</b>${wdShort(h.key)}</span><span class="hol-name">${esc(h.label)}${h.off ? ' <span class="faint">· vou trabalhar</span>' : ''}</span>${scopeBadge(h.scope)}<button type="button" class="icon-btn ghost" data-holtoggle="${h.key}" title="${h.off ? 'Voltar a considerar feriado' : 'Vou trabalhar neste feriado'}" aria-label="${h.off ? 'Voltar a considerar feriado' : 'Vou trabalhar neste feriado'}">${icon(h.off ? 'ban' : 'briefcase', 'i-sm')}</button></div>`).join('')}</div>`
+      : '<div class="faint" style="font-size:13px">Nenhum feriado em dia útil até o prazo.</div>'}`;
+  $('#locEditBtn').onclick = () => openLocationModal();
+  $$('[data-holtoggle]').forEach(b => b.onclick = () => setHolidayOff(b.dataset.holtoggle, !state.holidayOff[b.dataset.holtoggle]));
   $('#ovList').innerHTML = entries.length ? entries.map(([k, v]) => `<div class="ov-item">
       <span class="badge ${v.type === 'holiday' ? 't-rose' : 't-warning'}">${Core.OVERRIDE_TYPES[v.type]}</span>
       <div><div class="od num">${fmtDate(k)} · <span style="text-transform:capitalize;font-weight:500">${wdShort(k)}</span></div>${v.label ? `<div class="ol">${esc(v.label)}</div>` : ''}</div>
       <button class="icon-btn ghost danger" type="button" data-ovdel="${k}" aria-label="Remover" title="Tornar disponível">${icon('trash', 'i-sm')}</button></div>`).join('')
-    : `<div class="info-box">${icon('info')}<span>Nenhum dia marcado. Sábados e domingos já são desconsiderados automaticamente.</span></div>`;
+    : `<div class="info-box">${icon('info')}<span>Nenhum dia marcado. Use para férias, consultas, eventos ou feriados municipais que o app não conhece.</span></div>`;
   $$('[data-ovdel]').forEach(b => b.onclick = () => setOverride(b.dataset.ovdel, null));
 }
 function renderStorageNote() {
@@ -2656,18 +3289,32 @@ function renderStorageNote() {
 }
 
 /* ---------- Ajuste com o banco de horas real ---------- */
+let adjustListOpen = false;
 function renderAdjustCard(d, t) {
   const list = (state.adjustments || []).slice().sort((a, b) => a.createdAt < b.createdAt ? 1 : -1);
-  $('#adjustCard').innerHTML = `
-    <div class="card-head"><h3 class="card-title">${icon('scale')} Saldo do banco real</h3>${d.adjustTotal ? `<span class="badge t-info no-dot num">ajustes ${fmtDur(d.adjustTotal, { sign: true })}</span>` : ''}</div>
-    <p class="muted" style="margin:0 0 14px;font-size:13px">Por causa dos segundos, o banco oficial pode ficar alguns minutos diferente. Informe o saldo real e o sistema lança um ajuste com a diferença.</p>
-    <button type="button" class="btn btn-primary" id="adjustBtn" style="width:100%;justify-content:center">${icon('scale', 'i-sm')} Informar saldo real</button>
-    ${list.length ? `<div class="section-l"><span>Ajustes do período</span><span class="num">${list.length}</span></div><div class="ov-list" style="margin-bottom:0">${list.map(a => `<div class="ov-item">
+  const last = list[0];
+  const el = $('#adjustCard');
+  el.innerHTML = `
+    <div class="rb-main">
+      <span class="rb-ic">${icon('scale')}</span>
+      <div class="rb-text">
+        <div class="rb-title">O saldo do app está diferente do seu banco real?</div>
+        <div class="rb-desc">Por causa dos segundos, o ponto ou o RH podem mostrar alguns minutos a mais ou a menos. Informe o saldo real e o app corrige a diferença, sem mexer nos seus registros.</div>
+      </div>
+      <div class="rb-stats">
+        <div><span>No app</span><b class="num">${fmtDur(d.bal)}</b></div>
+        <div><span>Última conferência</span><b class="num">${last ? `${fmtDateShort(last.date)}${last.realMin != null ? ` · ${fmtDur(last.realMin)}` : ''}` : 'nunca'}</b></div>
+      </div>
+      <button type="button" class="btn btn-primary rb-btn" id="adjustBtn">${icon('scale', 'i-sm')} Informar saldo real</button>
+    </div>
+    ${list.length ? `<details class="rb-list" ${adjustListOpen ? 'open' : ''}><summary>${icon('chevR', 'i-sm')} Ajustes feitos <b class="num">${list.length}</b><span class="num faint">total ${fmtDur(d.adjustTotal, { sign: true })}</span></summary>
+      <div class="ov-list" style="margin:10px 0 0">${list.map(a => `<div class="ov-item">
         <span class="badge no-dot num ${a.deltaMin > 0 ? 't-success' : 't-danger'}">${fmtDur(a.deltaMin, { sign: true })}</span>
-        <div style="min-width:0"><div class="od num">${fmtDateShort(a.date)}${a.realMin != null ? ` · real ${fmtDur(a.realMin)}` : ''}</div><div class="ol">${a.systemMin != null ? `sistema mostrava ${fmtDur(a.systemMin)}` : ''}${a.note ? `${a.systemMin != null ? ' · ' : ''}${esc(a.note)}` : ''}</div></div>
-        <button class="icon-btn ghost danger" type="button" data-adjdel="${a.id}" aria-label="Excluir ajuste" title="Excluir ajuste">${icon('trash', 'i-sm')}</button></div>`).join('')}</div>` : ''}`;
+        <div style="min-width:0"><div class="od num">${fmtDateShort(a.date)}${a.realMin != null ? ` · real ${fmtDur(a.realMin)}` : ''}</div><div class="ol">${a.systemMin != null ? `app mostrava ${fmtDur(a.systemMin)}` : ''}${a.note ? `${a.systemMin != null ? ' · ' : ''}${esc(a.note)}` : ''}</div></div>
+        <button class="icon-btn ghost danger" type="button" data-adjdel="${a.id}" aria-label="Excluir ajuste" title="Excluir ajuste">${icon('trash', 'i-sm')}</button></div>`).join('')}</div></details>` : ''}`;
   $('#adjustBtn').onclick = () => openAdjustModal();
-  $$('[data-adjdel]', $('#adjustCard')).forEach(b => b.onclick = () => deleteAdjust(b.dataset.adjdel));
+  const det = $('.rb-list', el); if (det) det.ontoggle = () => { adjustListOpen = det.open; };
+  $$('[data-adjdel]', el).forEach(b => b.onclick = () => deleteAdjust(b.dataset.adjdel));
 }
 function openAdjustModal() {
   const t = today(), d = Core.derive(state, t);
@@ -2783,6 +3430,7 @@ function renderPeriodCard(d, t) {
   $('#periodCard').innerHTML = `
     <div class="card-head"><h3 class="card-title">${icon('calcheck')} Período e fechamento</h3>${status}</div>
     <div class="hist-summary"><span>Período <b class="num">${fmtDateShort(S.startDate)} a ${fmtDate(S.endDate)}</b></span><span>Saldo <b class="num">${fmtDur(d.bal)}</b> de <b class="num">${fmtDur(d.goal)}</b></span><span><b class="num">${state.entries.length}</b> ${state.entries.length === 1 ? 'lançamento' : 'lançamentos'}</span></div>
+    <div class="backup-row guide-row" style="margin-bottom:10px"><div><div class="bt">Configuração guiada</div><div class="bd">Revise meta, prazo, saldo, jornada, cidade e distribuição passo a passo.</div></div><button type="button" class="btn btn-primary" id="guideBtn">${icon('sparkles', 'i-sm')} Abrir</button></div>
     <div class="backup-row"><div><div class="bt">Fechar período e iniciar o próximo</div><div class="bd">Arquiva os lançamentos atuais e leva o saldo para o novo período, sem contar horas em dobro.</div></div><button type="button" class="btn ${d.deadlinePassed ? 'btn-primary' : ''}" id="closePeriodBtn">${icon('calendar', 'i-sm')} Fechar período</button></div>
     ${per.length ? `<div class="section-l"><span>Períodos anteriores</span><span class="num">${per.length}</span></div>
       <div class="period-list">${per.map((p, i) => `<div class="period-row">
@@ -2790,6 +3438,7 @@ function renderPeriodCard(d, t) {
         <div><div class="pt num">${fmtDateShort(p.startDate)} a ${fmtDate(p.endDate)}</div><div class="pd num">Saldo final ${fmtDur(p.finalBalanceMin)} · meta ${fmtDur(p.goalMin)} · ${p.entries.length} ${p.entries.length === 1 ? 'lançamento' : 'lançamentos'}</div></div>
         <button type="button" class="btn btn-sm" data-per="${i}">Ver</button></div>`).reverse().join('')}</div>` : ''}`;
   $('#closePeriodBtn').onclick = () => openClosePeriodModal();
+  $('#guideBtn').onclick = () => openOnboarding({ mode: 'edit' });
   $$('[data-per]', $('#periodCard')).forEach(b => b.onclick = () => openPastPeriodModal(+b.dataset.per));
 }
 function openPastPeriodModal(i) {
@@ -2842,18 +3491,15 @@ function openClosePeriodModal() {
         <button type="button" class="chip" data-carry="0">Zerar</button>
       </div>
     </div>
-    <label class="check"><input type="checkbox" name="hol" checked><span><b>Marcar feriados nacionais</b><span class="check-sub" data-holprev></span></span></label>
-    <label class="check"><input type="checkbox" name="opt"><span><b>Incluir pontos facultativos</b><span class="check-sub">Carnaval e Corpus Christi</span></span></label>
+    <div class="info-box">${icon('mapPin')}<span><b>Feriados automáticos</b>${S.location ? ` (${esc(Core.locationLabel(S.location))})` : ' (nacionais)'}: <span data-holprev></span></span></div>
     <div class="info-box">${icon('info')}<span>${n ? `${n === 1 ? 'O lançamento atual fica guardado' : `Os ${n} lançamentos atuais ficam guardados`} em <b>Períodos anteriores</b> e não entra${n === 1 ? '' : 'm'} de novo no saldo.` : 'O período atual fica guardado em <b>Períodos anteriores</b>.'}</span></div>
     <ul class="pv-msgs" data-errs></ul>
     <div class="form-actions"><button type="button" class="btn btn-ghost" data-cancel>Cancelar</button><button type="submit" class="btn btn-primary">${icon('check')} Fechar e iniciar</button></div>`;
   const m = openModal({ title: 'Fechar período', subtitle: `${fmtDateShort(S.startDate)} a ${fmtDate(S.endDate)}`, content: form });
   const f = name => form.elements[name];
-  const holidays = () => f('hol').checked ? Core.holidaysInRange(f('start').value, f('end').value, { optional: f('opt').checked }) : [];
   const refresh = () => {
-    f('opt').disabled = !f('hol').checked;
-    const hs = Core.holidaysInRange(f('start').value, f('end').value, { optional: f('opt').checked });
-    $('[data-holprev]', form).textContent = hs.length ? hs.map(h => `${fmtDateShort(h.key)} ${h.label}`).join(' · ') : 'Nenhum feriado nacional em dia útil neste período.';
+    const hs = Core.holidaysInRange(f('start').value, f('end').value, { location: S.location, optional: S.optionalHolidays });
+    $('[data-holprev]', form).textContent = hs.length ? hs.map(h => `${fmtDateShort(h.key)} ${h.label}`).join(' · ') : 'nenhum em dia útil neste período.';
   };
   $$('[data-carry]', form).forEach(b => b.onclick = () => { f('initial').value = fmtDur(+b.dataset.carry); });
   $('[data-cancel]', form).onclick = () => m.close();
@@ -2863,8 +3509,7 @@ function openClosePeriodModal() {
     ev.preventDefault();
     const next = {
       startDate: f('start').value, endDate: f('end').value,
-      goalMin: Core.parseDur(f('goal').value), initialBalanceMin: Core.parseDur(f('initial').value), dailyLimitMin: Core.parseDur(f('limit').value),
-      holidays: holidays()
+      goalMin: Core.parseDur(f('goal').value), initialBalanceMin: Core.parseDur(f('initial').value), dailyLimitMin: Core.parseDur(f('limit').value)
     };
     const errs = Core.validateNextPeriod(state, next);
     $('[data-errs]', form).innerHTML = errs.map(e => `<li class="err">${icon('alertCircle', 'i-sm')}<span>${esc(e)}</span></li>`).join('');
@@ -2873,10 +3518,10 @@ function openClosePeriodModal() {
     m.close();
     commit(st => Object.assign(st, Core.closePeriod(st, next, today())), { mode: 'full', rebase: true, silent: true });
     calMonth = null; renderCalendar(Core.derive(state, today()), today()); fillSettingsForm();
-    const added = next.holidays.filter(h => state.overrides[h.key]).length;
+    const added = Core.stateHolidays(state, next.startDate, next.endDate).length;
     toast({
       type: 'success', iconName: 'calcheck', title: 'Novo período iniciado',
-      msg: `${fmtDateShort(next.startDate)} a ${fmtDate(next.endDate)} · saldo inicial ${fmtDur(next.initialBalanceMin)} · meta ${fmtDur(next.goalMin)}${added ? ` · ${added} feriado(s) marcado(s)` : ''}`,
+      msg: `${fmtDateShort(next.startDate)} a ${fmtDate(next.endDate)} · saldo inicial ${fmtDur(next.initialBalanceMin)} · meta ${fmtDur(next.goalMin)}${added ? ` · ${added} feriado(s) no período` : ''}`,
       timeout: 8000,
       action: { label: 'Desfazer', fn: () => { restore(snap); calMonth = null; renderCalendar(Core.derive(state, today()), today()); fillSettingsForm(); toast({ type: 'info', title: 'Fechamento desfeito' }); } }
     });
@@ -2898,7 +3543,7 @@ function createEntryForm({ entry = null, date = null, preset = null, onDone = nu
       <button type="button" data-mode="time">${icon('clock', 'i-sm')} Por horário</button>
       <button type="button" data-mode="manual">${icon('pen', 'i-sm')} Manual</button>
     </div>
-    <div class="field"><label for="${fid}d">Data</label><input id="${fid}d" type="date" name="date" required></div>
+    <div class="field"><label for="${fid}d">Data</label><input id="${fid}d" type="date" name="date" required><div class="chips date-chips" data-datechips></div></div>
     <div class="mode-time form-stack">
       <div class="row-2">
         <div class="field"><label for="${fid}s">Início</label><input id="${fid}s" type="time" name="start" step="60"></div>
@@ -2908,6 +3553,7 @@ function createEntryForm({ entry = null, date = null, preset = null, onDone = nu
         <button type="button" class="chip" data-add="30">+30min</button><button type="button" class="chip" data-add="60">+1h</button>
         <button type="button" class="chip" data-add="90">+1h30</button><button type="button" class="chip" data-add="120">+2h</button>
         <button type="button" class="chip" data-now>Término agora</button>
+        <button type="button" class="chip chip-sug hidden" data-sug></button>
       </div>
       <div class="field"><label for="${fid}b">Intervalo descontado <span class="opt">opcional</span></label><div class="input-suffix"><input id="${fid}b" type="number" name="breakMin" min="0" step="1" inputmode="numeric" placeholder="0"><span>min</span></div></div>
     </div>
@@ -2966,6 +3612,15 @@ function createEntryForm({ entry = null, date = null, preset = null, onDone = nu
       </ul>` : ''}`;
     const t = today();
     f('date').min = S().startDate; f('date').max = Core.minKey(S().endDate, Core.maxKey(t, S().startDate));
+    // atalhos de data (só dias permitidos)
+    const opts = [[t, 'Hoje'], [Core.addDays(t, -1), 'Ontem'], [Core.addDays(t, -2), 'Anteontem']].filter(([k]) => k >= S().startDate && k <= S().endDate);
+    $('[data-datechips]', form).innerHTML = opts.map(([k, l]) => `<button type="button" class="chip ${d.date === k ? 'on' : ''}" data-setdate="${k}">${l} <span class="faint num">${fmtDateShort(k)}</span></button>`).join('');
+    $$('[data-setdate]', form).forEach(b => b.onclick = () => { f('date').value = b.dataset.setdate; update(); });
+    // sugestão de horário do plano para o dia escolhido
+    const dd = Core.derive(state, t), todoDay = d.date === t ? dd.todayTodo : 0;
+    const sug = !entry && todoDay > 0 ? suggestionForToday(t, todoDay) : null, sb = $('[data-sug]', form);
+    sb.classList.toggle('hidden', !sug);
+    if (sug) { sb.innerHTML = `${icon('sparkles', 'i-sm')} Plano de hoje: ${sug.start} → ${sug.end}`; sb.onclick = () => { f('start').value = sug.start; f('end').value = sug.end; update(); }; }
     return v;
   }
   async function submit(e) {
@@ -3020,7 +3675,7 @@ function createEntryForm({ entry = null, date = null, preset = null, onDone = nu
 function openEntryModal({ entry = null, date = null, preset = null } = {}) {
   let m;
   const form = createEntryForm({ entry, date, preset, onDone: () => m.close(), onCancel: () => m.close() });
-  m = openModal({ title: entry ? 'Editar lançamento' : 'Registrar horas extras', subtitle: entry ? `${fmtDateLong(entry.date)}` : 'O saldo e o planejamento são recalculados automaticamente.', content: form });
+  m = openModal({ title: entry ? 'Editar registro' : 'Registrar horas', subtitle: entry ? `${fmtDateLong(entry.date)}` : 'O saldo e o planejamento são recalculados automaticamente.', content: form });
 }
 
 /* ---------- Ações ---------- */
@@ -3043,6 +3698,12 @@ function setOverride(k, value) {
     action: { label: 'Desfazer', fn: () => restore(snap) }
   });
 }
+function setHolidayOff(k, off) {
+  const h = Core.holidayAt(state, k); if (!h) return;
+  const snap = snapshot();
+  commit(st => { if (off) st.holidayOff[k] = true; else delete st.holidayOff[k]; }, { mode: off ? 'full' : 'incremental', rebase: true });
+  toast({ type: 'info', iconName: off ? 'briefcase' : 'ban', title: off ? `${fmtDateShort(k)} liberado para trabalhar` : `${fmtDateShort(k)} volta a ser feriado`, msg: `${h.label} · planejamento recalculado.`, action: { label: 'Desfazer', fn: () => restore(snap) } });
+}
 function doRecalc() {
   const snap = snapshot();
   commit(() => {}, { mode: 'full', rebase: true });
@@ -3059,7 +3720,8 @@ function openDayModal(k) {
   const m = openModal({ title: Core.fmtDateLong(k).replace(/^./, c => c.toUpperCase()), subtitle: '', content: document.createElement('div'), size: 'lg' });
   const draw = () => {
     const t = today(), S = state.settings, d = Core.derive(state, t);
-    const inP = Core.inPeriod(state, k), wk = Core.isWeekend(k), ov = state.overrides[k];
+    const inP = Core.inPeriod(state, k), wk = Core.isWeekend(k), ov = Core.dayOff(state, k);
+    const autoHol = Core.holidayAt(state, k), holIgnored = !!(autoHol && state.holidayOff[k] && !state.overrides[k]);
     const r = d.real[k] || 0, p = state.plan[k] || 0;
     const st = inP ? Core.dayStatus(state, k, t, d.real, d.goalReached) : null;
     $('.modal-sub', m.el) ? null : $('.modal-head > div', m.el).insertAdjacentHTML('beforeend', '<div class="modal-sub"></div>');
@@ -3074,7 +3736,8 @@ function openDayModal(k) {
         <div class="day-stat"><div class="l">Realizado</div><div class="v num">${fmtDur(r)}</div></div>
         <div class="day-stat"><div class="l">Diferença</div><div class="v num ${r - p > 0 ? 'pos' : r - p < 0 && k < t ? 'neg' : ''}">${fmtDur(r - p, { sign: true })}</div></div>
       </div>
-      ${ov ? `<div class="info-box">${icon('ban')}<span><b>${Core.OVERRIDE_TYPES[ov.type]}</b>${ov.label ? ` — ${esc(ov.label)}` : ''}. Este dia não recebe horas no planejamento.</span></div>` : ''}
+      ${ov ? `<div class="info-box">${icon('ban')}<span><b>${ov.source === 'auto' ? `Feriado ${SCOPE_LABEL[ov.scope][0].toLowerCase()}` : Core.OVERRIDE_TYPES[ov.type]}</b>${ov.label ? ` — ${esc(ov.label)}` : ''}. Este dia não recebe horas no planejamento.</span></div>` : ''}
+      ${holIgnored ? `<div class="info-box">${icon('briefcase')}<span><b>Feriado tratado como dia útil</b> — ${esc(autoHol.label)}. Você marcou que vai trabalhar neste dia.</span></div>` : ''}
       ${!ov && wk ? `<div class="info-box">${icon('info')}<span>Fim de semana — não considerado no planejamento.</span></div>` : ''}
       ${!inP ? `<div class="info-box">${icon('info')}<span>Fora do período de ${fmtDate(S.startDate)} a ${fmtDate(S.endDate)}.</span></div>` : ''}
       ${inP && !ov && !wk && k > t ? `<div class="info-box">${icon('calendar')}<span>${p ? `Planejado: <b>${fmtDur(p)}</b>. ` : 'Nenhuma hora necessária neste dia. '}O registro fica liberado a partir do próprio dia.</span></div>` : ''}
@@ -3083,7 +3746,9 @@ function openDayModal(k) {
       ${canClock ? `<div class="section-l"><span>Ponto do dia</span><span class="opt" style="text-transform:none;letter-spacing:0;font-weight:450">salvo automaticamente</span></div><div class="day-clock"></div>` : ''}
       ${canLog ? `<div class="section-l"><span>Registrar horas</span></div><div class="day-form"></div>` : ''}
       ${inP && !wk ? `<hr class="divider"><div class="section-l"><span>Disponibilidade</span></div>
-        ${ov ? `<button class="btn" type="button" data-avail>${icon('calcheck')} Tornar disponível para horas extras</button>`
+        ${ov && ov.source === 'auto' ? `<button class="btn" type="button" data-holoff>${icon('briefcase')} Vou trabalhar neste feriado</button><div class="faint" style="font-size:12.5px;margin-top:8px">O dia passa a contar como útil e pode receber horas extras.</div>`
+          : holIgnored ? `<button class="btn" type="button" data-holon>${icon('ban')} Voltar a considerar feriado</button>`
+          : ov ? `<button class="btn" type="button" data-avail>${icon('calcheck')} Tornar disponível para horas extras</button>`
              : `<div class="row-2" style="align-items:end"><div class="field"><label>Motivo</label><select data-ovtype><option value="unavailable">Indisponível</option><option value="event">Evento</option><option value="holiday">Feriado</option></select></div><div class="field"><label>Descrição <span class="opt">opcional</span></label><input data-ovlabel maxlength="60" placeholder="Ex.: viagem"></div></div>
                 <div style="margin-top:10px"><button class="btn" type="button" data-unavail>${icon('ban')} Marcar como indisponível</button></div>`}` : ''}
       <hr class="divider">
@@ -3107,6 +3772,8 @@ function openDayModal(k) {
       $('.day-form', body).appendChild(createEntryForm({ date: k, preset: sug, onDone: draw }));
     }
     const av = $('[data-avail]', body); if (av) av.onclick = () => { setOverride(k, null); draw(); };
+    const ho = $('[data-holoff]', body); if (ho) ho.onclick = () => { setHolidayOff(k, true); draw(); };
+    const hn = $('[data-holon]', body); if (hn) hn.onclick = () => { setHolidayOff(k, false); draw(); };
     const un = $('[data-unavail]', body);
     if (un) un.onclick = async () => {
       if (r > 0) { const ok = await confirmDialog({ title: 'Dia com lançamentos', message: `Este dia já possui ${fmtDur(r)} registradas. Elas continuarão contando no saldo. Marcar como indisponível mesmo assim?`, confirmText: 'Marcar' }); if (!ok) return; }
@@ -3184,7 +3851,10 @@ function importBackup(file) {
     if (!ok) return;
     const snap = snapshot();
     state = ns;
+    state.meta.locationAsked = state.meta.locationAsked || !!state.settings.location;
     applyTheme(state.theme);
+    if (ob) closeOnboarding();
+    firstRun = false;
     replan('incremental'); saveState(); calMonth = null; renderAll(); fillSettingsForm();
     toast({ type: 'success', iconName: 'upload', title: 'Backup importado', msg: `Saldo ${fmtDur(bal)} · plano recalculado.`, action: { label: 'Desfazer', fn: () => { restore(snap); applyTheme(state.theme); fillSettingsForm(); } } });
   };
@@ -3192,20 +3862,20 @@ function importBackup(file) {
   reader.readAsText(file);
 }
 async function resetAll() {
-  const def = Core.defaultState().settings;
   const nPer = (state.periods || []).length;
   const ok = await confirmDialog({
-    title: 'Restaurar configurações iniciais?',
-    message: `Isso apagará <b>todos os ${state.entries.length} lançamentos</b>, observações, dias marcados${nPer ? ` e ${nPer} ${nPer === 1 ? 'período anterior' : 'períodos anteriores'}` : ''}, e voltará à meta de ${fmtDur(def.goalMin)}, saldo inicial de ${fmtDur(def.initialBalanceMin)} e ao planejamento original.<br><br>Recomendamos exportar um backup antes.`,
-    confirmText: 'Apagar e restaurar', danger: true,
+    title: 'Apagar tudo e recomeçar?',
+    message: `Isso apagará <b>todos os ${state.entries.length} lançamentos</b>, ajustes, observações, dias marcados${nPer ? ` e ${nPer} ${nPer === 1 ? 'período anterior' : 'períodos anteriores'}` : ''}. Em seguida abre a configuração inicial para você responder de novo.<br><br>Recomendamos exportar um backup antes.`,
+    confirmText: 'Apagar e recomeçar', danger: true,
     extra: { label: 'Exportar backup antes', fn: exportBackup }
   });
   if (!ok) return;
   const theme = state.theme;
-  state = Core.defaultState(); state.theme = theme;
-  replan('incremental');
+  state = Core.createState(defaultSetup(today()), theme);
+  replan('full', true);
   saveState(); calMonth = null; lastValues.clear(); renderAll(); fillSettingsForm();
-  toast({ type: 'info', iconName: 'reset', title: 'Dados restaurados', msg: 'Configurações e planejamento iniciais aplicados.' });
+  setView('overview');
+  openOnboarding({ mode: 'new' });
 }
 
 /* ---------- Tema ---------- */
@@ -3221,27 +3891,471 @@ function setTheme(t) {
 }
 
 /* =====================================================================
+   LOCALIZAÇÃO (feriados estaduais e municipais) — componente reutilizável
+   ===================================================================== */
+const OTHER_CITY = '__outra';
+function locationFieldsHTML(pfx, loc, optional) {
+  loc = Core.normLocation(loc);
+  const uf = loc ? loc.uf : '';
+  const cap = uf ? Core.CAPITALS[uf] : '';
+  const isOther = !!(loc && loc.city && loc.city !== cap);
+  return `
+    <div class="row-2 loc-row">
+      <div class="field"><label for="${pfx}uf">Estado</label>
+        <select id="${pfx}uf" data-loc="uf"><option value="">Prefiro não informar</option>${Object.entries(Core.UFS).sort((a, b) => a[1].localeCompare(b[1], 'pt-BR')).map(([k, v]) => `<option value="${k}" ${k === uf ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+      <div class="field"><label for="${pfx}city">Cidade</label>
+        <select id="${pfx}city" data-loc="city" ${uf ? '' : 'disabled'}>${uf ? `<option value="${esc(cap)}" ${!isOther ? 'selected' : ''}>${esc(cap)} (capital)</option><option value="${OTHER_CITY}" ${isOther ? 'selected' : ''}>Outra cidade</option>` : '<option value="">Escolha o estado</option>'}</select></div>
+    </div>
+    <div class="field ${isOther ? '' : 'hidden'}" data-loc-other-wrap><label for="${pfx}cityname">Nome da cidade <span class="opt">opcional</span></label><input id="${pfx}cityname" data-loc="cityname" maxlength="60" value="${isOther ? esc(loc.city) : ''}" placeholder="Ex.: Taguatinga"></div>
+    <label class="check"><input type="checkbox" data-loc="optional" ${optional ? 'checked' : ''}><span><b>Considerar pontos facultativos</b><span class="check-sub">Carnaval (segunda e terça) e Corpus Christi.</span></span></label>`;
+}
+/** Liga os campos de localização; onChange recebe { location, optional }. Retorna um getter. */
+function bindLocationFields(root, onChange) {
+  const ufSel = $('[data-loc="uf"]', root), citySel = $('[data-loc="city"]', root);
+  const otherWrap = $('[data-loc-other-wrap]', root), otherInp = $('[data-loc="cityname"]', root), opt = $('[data-loc="optional"]', root);
+  const get = () => {
+    const uf = ufSel.value;
+    if (!uf) return { location: null, optional: opt.checked };
+    const city = citySel.value === OTHER_CITY ? otherInp.value.trim() : Core.CAPITALS[uf];
+    return { location: { uf, city }, optional: opt.checked };
+  };
+  ufSel.onchange = () => {
+    const uf = ufSel.value;
+    citySel.disabled = !uf;
+    citySel.innerHTML = uf ? `<option value="${esc(Core.CAPITALS[uf])}">${esc(Core.CAPITALS[uf])} (capital)</option><option value="${OTHER_CITY}">Outra cidade</option>` : '<option value="">Escolha o estado</option>';
+    otherWrap.classList.add('hidden');
+    onChange(get());
+  };
+  citySel.onchange = () => { otherWrap.classList.toggle('hidden', citySel.value !== OTHER_CITY); onChange(get()); };
+  otherInp.oninput = () => onChange(get());
+  opt.onchange = () => onChange(get());
+  return get;
+}
+const SCOPE_LABEL = { nacional: ['Nacional', 't-rose'], estadual: ['Estadual', 't-info'], distrital: ['Distrital', 't-info'], municipal: ['Municipal', 't-accent'], facultativo: ['Facultativo', 't-neutral'] };
+const scopeBadge = sc => `<span class="badge no-dot ${SCOPE_LABEL[sc][1]}">${SCOPE_LABEL[sc][0]}</span>`;
+function holidayListHTML(list, { empty = 'Nenhum feriado em dia útil neste período.', max = 0 } = {}) {
+  if (!list.length) return `<div class="faint" style="font-size:13px">${empty}</div>`;
+  const shown = max ? list.slice(0, max) : list;
+  return `<div class="hol-list">${shown.map(h => `<div class="hol-item ${h.off ? 'off' : ''}"><span class="hol-date num"><b>${fmtDateShort(h.key)}</b>${wdShort(h.key)}</span><span class="hol-name">${esc(h.label)}</span>${scopeBadge(h.scope)}</div>`).join('')}${max && list.length > max ? `<div class="faint" style="font-size:12.5px;padding:4px 2px">+ ${list.length - max} feriado(s)</div>` : ''}</div>`;
+}
+function locationNote(loc) {
+  loc = Core.normLocation(loc);
+  if (!loc) return 'Sem localização, apenas os feriados nacionais são considerados.';
+  if (loc.uf === 'DF') return 'Distrito Federal: feriados nacionais e distritais (ex.: Dia do Evangélico, 30/11).';
+  return loc.city === Core.CAPITALS[loc.uf]
+    ? `Incluímos feriados nacionais, estaduais (${Core.UFS[loc.uf]}) e municipais de ${loc.city}.`
+    : `Incluímos feriados nacionais e estaduais (${Core.UFS[loc.uf]}). Feriados municipais de outras cidades podem ser adicionados em Ajustes.`;
+}
+/** Modal para informar/alterar a localização (usuários que já usam o app). */
+function openLocationModal() {
+  const S = state.settings, t = today();
+  const div = document.createElement('div');
+  div.className = 'form-stack';
+  div.innerHTML = `<p class="muted" style="margin:0;font-size:13.5px">Com o estado e a cidade, o app considera os feriados estaduais e municipais automaticamente no planejamento e no calendário.</p>
+    ${locationFieldsHTML('lm', S.location, S.optionalHolidays)}
+    <div class="info-box" data-locnote>${icon('info')}<span></span></div>
+    <div><div class="section-l" style="margin-top:4px"><span>Feriados no seu período</span><span class="num" data-hcount></span></div><div data-hprev></div></div>
+    <div class="form-actions"><button type="button" class="btn btn-ghost" data-skip>${S.location ? 'Cancelar' : 'Não informar'}</button><button type="button" class="btn btn-primary" data-save>${icon('check')} Salvar</button></div>`;
+  const m = openModal({ title: 'Feriados da sua cidade', content: div });
+  const draw = v => {
+    const list = Core.holidaysInRange(Core.maxKey(t, S.startDate), S.endDate, v);
+    $('[data-hprev]', div).innerHTML = holidayListHTML(list);
+    $('[data-hcount]', div).textContent = list.length || '';
+    $('[data-locnote] span', div).textContent = locationNote(v.location);
+  };
+  const get = bindLocationFields(div, draw);
+  draw(get());
+  $('[data-skip]', div).onclick = () => { if (!S.location) { state.meta.locationAsked = true; saveState(); renderAll(); } m.close(); };
+  $('[data-save]', div).onclick = () => {
+    const v = get(), snap = snapshot();
+    m.close();
+    commit(st => { st.settings = { ...st.settings, location: Core.normLocation(v.location), optionalHolidays: v.optional }; st.meta.locationAsked = true; }, { mode: 'full', rebase: true });
+    const n = Core.stateHolidays(state, Core.maxKey(t, state.settings.startDate), state.settings.endDate).length;
+    toast({ type: 'success', iconName: 'mapPin', title: v.location ? `Local: ${Core.locationLabel(v.location)}` : 'Apenas feriados nacionais', msg: `${n} feriado(s) em dias úteis até ${fmtDateShort(state.settings.endDate)} · planejamento recalculado.`, action: { label: 'Desfazer', fn: () => restore(snap) } });
+  };
+}
+
+/* =====================================================================
+   CONFIGURAÇÃO INICIAL (assistente em passos)
+   ===================================================================== */
+let ob = null;
+function deadlinePresets(start) {
+  const y = +start.slice(0, 4), seen = new Set(), out = [];
+  const yEnd = `${y}-12-31`;
+  for (const p of [
+    { id: 'month', label: lastDayOfMonth(start) === yEnd ? 'Fim deste mês e do ano' : 'Fim deste mês', key: lastDayOfMonth(start) },
+    { id: 'next', label: lastDayOfMonth(start, 1) === yEnd ? 'Fim do próximo mês (fim do ano)' : 'Fim do próximo mês', key: lastDayOfMonth(start, 1) },
+    { id: 'quarter', label: 'Em 3 meses', key: lastDayOfMonth(start, 3) },
+    { id: 'year', label: start.slice(5) >= '10-01' ? `Fim de ${y + 1}` : `Fim de ${y}`, key: start.slice(5) >= '10-01' ? `${y + 1}-12-31` : `${y}-12-31` }
+  ]) if (!seen.has(p.key) && p.key >= start) { seen.add(p.key); out.push(p); }
+  return out;
+}
+const WD_CHIPS = [[1, 'seg'], [2, 'ter'], [3, 'qua'], [4, 'qui'], [5, 'sex']];
+function obConfig() {
+  const d = ob.data;
+  return {
+    goalMin: d.goal, initialBalanceMin: d.initial, startDate: d.start, endDate: d.end, dailyLimitMin: d.limit,
+    workStart: d.ws, workEnd: d.we, location: Core.normLocation(d.location), optionalHolidays: !!d.optional,
+    planning: { strategy: d.strategy, reserveDays: d.reserveDays, skipWeekdays: d.skip.slice(), minBlock: d.minBlock }
+  };
+}
+/** Estado de prévia com as respostas atuais (no modo edição mantém os lançamentos). */
+function obPreviewState() {
+  const st = Core.createState(obConfig(), state.theme);
+  if (ob.mode === 'edit') for (const f of ['entries', 'overrides', 'holidayOff', 'closedDays', 'adjustments', 'clock']) st[f] = JSON.parse(JSON.stringify(state[f] || {}));
+  st.plan = Core.computePlan(st, today(), 'full').plan;
+  st.baseline = { ...st.plan };
+  return st;
+}
+function workdaysCount(a, b, opts) {
+  if (!Core.isValidKey(a) || !Core.isValidKey(b) || a > b) return 0;
+  const hol = new Set(Core.holidaysInRange(a, b, opts).map(h => h.key));
+  return Core.rangeKeys(a, b).filter(k => !Core.isWeekend(k) && !hol.has(k)).length;
+}
+
+const OB_STEPS = {
+  welcome: {
+    render: () => `
+      <div class="ob-hero">
+        <div class="ob-hero-mark">${icon('clock')}</div>
+        <h1 class="ob-h1">Bem-vindo ao seu Banco de Horas</h1>
+        <p class="ob-lead">Em menos de um minuto você configura sua meta e o app monta um plano diário para você chegar lá — considerando sua jornada, seu limite e os feriados da sua cidade.</p>
+        <ul class="ob-features">
+          <li>${icon('target')}<div><b>Meta e prazo</b><span>Quantas horas e até quando.</span></div></li>
+          <li>${icon('sparkles')}<div><b>Plano automático</b><span>Distribui as horas dia a dia e se ajusta sozinho.</span></div></li>
+          <li>${icon('mapPin')}<div><b>Feriados da sua cidade</b><span>Nacionais, estaduais e municipais o ano todo.</span></div></li>
+        </ul>
+        <button type="button" class="btn btn-primary ob-cta" data-next>Começar configuração ${icon('forward')}</button>
+        <button type="button" class="btn btn-ghost ob-sub" data-import>${icon('upload', 'i-sm')} Já tenho um backup — importar</button>
+      </div>`,
+    bind: root => { $('[data-import]', root).onclick = () => $('#importFile').click(); }
+  },
+  goal: {
+    icon: 'target', title: 'Qual é a sua meta de horas?',
+    lead: 'Quantas horas você precisa ter no banco até o prazo?',
+    render: d => `
+      <div class="ob-big-wrap"><input class="ob-big num" id="obGoal" value="${fmtDur(d.goal)}" autocomplete="off" inputmode="text" aria-label="Meta de horas"></div>
+      <div class="chips ob-chips">${[480, 720, 960, 1200, 2400].map(v => `<button type="button" class="chip ${d.goal === v ? 'on' : ''}" data-v="${v}">${fmtDur(v).replace('h00', 'h')}</button>`).join('')}</div>
+      <p class="ob-hint">Formato 16h00, 16:00 ou só 16.</p>`,
+    bind: (root, d) => {
+      const inp = $('#obGoal', root);
+      const sync = () => $$('[data-v]', root).forEach(c => c.classList.toggle('on', +c.dataset.v === Core.parseDur(inp.value)));
+      inp.oninput = sync;
+      $$('[data-v]', root).forEach(c => c.onclick = () => { inp.value = fmtDur(+c.dataset.v); sync(); });
+    },
+    read: (root, d) => { const v = Core.parseDur($('#obGoal', root).value); if (v == null || v <= 0 || v > 999 * 60) return 'Informe uma meta válida, como 16h00.'; d.goal = v; }
+  },
+  balance: {
+    icon: 'wallet', title: () => ob.mode === 'edit' ? `Qual era o seu saldo antes de ${fmtDateShort(ob.data.start)}?` : 'Quantas horas você já tem no banco?',
+    lead: () => ob.mode === 'edit' ? 'É o saldo inicial do período — as horas registradas no app são somadas a ele.' : 'Use o valor do seu ponto ou do RH. Se está começando agora, deixe 0h00.',
+    render: d => `
+      <div class="ob-big-wrap"><input class="ob-big num" id="obInit" value="${fmtDur(d.initial)}" autocomplete="off" inputmode="text" aria-label="Saldo atual"></div>
+      <div class="chips ob-chips"><button type="button" class="chip" data-v="0">Começar do zero</button></div>
+      <div class="ob-callout" data-left></div>`,
+    bind: (root, d) => {
+      const inp = $('#obInit', root), out = $('[data-left]', root);
+      const draw = () => {
+        const v = Core.parseDur(inp.value);
+        out.innerHTML = v == null ? `${icon('alertCircle')}<span>Use o formato 2h30 ou 2:30.</span>` : v >= d.goal ? `${icon('trophy')}<span>Esse saldo já cobre a meta de <b>${fmtDur(d.goal)}</b>.</span>` : `${icon('hourglass')}<span>Faltam <b class="num">${fmtDur(d.goal - v)}</b> para a meta de ${fmtDur(d.goal)}.</span>`;
+      };
+      inp.oninput = draw;
+      $('[data-v]', root).onclick = () => { inp.value = '0h00'; draw(); };
+      draw();
+    },
+    read: (root, d) => { const v = Core.parseDur($('#obInit', root).value); if (v == null || v > 999 * 60) return 'Informe o saldo no formato 2h30 (ou 0h00).'; d.initial = v; }
+  },
+  deadline: {
+    icon: 'calendar', title: 'Até quando você precisa atingir a meta?',
+    lead: 'Escolha o prazo. O app planeja todos os dias úteis até lá — pode ser o fim do mês ou o ano todo.',
+    render: d => {
+      const presets = deadlinePresets(d.start);
+      const choice = presets.find(p => p.key === d.end) ? presets.find(p => p.key === d.end).id : 'custom';
+      const opts = { location: d.location, optional: d.optional };
+      return `
+        <div class="ob-options" role="radiogroup">
+          ${presets.map(p => `<button type="button" class="ob-opt ${choice === p.id ? 'on' : ''}" data-end="${p.key}" role="radio" aria-checked="${choice === p.id}">
+            <span class="ob-opt-main"><b>${p.label}</b><span class="num">${fmtDate(p.key)}</span></span><span class="ob-opt-side num">${workdaysCount(d.start, p.key, opts)} dias úteis</span></button>`).join('')}
+          <button type="button" class="ob-opt ${choice === 'custom' ? 'on' : ''}" data-end="custom" role="radio" aria-checked="${choice === 'custom'}"><span class="ob-opt-main"><b>Outra data</b><span>Escolha no calendário</span></span>${icon('calendar')}</button>
+        </div>
+        <div class="field ${choice === 'custom' ? '' : 'hidden'}" data-custom><label for="obEnd">Prazo final</label><input id="obEnd" type="date" value="${d.end}" min="${d.start}"></div>
+        <details class="ob-more" ${d.start !== today() ? 'open' : ''}><summary>Começar a contar em outra data</summary>
+          <div class="field" style="margin-top:10px"><label for="obStart">Início do planejamento</label><input id="obStart" type="date" value="${d.start}"><span class="hint">Normalmente hoje. Horas feitas antes disso devem estar no saldo informado.</span></div>
+        </details>
+        <div class="ob-callout" data-count></div>`;
+    },
+    bind: (root, d) => {
+      const endInp = $('#obEnd', root), startInp = $('#obStart', root), out = $('[data-count]', root);
+      let end = d.end;
+      const draw = () => {
+        const st = startInp.value, n = workdaysCount(st, end, { location: d.location, optional: d.optional });
+        out.innerHTML = Core.isValidKey(st) && Core.isValidKey(end) && st <= end
+          ? `${icon('calcheck')}<span><b class="num">${n} dias úteis</b> de ${fmtDateShort(st)} a ${fmtDate(end)}, sem contar fins de semana e feriados${d.location ? '' : ' nacionais'}.</span>`
+          : `${icon('alertCircle')}<span>O prazo precisa ser depois do início.</span>`;
+      };
+      $$('[data-end]', root).forEach(b => b.onclick = () => {
+        $$('[data-end]', root).forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', x === b); });
+        const custom = b.dataset.end === 'custom';
+        $('[data-custom]', root).classList.toggle('hidden', !custom);
+        end = custom ? endInp.value : b.dataset.end;
+        if (custom) endInp.focus();
+        draw();
+      });
+      endInp.oninput = () => { end = endInp.value; draw(); };
+      startInp.oninput = () => { endInp.min = startInp.value; draw(); };
+      draw();
+      root._end = () => end;
+    },
+    read: (root, d) => {
+      const st = $('#obStart', root).value, en = root._end();
+      if (!Core.isValidKey(st)) return 'Informe a data de início.';
+      if (!Core.isValidKey(en)) return 'Escolha o prazo final.';
+      if (st > en) return 'O prazo precisa ser depois do início.';
+      if (Core.rangeKeys(st, en).length > 400) return 'Período muito longo (máximo de 400 dias).';
+      d.start = st; d.end = en;
+    }
+  },
+  journey: {
+    icon: 'briefcase', title: 'Como é a sua jornada?',
+    lead: 'Usamos a jornada para calcular a saída prevista e sugerir os horários da hora extra.',
+    render: d => `
+      <div class="row-2">
+        <div class="field"><label for="obWs">Entrada</label><input id="obWs" type="time" value="${d.ws}"></div>
+        <div class="field"><label for="obWe">Saída</label><input id="obWe" type="time" value="${d.we}"></div>
+      </div>
+      <div class="ob-callout" data-reg></div>
+      <div class="ob-q">Quanto de hora extra você pode fazer por dia, no máximo?</div>
+      <div class="chips ob-chips">${[60, 90, 120, 180].map(v => `<button type="button" class="chip ${d.limit === v ? 'on' : ''}" data-v="${v}">${fmtDur(v).replace('h00', 'h')}</button>`).join('')}
+        <input class="chip-input num" id="obLimit" value="${fmtDur(d.limit)}" aria-label="Limite diário" autocomplete="off"></div>`,
+    bind: (root, d) => {
+      const ws = $('#obWs', root), we = $('#obWe', root), lim = $('#obLimit', root), out = $('[data-reg]', root);
+      const draw = () => {
+        const a = Core.parseClock(ws.value), b = Core.parseClock(we.value);
+        out.innerHTML = a != null && b != null && b > a
+          ? `${icon('clock')}<span>Jornada normal de <b class="num">${fmtDur(Core.regularDayMin({ workStart: ws.value, workEnd: we.value }))}</b> (com 1h00 de intervalo). Hora extra começa a partir das <b class="num">${we.value}</b>.</span>`
+          : `${icon('alertCircle')}<span>A saída precisa ser depois da entrada.</span>`;
+        $$('[data-v]', root).forEach(c => c.classList.toggle('on', +c.dataset.v === Core.parseDur(lim.value)));
+      };
+      ws.oninput = we.oninput = lim.oninput = draw;
+      $$('[data-v]', root).forEach(c => c.onclick = () => { lim.value = fmtDur(+c.dataset.v); draw(); });
+      draw();
+    },
+    read: (root, d) => {
+      const ws = $('#obWs', root).value, we = $('#obWe', root).value, lim = Core.parseDur($('#obLimit', root).value);
+      if (Core.parseClock(ws) == null || Core.parseClock(we) == null || Core.parseClock(we) <= Core.parseClock(ws)) return 'A saída precisa ser depois da entrada.';
+      if (lim == null || lim < 5 || lim > 1440) return 'Informe um limite diário válido (ex.: 2h00).';
+      d.ws = ws; d.we = we; d.limit = lim;
+    }
+  },
+  location: {
+    icon: 'mapPin', title: 'Onde você trabalha?',
+    lead: 'Opcional. Com o estado e a cidade, o app já considera os feriados estaduais e municipais — por exemplo, o Dia do Evangélico no DF.',
+    render: d => `${locationFieldsHTML('ob', d.location, d.optional)}
+      <div class="ob-callout soft" data-locnote></div>
+      <div class="ob-hol"><div class="section-l" style="margin:4px 0 8px"><span>Feriados no seu período</span><span class="num" data-hcount></span></div><div data-hprev></div></div>`,
+    bind: (root, d) => {
+      const draw = v => {
+        const list = Core.holidaysInRange(d.start, d.end, v);
+        $('[data-hprev]', root).innerHTML = holidayListHTML(list, { max: 8 });
+        $('[data-hcount]', root).textContent = list.length || '';
+        $('[data-locnote]', root).innerHTML = `${icon('info')}<span>${esc(locationNote(v.location))} Você pode ativar ou desativar qualquer feriado depois.</span>`;
+      };
+      root._get = bindLocationFields(root, draw);
+      draw(root._get());
+    },
+    read: (root, d) => { const v = root._get(); d.location = Core.normLocation(v.location); d.optional = v.optional; }
+  },
+  planning: {
+    icon: 'sparkles', title: 'Como prefere distribuir as horas?',
+    lead: 'O plano se ajusta sozinho quando você registra mais ou menos que o previsto.',
+    render: d => `
+      <div class="ob-options two">
+        <button type="button" class="ob-opt tall ${d.strategy === 'balanced' ? 'on' : ''}" data-strat="balanced">${icon('split')}<span class="ob-opt-main"><b>Equilibrado</b><span>Divide as horas por igual entre os dias úteis.</span></span></button>
+        <button type="button" class="ob-opt tall ${d.strategy === 'asap' ? 'on' : ''}" data-strat="asap">${icon('rocket')}<span class="ob-opt-main"><b>O quanto antes</b><span>Faz o máximo nos primeiros dias e termina mais cedo.</span></span></button>
+      </div>
+      <div class="ob-q">Deixar dias de folga no fim, como reserva?</div>
+      <div class="seg" data-seg="reserve">${[0, 1, 2, 3].map(v => `<button type="button" data-v="${v}" class="${d.reserveDays === v ? 'active' : ''}">${v ? `${v} ${v === 1 ? 'dia' : 'dias'}` : 'Não'}</button>`).join('')}</div>
+      <div class="ob-q">Algum dia da semana sem hora extra?</div>
+      <div class="chips ob-chips">${WD_CHIPS.map(([w, l]) => `<button type="button" class="chip ${d.skip.includes(w) ? 'on' : ''}" data-wd="${w}">${l}</button>`).join('')}</div>
+      <p class="ob-hint">Esses dias e a reserva só recebem horas se faltar tempo para a meta.</p>`,
+    bind: (root, d) => {
+      root._p = { strategy: d.strategy, reserve: d.reserveDays, skip: d.skip.slice() };
+      $$('[data-strat]', root).forEach(b => b.onclick = () => { root._p.strategy = b.dataset.strat; $$('[data-strat]', root).forEach(x => x.classList.toggle('on', x === b)); });
+      $$('[data-seg="reserve"] button', root).forEach(b => b.onclick = () => { root._p.reserve = +b.dataset.v; $$('[data-seg="reserve"] button', root).forEach(x => x.classList.toggle('active', x === b)); });
+      $$('[data-wd]', root).forEach(b => b.onclick = () => {
+        const w = +b.dataset.wd, i = root._p.skip.indexOf(w);
+        if (i >= 0) root._p.skip.splice(i, 1); else if (root._p.skip.length < 4) root._p.skip.push(w);
+        b.classList.toggle('on', root._p.skip.includes(w));
+      });
+    },
+    read: (root, d) => { d.strategy = root._p.strategy; d.reserveDays = root._p.reserve; d.skip = root._p.skip.sort(); }
+  },
+  summary: {
+    icon: 'checkCircle', title: () => ob.mode === 'edit' ? 'Confira as alterações' : 'Tudo pronto! Este é o seu plano',
+    lead: 'Revise as respostas — você pode mudar qualquer uma delas depois em Ajustes.',
+    render: d => {
+      const st = obPreviewState(), dd = Core.derive(st, today());
+      const used = dd.open.filter(k => dd.todoMap[k] > 0);
+      const avg = used.length ? Math.round(dd.R / used.length) : 0;
+      const maxV = Math.max(d.limit, 1);
+      const bars = dd.open.slice(0, 12).map(k => `<div class="ob-bar" title="${wdShort(k)} ${fmtDateShort(k)} · ${fmtDur(dd.todoMap[k])}"><span class="num">${dd.todoMap[k] ? fmtDur(dd.todoMap[k]).replace('h00', 'h') : '–'}</span><i style="height:${Math.max(3, dd.todoMap[k] / maxV * 100)}%"></i><em class="num">${k.slice(8)}</em></div>`).join('');
+      const strat = d.strategy === 'asap' ? 'O quanto antes' : 'Equilibrado';
+      const extras = [d.reserveDays ? `${d.reserveDays} dia(s) de reserva` : '', d.skip.length ? `sem hora extra: ${d.skip.map(w => WD_CHIPS.find(x => x[0] === w)[1]).join(', ')}` : ''].filter(Boolean).join(' · ');
+      const nHol = Core.holidaysInRange(d.start, d.end, { location: d.location, optional: d.optional }).length;
+      const row = (step, ic, l, v) => `<div class="ob-sum-row">${icon(ic)}<div><span>${l}</span><b>${v}</b></div><button type="button" class="btn btn-ghost btn-sm" data-goto="${step}">Editar</button></div>`;
+      return `
+        <div class="ob-plan ${dd.goalReached ? 'ok' : dd.feasible ? '' : 'bad'}">
+          ${dd.goalReached ? `<div class="ob-plan-big">${icon('trophy', 'i-lg')} Meta já atingida</div><div class="ob-plan-sub">Seu saldo já cobre a meta — nenhuma hora extra necessária.</div>`
+            : dd.feasible ? `<div class="ob-plan-big num">~${fmtDur(avg)}<small>por dia</small></div><div class="ob-plan-sub">em <b>${used.length} ${used.length === 1 ? 'dia útil' : 'dias úteis'}</b> · conclusão prevista <b>${dd.forecast ? `${wdShort(dd.forecast)}, ${fmtDateShort(dd.forecast)}` : '—'}</b></div>`
+            : `<div class="ob-plan-big">${icon('alert', 'i-lg')} Prazo apertado</div><div class="ob-plan-sub">Mesmo com ${fmtDur(d.limit)} por dia faltariam <b class="num">${fmtDur(dd.deficit)}</b>. Aumente o limite diário ou o prazo.</div>`}
+          ${!dd.goalReached && dd.open.length ? `<div class="ob-bars">${bars}</div>` : ''}
+        </div>
+        <div class="ob-sum">
+          ${row('goal', 'target', 'Meta', `<span class="num">${fmtDur(d.goal)}</span>`)}
+          ${row('balance', 'wallet', ob.mode === 'edit' ? 'Saldo inicial' : 'Saldo atual', `<span class="num">${fmtDur(d.initial)}</span>`)}
+          ${row('deadline', 'calendar', 'Período', `<span class="num">${fmtDateShort(d.start)} a ${fmtDate(d.end)}</span>`)}
+          ${row('journey', 'briefcase', 'Jornada e limite', `<span class="num">${d.ws}–${d.we} · até ${fmtDur(d.limit)}/dia</span>`)}
+          ${row('location', 'mapPin', 'Feriados', `${d.location ? esc(Core.locationLabel(d.location)) : 'Somente nacionais'} · ${nHol} no período`)}
+          ${row('planning', 'sparkles', 'Distribuição', `${strat}${extras ? ` · ${extras}` : ''}`)}
+        </div>`;
+    },
+    bind: root => { $$('[data-goto]', root).forEach(b => b.onclick = () => obGo(ob.steps.indexOf(b.dataset.goto))); }
+  }
+};
+
+function openOnboarding({ mode = 'new', step = null } = {}) {
+  if (ob) return;
+  const S = mode === 'edit' ? state.settings : defaultSetup(today());
+  const pr = Core.planPrefs(S);
+  ob = {
+    mode,
+    steps: mode === 'edit' ? ['goal', 'balance', 'deadline', 'journey', 'location', 'planning', 'summary'] : ['welcome', 'goal', 'balance', 'deadline', 'journey', 'location', 'planning', 'summary'],
+    i: 0, dir: 1,
+    data: { goal: S.goalMin, initial: S.initialBalanceMin, start: S.startDate, end: S.endDate, limit: S.dailyLimitMin, ws: S.workStart, we: S.workEnd, location: Core.normLocation(S.location), optional: !!S.optionalHolidays, strategy: pr.strategy, reserveDays: pr.reserveDays, skip: pr.skipWeekdays.slice(), minBlock: pr.minBlock }
+  };
+  if (step) ob.i = Math.max(0, ob.steps.indexOf(step));
+  const el = document.createElement('div');
+  el.className = 'ob';
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Configuração do banco de horas');
+  el.innerHTML = `<div class="ob-shell">
+      <header class="ob-top"><div class="ob-brand"><span class="brand-mark">${icon('clock')}</span><span>Banco de Horas</span></div><span class="ob-count num"></span>${mode === 'edit' ? `<button type="button" class="icon-btn ghost" data-close aria-label="Fechar">${icon('x')}</button>` : ''}</header>
+      <div class="ob-progress"><span></span></div>
+      <div class="ob-stage"><section class="ob-body"></section></div>
+      <footer class="ob-foot"><button type="button" class="btn btn-ghost" data-back>${icon('chevL', 'i-sm')} Voltar</button><ul class="pv-msgs ob-err"></ul><button type="button" class="btn btn-primary" data-fwd></button></footer>
+    </div>`;
+  document.body.appendChild(el);
+  document.body.classList.add('ob-open');
+  ob.el = el;
+  $('[data-back]', el).onclick = () => obGo(ob.i - 1);
+  $('[data-fwd]', el).onclick = obNext;
+  const x = $('[data-close]', el); if (x) x.onclick = closeOnboarding;
+  el.addEventListener('keydown', e => {
+    if (modalStack.length) return;
+    if (e.key === 'Escape' && ob.mode === 'edit') { e.preventDefault(); closeOnboarding(); }
+    if (e.key === 'Enter' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SUMMARY') { e.preventDefault(); obNext(); }
+  });
+  obRender();
+}
+function obRender() {
+  const key = ob.steps[ob.i], def = OB_STEPS[key], d = ob.data, el = ob.el;
+  const body = $('.ob-body', el);
+  const isWelcome = key === 'welcome', last = ob.i === ob.steps.length - 1;
+  const counted = ob.steps.filter(s => s !== 'welcome'), pos = counted.indexOf(key);
+  const val = f => typeof f === 'function' ? f() : f;
+  body.className = `ob-body ob-step-${key} ${ob.dir > 0 ? 'in-fwd' : 'in-back'}`;
+  body.innerHTML = isWelcome ? def.render(d) : `
+    <div class="ob-head">${def.icon ? `<span class="ob-ic">${icon(def.icon)}</span>` : ''}<h2 class="ob-h2">${esc(val(def.title))}</h2><p class="ob-lead">${esc(val(def.lead))}</p></div>
+    <div class="ob-content form-stack">${def.render(d)}</div>`;
+  $('.ob-count', el).textContent = pos >= 0 ? `Passo ${pos + 1} de ${counted.length}` : '';
+  $('.ob-progress span', el).style.width = `${pos < 0 ? 0 : (pos + 1) / counted.length * 100}%`;
+  $('.ob-foot', el).classList.toggle('hidden', isWelcome);
+  $('[data-back]', el).style.visibility = ob.i === 0 || (ob.steps[ob.i - 1] === 'welcome') ? 'hidden' : '';
+  $('[data-fwd]', el).innerHTML = last ? `${icon('check')} ${ob.mode === 'edit' ? 'Salvar e replanejar' : 'Começar a usar'}` : `Continuar ${icon('chevR', 'i-sm')}`;
+  $('.ob-err', el).innerHTML = '';
+  if (isWelcome) $('[data-next]', body).onclick = () => obGo(1);
+  if (def.bind) def.bind(body, d);
+  $('.ob-stage', el).scrollTop = 0;
+  requestAnimationFrame(() => {
+    const f = $('.ob-content input:not([type=checkbox]):not([type=date]), .ob-content select', body) || $('[data-next], [data-fwd]', el);
+    if (f && window.innerWidth > 720) f.focus({ preventScroll: true });
+  });
+}
+function obRead() {
+  const key = ob.steps[ob.i], def = OB_STEPS[key];
+  if (!def.read) return true;
+  const err = def.read($('.ob-body', ob.el), ob.data);
+  if (err) {
+    $('.ob-err', ob.el).innerHTML = `<li class="err">${icon('alertCircle', 'i-sm')}<span>${esc(err)}</span></li>`;
+    const sh = $('.ob-shell', ob.el); sh.classList.remove('shake'); void sh.offsetWidth; sh.classList.add('shake');
+    return false;
+  }
+  return true;
+}
+function obGo(i) {
+  if (i < 0 || i >= ob.steps.length || i === ob.i) return;
+  if (i > ob.i && !obRead()) return;
+  if (i < ob.i) { const def = OB_STEPS[ob.steps[ob.i]]; if (def.read) def.read($('.ob-body', ob.el), ob.data); }
+  ob.dir = i > ob.i ? 1 : -1; ob.i = i; obRender();
+}
+function obNext() {
+  if (ob.i < ob.steps.length - 1) return obGo(ob.i + 1);
+  finishOnboarding();
+}
+function closeOnboarding() {
+  if (!ob) return;
+  const el = ob.el; ob = null;
+  el.classList.add('closing');
+  document.body.classList.remove('ob-open');
+  setTimeout(() => el.remove(), 260);
+}
+function finishOnboarding() {
+  const cfg = obConfig(), mode = ob.mode;
+  if (mode === 'new') {
+    state = Core.createState(cfg, state.theme);
+    replan('full', true);
+    firstRun = false;
+    saveState(); calMonth = null; lastValues.clear();
+    closeOnboarding();
+    renderAll(); setView('overview');
+    const d = Core.derive(state, today());
+    if (!reduceMotion()) confetti();
+    toast({ type: 'success', iconName: 'sparkles', title: 'Tudo pronto!', msg: d.goalReached ? 'Seu saldo já cobre a meta.' : `Plano criado: ${fmtDur(d.R)} em ${d.todo.filter(x => x > 0).length} dias úteis até ${fmtDateShort(cfg.endDate)}.`, timeout: 7000 });
+    return;
+  }
+  const outside = state.entries.filter(e => e.date < cfg.startDate || e.date > cfg.endDate).length;
+  const apply = () => {
+    const snap = snapshot();
+    closeOnboarding();
+    commit(st => { st.settings = { ...st.settings, ...cfg }; st.meta.locationAsked = true; }, { mode: 'full', rebase: true });
+    calMonth = null; renderCalendar(Core.derive(state, today()), today()); fillSettingsForm();
+    const d = Core.derive(state, today());
+    toast({ type: 'success', iconName: 'sparkles', title: 'Configuração atualizada', msg: d.goalReached ? 'Meta atingida com o saldo atual.' : `Planejamento refeito: faltam ${fmtDur(d.R)}.`, action: { label: 'Desfazer', fn: () => { restore(snap); fillSettingsForm(); } } });
+  };
+  if (outside) confirmDialog({ title: 'Lançamentos fora do período', message: `${outside} lançamento(s) ficarão fora do novo período e <b>continuam somando no saldo</b>. Para começar um novo mês sem contar horas em dobro, use <b>Fechar período</b> em Ajustes.`, confirmText: 'Salvar mesmo assim' }).then(ok => ok && apply());
+  else apply();
+}
+
+/* =====================================================================
    INICIALIZAÇÃO
    ===================================================================== */
 function init() {
   state = loadState();
   applyTheme(state.theme);
-  replan('incremental');       // ajusta o plano à data atual (dias que passaram)
-  saveState();
+  replan(firstRun ? 'full' : 'incremental', firstRun);   // ajusta o plano à data atual (dias que passaram)
+  if (!firstRun) saveState();
 
   // Ícones e rótulos estáticos
   $('#brandMark').innerHTML = icon('clock');
   $('#newEntryBtn').innerHTML = `${icon('plus')}<span>Registrar</span><kbd>N</kbd>`;
-  $('#formTitle').innerHTML = `${icon('plus')} Novo lançamento`;
+  $('#formTitle').innerHTML = `${icon('plus')} Novo registro`;
   $('#setTitle1').innerHTML = `${icon('target')} Meta, saldo e período`;
-  $('#setTitle2').innerHTML = `${icon('ban')} Feriados e dias indisponíveis`;
+  $('#setTitle2').innerHTML = `${icon('mapPin')} Feriados e dias indisponíveis`;
   $('#setTitle3').innerHTML = `${icon('database')} Backup e dados`;
   $('#setTitleTheme').innerHTML = `${icon('palette')} Aparência`;
   $('[data-theme-opt="dark"]').innerHTML = `${icon('moon', 'i-sm')} Escuro`;
   $('[data-theme-opt="light"]').innerHTML = `${icon('sun', 'i-sm')} Claro`;
   $('#exportBtn').innerHTML = `${icon('download', 'i-sm')} Exportar`;
   $('#importBtn').innerHTML = `${icon('upload', 'i-sm')} Importar`;
-  $('#resetBtn').innerHTML = `${icon('reset', 'i-sm')} Restaurar`;
+  $('#resetBtn').innerHTML = `${icon('reset', 'i-sm')} Recomeçar`;
   $('#ovAdd').innerHTML = `${icon('plus', 'i-sm')} Adicionar dia`;
 
   buildNav();
@@ -3255,6 +4369,7 @@ function init() {
   $('#recalcBtn').onclick = doRecalc;
   $('#calPrev').onclick = () => shiftMonth(-1);
   $('#calNext').onclick = () => shiftMonth(1);
+  $('#calToday').onclick = () => { calMonth = today().slice(0, 7); renderCalendar(Core.derive(state, today()), today()); };
   $('#settingsForm').addEventListener('submit', onSettingsSubmit);
   $('#settingsRevert').onclick = fillSettingsForm;
   $('#exportBtn').onclick = exportBackup;
@@ -3268,6 +4383,7 @@ function init() {
     if (!Core.isValidKey(k)) errs.push('Informe uma data válida.');
     else if (Core.isWeekend(k)) errs.push('Fins de semana já são desconsiderados automaticamente.');
     else if (state.overrides[k]) errs.push('Esta data já está marcada.');
+    else if (Core.holidayAt(state, k) && !state.holidayOff[k]) errs.push(`Já é feriado automático (${Core.holidayAt(state, k).label}).`);
     $('#ovErrors').innerHTML = errs.map(e => `<li class="err">${icon('alertCircle', 'i-sm')}<span>${esc(e)}</span></li>`).join('');
     if (errs.length) return;
     setOverride(k, { type, label: label || Core.OVERRIDE_TYPES[type] });
@@ -3276,6 +4392,7 @@ function init() {
 
   // Atalhos de teclado
   document.addEventListener('keydown', e => {
+    if (ob && !modalStack.length) return;
     if (e.key === 'Escape' && modalStack.length) { modalStack[modalStack.length - 1].close(); return; }
     const tag = (e.target.tagName || '').toLowerCase();
     if (['input', 'textarea', 'select'].includes(tag) || e.metaKey || e.ctrlKey || e.altKey || modalStack.length) return;
@@ -3301,6 +4418,7 @@ function init() {
   try { v = sessionStorage.getItem('bancoHoras.view') || 'overview'; } catch (e) {}
   renderAll();
   setView(v, { scroll: false });
+  if (firstRun) openOnboarding({ mode: 'new' });
   if (!storageOk) toast({ type: 'danger', title: 'Armazenamento indisponível', msg: 'Os dados não serão mantidos após fechar o navegador. Use o backup JSON.', timeout: 0 });
 }
 
