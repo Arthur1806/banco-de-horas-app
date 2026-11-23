@@ -14,6 +14,8 @@
 <meta name="application-name" content="Banco de Horas">
 <meta name="theme-color" content="#08090b" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
+<!-- Login e sincronização (supabase-js 2.45.4, MIT — servido junto do app) -->
+<script src="vendor/supabase.js" defer></script>
 <script>
 /* Aplica o tema salvo antes da primeira pintura (evita "flash" de tema). */
 (function () {
@@ -983,6 +985,42 @@ body.ob-open { overflow: hidden; }
 .hol-name { flex: 1; min-width: 0; }
 .hol-item .icon-btn { width: 28px; height: 28px; }
 
+/* Conta e sincronização */
+.acc-top { position: relative; }
+.acc-top .acc-dot { position: absolute; right: 5px; top: 5px; width: 7px; height: 7px; border-radius: 50%; background: transparent; box-shadow: 0 0 0 2px var(--surface); }
+.acc-top.on .acc-dot { background: var(--success); }
+.acc-top.busy .acc-dot { background: var(--info); animation: pulse 1.2s ease-in-out infinite; }
+.acc-top.warn .acc-dot { background: var(--warning); }
+.acc-top.bad .acc-dot { background: var(--danger); }
+.acc-in { height: 32px; color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); background: var(--accent-soft); }
+@media (max-width: 720px) { .acc-in { width: 32px; padding: 0; justify-content: center; } .acc-lbl { display: none; } }
+@keyframes pulse { 50% { opacity: .35; } }
+.acc-card { border-color: color-mix(in srgb, var(--accent) 25%, transparent); }
+.acc-row { display: flex; align-items: center; gap: 12px; }
+.acc-row > div { min-width: 0; flex: 1; }
+.acc-row .lt { font-weight: 620; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acc-row .ld { font-size: 12.5px; color: var(--text-3); margin-top: 3px; }
+.acc-ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; flex: none; background: var(--accent-soft); color: var(--accent); }
+.acc-ic.on { background: var(--success-soft); color: var(--success); }
+.acc-btn { width: 100%; justify-content: center; margin-top: 14px; height: 40px; }
+.acc-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.login-hero { width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; margin: 2px auto 14px; background: var(--accent-soft); color: var(--accent); }
+.login-hero.ok { background: var(--success-soft); color: var(--success); }
+.login-btn { width: 100%; justify-content: center; height: 42px; }
+.login-links { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; }
+.login-foot { font-size: 12.5px; text-align: center; margin: 12px 0 0; }
+.code-input { text-align: center; font-size: 26px !important; letter-spacing: .4em; height: 54px !important; font-weight: 650; }
+.sync-choices { display: grid; gap: 10px; }
+.sync-choice { display: flex; gap: 12px; align-items: flex-start; text-align: left; padding: 14px; border-radius: 12px; border: 1px solid var(--border-2); background: var(--surface-2); color: var(--text); }
+.sync-choice:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface-2)); }
+.sync-choice > .i { color: var(--accent); margin-top: 2px; }
+.sync-choice > span { display: grid; gap: 2px; }
+.sync-choice b { font-size: 14px; }
+.sync-choice span span { font-size: 12.5px; color: var(--text-3); }
+.alert-x { margin-left: 4px; align-self: center; }
+.ob-alt { display: grid; gap: 4px; justify-items: center; margin-top: 12px; }
+.ob-alt .ob-sub { margin: 0; }
+
 /* Períodos */
 .check { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text-2); cursor: pointer; }
 .check input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--accent); flex: none; cursor: pointer; }
@@ -1187,6 +1225,7 @@ body.ob-open { overflow: hidden; }
       </div>
       <div class="top-actions">
         <span class="today-chip num" id="todayChip"><span class="dot"></span><span id="todayChipText">—</span></span>
+        <button class="icon-btn acc-top" id="accountBtn" type="button" aria-label="Conta"></button>
         <button class="icon-btn" id="themeBtn" type="button" title="Alternar tema (claro/escuro)" aria-label="Alternar tema"></button>
         <button class="btn btn-primary" id="newEntryBtn" type="button" title="Registrar horas (atalho: N)"></button>
       </div>
@@ -1310,7 +1349,7 @@ body.ob-open { overflow: hidden; }
       <div class="view-head">
         <div>
           <h2 class="view-title">Ajustes</h2>
-          <p class="view-desc">Meta, saldo, período, fechamento do mês, dias indisponíveis, aparência e backup.</p>
+          <p class="view-desc">Conta, meta, saldo, período, fechamento do mês, feriados, aparência e backup.</p>
         </div>
       </div>
       <div class="grid-settings">
@@ -1348,6 +1387,7 @@ body.ob-open { overflow: hidden; }
           </div>
         </div>
         <div class="grid">
+          <div class="card acc-card" id="accountCard"></div>
           <div class="card">
             <div class="card-head"><h3 class="card-title" id="setTitle2"></h3><span class="card-sub" id="ovCount"></span></div>
             <div id="holSettings"></div>
@@ -2275,7 +2315,7 @@ function loadState() {
 }
 function saveState() {
   state.meta.updatedAt = new Date().toISOString();
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); storageOk = true; }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); storageOk = true; cloudNoteChange(); }
   catch (e) { storageOk = false; toast({ type: 'danger', title: 'Não foi possível salvar', msg: 'O navegador bloqueou o armazenamento local. Exporte um backup para não perder dados.' }); }
 }
 
@@ -2331,6 +2371,10 @@ const ICONS = {
   database: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
   palette: '<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16" cy="10" r="1.2"/><path d="M12 21a2 2 0 0 1 0-4h1.5a2.5 2.5 0 0 0 0-5"/>',
   gauge: '<path d="M12 14l4-4"/><path d="M3.5 18a9 9 0 1 1 17 0"/>',
+  cloud: '<path d="M7 18.5a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 17.9 8a4.25 4.25 0 0 1-.4 10.5z"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/>',
+  logout: '<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10"/>',
   mapPin: '<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
   briefcase: '<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3 12.5h18"/>',
   wallet: '<path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="8" width="17" height="12" rx="2.5"/><path d="M16 14h.01"/>',
@@ -2593,6 +2637,7 @@ function buildAlerts(d, t) {
   const pend = pendingClockDays(t);
   if (pend.length) list.push({ type: 'warning', icon: 'clock', title: pend.length === 1 ? 'Ponto pendente' : `${pend.length} pontos pendentes`, msg: pend.slice(0, 3).map(p => p.msg).join(' · ') + (pend.length > 3 ? ' …' : '') + '.', action: { label: 'Completar', fn: () => openDayModal(pend[0].k) } });
   const nextAction = { label: 'Iniciar próximo período', fn: () => openClosePeriodModal() };
+  if (Cloud.sb && !Cloud.user && Cloud.status === 'signedout' && !firstRun && !state.meta.accountPromptOff) list.push({ type: 'info', icon: 'cloud', title: 'Não perca seu progresso', msg: 'Crie uma conta com seu e-mail (sem senha) para salvar seus dados na nuvem e usar em qualquer aparelho.', action: { label: 'Criar conta', fn: () => openLoginModal() }, dismiss: () => { state.meta.accountPromptOff = true; saveState(); renderAlerts(Core.derive(state, today()), today()); } });
   if (!S.location && !state.meta.locationAsked && !d.deadlinePassed) list.push({ type: 'info', icon: 'mapPin', title: 'Feriados da sua cidade', msg: 'Informe seu estado e cidade para o app considerar automaticamente os feriados estaduais e municipais (ex.: Dia do Evangélico no DF).', action: { label: 'Informar cidade', fn: () => openLocationModal() } });
   if (d.goalReached) {
     const when = d.forecast === 'before' ? 'já com o saldo inicial' : d.forecast ? `em ${fmtDate(d.forecast)}` : '';
@@ -2611,13 +2656,14 @@ function buildAlerts(d, t) {
   return list;
 }
 function alertHTML(a, i) {
-  return `<div class="alert ${a.type}"><div class="alert-ic">${icon(a.icon)}</div><div class="alert-body"><div class="alert-title">${esc(a.title)}</div><div class="alert-msg">${esc(a.msg)}</div></div>${a.action ? `<button class="btn btn-sm" type="button" data-alert="${i}">${esc(a.action.label)}</button>` : ''}</div>`;
+  return `<div class="alert ${a.type}"><div class="alert-ic">${icon(a.icon)}</div><div class="alert-body"><div class="alert-title">${esc(a.title)}</div><div class="alert-msg">${esc(a.msg)}</div></div>${a.action ? `<button class="btn btn-sm" type="button" data-alert="${i}">${esc(a.action.label)}</button>` : ''}${a.dismiss ? `<button class="icon-btn ghost alert-x" type="button" data-alertx="${i}" aria-label="Dispensar" title="Agora não">${icon('x', 'i-sm')}</button>` : ''}</div>`;
 }
 function renderAlerts(d, t) {
   const list = buildAlerts(d, t);
   const host = $('#alerts');
   host.innerHTML = list.map(alertHTML).join('');
   $$('[data-alert]', host).forEach(b => { b.onclick = () => list[+b.dataset.alert].action.fn(); });
+  $$('[data-alertx]', host).forEach(b => { b.onclick = () => list[+b.dataset.alertx].dismiss(); });
   const planList = list.filter(a => a.type === 'danger' || a.type === 'success');
   $('#planAlerts').innerHTML = planList.map(a => alertHTML({ ...a, action: null })).join('');
 }
@@ -4014,9 +4060,10 @@ async function resetAll() {
   });
   if (!ok) return;
   const theme = state.theme;
+  if (Cloud.user) { Cloud.meta.resetting = true; saveSyncMeta(); }
   state = Core.createState(defaultSetup(today()), theme);
   replan('full', true);
-  saveState(); calMonth = null; lastValues.clear(); renderAll(); fillSettingsForm();
+  saveState(); firstRun = true; calMonth = null; lastValues.clear(); renderAll(); fillSettingsForm();
   setView('overview');
   openOnboarding({ mode: 'new' });
 }
@@ -4193,9 +4240,10 @@ const OB_STEPS = {
           <li>${icon('mapPin')}<div><b>Feriados da sua cidade</b><span>Nacionais, estaduais e municipais o ano todo.</span></div></li>
         </ul>
         <button type="button" class="btn btn-primary ob-cta" data-next>Começar configuração ${icon('forward')}</button>
-        <button type="button" class="btn btn-ghost ob-sub" data-import>${icon('upload', 'i-sm')} Já tenho um backup — importar</button>
+        <div class="ob-alt"><button type="button" class="btn ob-sub" data-login>${icon('mail', 'i-sm')} Já tenho conta — entrar com e-mail</button>
+        <button type="button" class="btn btn-ghost ob-sub" data-import>${icon('upload', 'i-sm')} Importar backup</button></div>
       </div>`,
-    bind: root => { $('[data-import]', root).onclick = () => $('#importFile').click(); }
+    bind: root => { $('[data-import]', root).onclick = () => $('#importFile').click(); $('[data-login]', root).onclick = () => openLoginModal(); }
   },
   goal: {
     icon: 'target', title: 'Qual é a sua meta de horas?',
@@ -4485,7 +4533,10 @@ function finishOnboarding() {
     renderAll(); setView('overview');
     const d = Core.derive(state, today());
     if (!reduceMotion()) confetti();
-    toast({ type: 'success', iconName: 'sparkles', title: 'Tudo pronto!', msg: d.goalReached ? 'Seu saldo já cobre a meta.' : `Plano criado: ${fmtDur(d.R)} em ${d.todo.filter(x => x > 0).length} dias úteis até ${fmtDateShort(cfg.endDate)}.`, timeout: 7000 });
+    delete Cloud.meta.resetting; saveSyncMeta();
+    if (Cloud.user) cloudNoteChange();
+    toast({ type: 'success', iconName: 'sparkles', title: 'Tudo pronto!', msg: d.goalReached ? 'Seu saldo já cobre a meta.' : `Plano criado: ${fmtDur(d.R)} em ${d.todo.filter(x => x > 0).length} dias úteis até ${fmtDateShort(cfg.endDate)}.`, timeout: 7000,
+      action: !Cloud.user && Cloud.sb ? { label: 'Criar conta', fn: () => openLoginModal() } : null });
     return;
   }
   const outside = state.entries.filter(e => e.date < cfg.startDate || e.date > cfg.endDate).length;
@@ -4499,6 +4550,312 @@ function finishOnboarding() {
   };
   if (outside) confirmDialog({ title: 'Lançamentos fora do período', message: `${outside} lançamento(s) ficarão fora do novo período e <b>continuam somando no saldo</b>. Para começar um novo mês sem contar horas em dobro, use <b>Fechar período</b> em Ajustes.`, confirmText: 'Salvar mesmo assim' }).then(ok => ok && apply());
   else apply();
+}
+
+/* =====================================================================
+   CONTA E SINCRONIZAÇÃO (Supabase)
+   - Login sem senha: a pessoa informa o e-mail e recebe um link (e um código)
+     de confirmação. Na primeira vez a conta é criada automaticamente.
+   - Os dados continuam salvos no aparelho (funciona sem internet) e são
+     enviados para a nuvem a cada alteração. Ao voltar para o app, busca o que
+     foi feito em outros aparelhos. Se os dois lados mudaram, pergunta qual manter.
+   - A chave abaixo é pública (publishable): a proteção dos dados é feita no
+     banco por Row Level Security — cada conta só lê e grava a própria linha.
+   ===================================================================== */
+const CLOUD = { url: 'https://kmcjdzirxwnowokxlcqx.supabase.co', key: 'sb_publishable_nsc1t8ZzCb-nElI9Wj1b1Q_xSY3PZ-w' };
+const SYNC_KEY = 'bancoHoras.sync';
+const Cloud = { sb: null, user: null, status: 'loading', meta: {}, timer: null, pushing: false, again: false, applying: false, resolving: false, lastPull: 0 };
+const appUrl = () => location.origin + location.pathname;
+
+function loadSyncMeta() { try { Cloud.meta = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}') || {}; } catch (e) { Cloud.meta = {}; } }
+function saveSyncMeta() { try { localStorage.setItem(SYNC_KEY, JSON.stringify(Cloud.meta)); } catch (e) {} }
+function setCloudStatus(s) {
+  const prev = Cloud.status; Cloud.status = s; renderAccount();
+  // entrar/sair muda os avisos da tela inicial (ex.: "Não perca seu progresso")
+  if (state && (prev === 'loading' || (prev === 'signedout') !== (s === 'signedout'))) renderAlerts(Core.derive(state, today()), today());
+}
+const cloudReady = () => !!(window.supabase && window.supabase.createClient);
+/** O aparelho tem dados de verdade (não é a tela de configuração inicial)? */
+const hasLocalData = () => !firstRun;
+const stateSummary = st => { const C = Core; return { entries: (st.entries || []).length, bal: C.fmtDur(C.balance(st)), goal: C.fmtDur(st.settings.goalMin), end: C.fmtDate(st.settings.endDate) }; };
+
+/** Chamado por saveState(): marca alteração pendente e agenda o envio. */
+function cloudNoteChange() {
+  if (!Cloud.user || Cloud.applying || firstRun) return;
+  Cloud.meta.dirty = true; saveSyncMeta();
+  clearTimeout(Cloud.timer);
+  Cloud.timer = setTimeout(() => cloudPush(), 1500);
+  if (Cloud.status !== 'conflict') setCloudStatus('saving');
+}
+async function cloudPush(force = false) {
+  if (!Cloud.user || firstRun) return;
+  if (Cloud.pushing) { Cloud.again = true; return; }
+  Cloud.pushing = true;
+  try {
+    const { data, error } = await Cloud.sb.rpc('save_user_data', { p_data: state, p_base_version: Cloud.meta.version ?? null, p_force: force });
+    if (error) throw error;
+    const row = Array.isArray(data) ? data[0] : data;
+    Cloud.meta = { ...Cloud.meta, userId: Cloud.user.id, email: Cloud.user.email, version: row.version, dirty: false, syncedAt: new Date().toISOString() };
+    saveSyncMeta(); setCloudStatus('synced');
+  } catch (err) {
+    if (/conflict/i.test(err.message || '') || err.code === '40001') { Cloud.pushing = false; await cloudPull({ reason: 'conflict' }); return; }
+    setCloudStatus(navigator.onLine === false || /fetch|network|Failed/i.test(err.message || '') ? 'offline' : 'error');
+    Cloud.lastError = err.message || String(err);
+  } finally {
+    Cloud.pushing = false;
+    if (Cloud.again) { Cloud.again = false; cloudPush(); }
+  }
+}
+/** Substitui os dados do aparelho pelos da nuvem. */
+function applyRemote(row, { silent = false, from = '' } = {}) {
+  const res = Core.sanitizeState(row.data);
+  if (!res.ok) { toast({ type: 'danger', title: 'Dados da nuvem inválidos', msg: res.error }); return; }
+  Cloud.applying = true;
+  state = res.state;
+  firstRun = false;
+  applyTheme(state.theme);
+  replan('incremental');
+  saveState();
+  Cloud.applying = false;
+  Cloud.meta = { ...Cloud.meta, userId: Cloud.user.id, email: Cloud.user.email, version: row.version, dirty: false, syncedAt: new Date().toISOString() };
+  saveSyncMeta();
+  if (ob) closeOnboarding();
+  calMonth = null; lastValues.clear();
+  renderAll(); fillSettingsForm();
+  setCloudStatus('synced');
+  if (!silent) toast({ type: 'success', iconName: 'cloud', title: from === 'check' ? 'Atualizado com outro aparelho' : 'Dados carregados da sua conta', msg: `${state.entries.length} registros · saldo ${fmtDur(Core.balance(state))}.` });
+}
+async function cloudFetch() {
+  const { data, error } = await Cloud.sb.from('user_data').select('data, version, updated_at').eq('user_id', Cloud.user.id).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+/** Busca a nuvem e decide: enviar, carregar ou perguntar. */
+async function cloudPull({ reason = 'check' } = {}) {
+  if (!Cloud.user) return;
+  if (firstRun && Cloud.meta.resetting) return setCloudStatus('synced');   // recomeçando: não traz os dados antigos de volta
+  Cloud.lastPull = Date.now();
+  let row;
+  try { setCloudStatus('syncing'); row = await cloudFetch(); }
+  catch (err) { setCloudStatus(navigator.onLine === false || /fetch|network|Failed/i.test(err.message || '') ? 'offline' : 'error'); Cloud.lastError = err.message; return; }
+  const m = Cloud.meta, mine = m.userId === Cloud.user.id;
+  if (!row) {                                   // conta nova (ou dados apagados da nuvem)
+    if (hasLocalData()) { Cloud.meta = { ...m, userId: Cloud.user.id, email: Cloud.user.email, version: null }; saveSyncMeta(); await cloudPush(); if (reason === 'signin') toast({ type: 'success', iconName: 'cloud', title: 'Dados salvos na sua conta', msg: 'A partir de agora tudo fica guardado na nuvem.' }); }
+    else { Cloud.meta = { userId: Cloud.user.id, email: Cloud.user.email, version: null, dirty: false }; saveSyncMeta(); setCloudStatus('synced'); if (reason === 'signin') toast({ type: 'success', iconName: 'cloud', title: 'Conta criada!', msg: 'Agora configure seu banco de horas — tudo será salvo na sua conta.' }); }
+    return;
+  }
+  if (!hasLocalData()) return applyRemote(row);                                  // aparelho novo
+  if (mine && m.version === row.version) { if (m.dirty) await cloudPush(); else setCloudStatus('synced'); return; }
+  if (mine && !m.dirty && (m.version == null || row.version > m.version)) return applyRemote(row, { from: reason });
+  if (sameData(row.data, state)) { Cloud.meta = { ...m, userId: Cloud.user.id, email: Cloud.user.email, version: row.version, dirty: false }; saveSyncMeta(); setCloudStatus('synced'); return; }
+  return askConflict(row);
+}
+/** Compara ignorando datas de atualização. */
+function sameData(a, b) {
+  const strip = x => { const c = JSON.parse(JSON.stringify(x)); if (c.meta) { delete c.meta.updatedAt; delete c.meta.lastPlanAt; } return JSON.stringify(c); };
+  try { return strip(a) === strip(b); } catch (e) { return false; }
+}
+function askConflict(row) {
+  if (Cloud.resolving) return;
+  Cloud.resolving = true; setCloudStatus('conflict');
+  const remote = Core.sanitizeState(row.data), r = remote.ok ? stateSummary(remote.state) : null, l = stateSummary(state);
+  const when = new Date(row.updated_at);
+  const div = document.createElement('div');
+  div.innerHTML = `<p class="confirm-msg" style="margin-top:0">Este aparelho e a sua conta têm dados diferentes — por exemplo, você usou o app em outro aparelho, ou este aparelho já tinha registros antes de entrar. Qual versão você quer manter?</p>
+    <div class="sync-choices">
+      <button type="button" class="sync-choice" data-pick="cloud">${icon('cloud')}<span><b>Da sua conta (nuvem)</b><span>salvo em ${when.toLocaleDateString('pt-BR')} às ${when.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>${r ? `<span class="num">${r.entries} registros · saldo ${r.bal} de ${r.goal}</span>` : ''}</span></button>
+      <button type="button" class="sync-choice" data-pick="local">${icon('briefcase')}<span><b>Deste aparelho</b><span>alterações feitas aqui</span><span class="num">${l.entries} registros · saldo ${l.bal} de ${l.goal}</span></span></button>
+    </div>
+    <p class="faint" style="font-size:12.5px;margin:12px 0 0">A versão não escolhida é substituída. Se tiver dúvida, exporte um backup antes em Ajustes.</p>`;
+  const m = openModal({ title: 'Qual versão manter?', content: div, onClose: () => { Cloud.resolving = false; if (Cloud.status === 'conflict') setCloudStatus('error'); } });
+  $('[data-pick="cloud"]', div).onclick = () => { Cloud.resolving = false; m.close(); applyRemote(row); };
+  $('[data-pick="local"]', div).onclick = async () => {
+    Cloud.resolving = false; m.close();
+    Cloud.meta = { ...Cloud.meta, userId: Cloud.user.id, email: Cloud.user.email, version: row.version };
+    await cloudPush(true);
+    toast({ type: 'success', iconName: 'cloud', title: 'Sua conta foi atualizada', msg: 'Os dados deste aparelho agora estão salvos na nuvem.' });
+  };
+}
+async function onCloudSession(session, reason) {
+  const user = session ? session.user : null;
+  if (!user) { Cloud.user = null; setCloudStatus('signedout'); return; }
+  if (Cloud.user && Cloud.user.id === user.id && reason !== 'init') { Cloud.user = user; return; }
+  Cloud.user = user;
+  const m = Cloud.meta;
+  if (m.userId && m.userId !== user.id && hasLocalData()) Cloud.meta = { userId: user.id, email: user.email, version: null };   // dados de outra conta: decide na comparação
+  closeLoginModal();
+  if (reason === 'signin') toast({ type: 'info', iconName: 'user', title: 'Conectado', msg: user.email });
+  await cloudPull({ reason });
+  if (firstRun && !ob) openOnboarding({ mode: 'new' });
+}
+async function initCloud() {
+  loadSyncMeta();
+  // erro vindo do link do e-mail (ex.: link expirado)
+  const hp = new URLSearchParams(location.hash.slice(1));
+  const linkError = hp.get('error_description') || hp.get('error');
+  if (!cloudReady()) { setCloudStatus('unavailable'); return; }
+  try {
+    Cloud.sb = window.supabase.createClient(CLOUD.url, CLOUD.key, { auth: { flowType: 'implicit', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true, storageKey: 'bancoHoras.auth' } });
+  } catch (e) { setCloudStatus('unavailable'); return; }
+  if (linkError) {
+    history.replaceState(null, '', appUrl());
+    toast({ type: 'danger', title: 'Link de acesso inválido ou expirado', msg: 'Peça um novo link: os links valem por pouco tempo e só podem ser usados uma vez.', timeout: 9000, action: { label: 'Entrar', fn: () => openLoginModal() } });
+  }
+  Cloud.sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN') setTimeout(() => onCloudSession(session, 'signin'), 0);
+    else if (event === 'SIGNED_OUT') setTimeout(() => onCloudSession(null, 'signout'), 0);
+  });
+  const { data } = await Cloud.sb.auth.getSession();
+  await onCloudSession(data ? data.session : null, 'init');
+  // volta ao app (celular) / reconexão: busca alterações de outros aparelhos e reenvia pendências
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Cloud.user && Date.now() - Cloud.lastPull > 15000) cloudPull(); });
+  window.addEventListener('online', () => { if (Cloud.user) (Cloud.meta.dirty ? cloudPush() : cloudPull()); });
+  window.addEventListener('offline', () => { if (Cloud.user) setCloudStatus('offline'); });
+  setInterval(() => { if (Cloud.user && Cloud.meta.dirty && !Cloud.pushing && navigator.onLine !== false) cloudPush(); }, 30000);
+}
+
+/* ---------- Telas de conta ---------- */
+let loginModal = null;
+function closeLoginModal() { if (loginModal) { const m = loginModal; loginModal = null; m.close(); } }
+function authErrorText(err) {
+  const msg = (err && (err.message || err.error_description)) || '';
+  if (/not authorized|not allowed/i.test(msg)) return 'O envio de e-mails ainda não está liberado para este endereço. Peça ao administrador do app para configurar o envio de e-mails (SMTP) no Supabase.';
+  if (/rate limit|only request this after|security purposes/i.test(msg)) { const s = (/after (\d+) seconds?/i.exec(msg) || [])[1]; return s ? `Aguarde ${s} segundos para pedir outro e-mail.` : 'Muitos pedidos em pouco tempo. Aguarde alguns minutos e tente de novo.'; }
+  if (/invalid email|unable to validate email/i.test(msg)) return 'E-mail inválido. Confira e tente de novo.';
+  if (/expired|invalid.*(otp|token)|token has expired/i.test(msg)) return 'Código inválido ou expirado. Confira os 6 dígitos ou peça um novo e-mail.';
+  if (/fetch|network|Failed/i.test(msg) || navigator.onLine === false) return 'Sem conexão com a internet. Tente de novo quando estiver on-line.';
+  return msg || 'Não foi possível concluir. Tente de novo.';
+}
+function openLoginModal({ email = '' } = {}) {
+  if (!Cloud.sb) { toast({ type: 'warning', title: 'Login indisponível', msg: 'Não foi possível carregar o serviço de contas. Verifique a internet e recarregue a página.' }); return; }
+  if (loginModal) return;
+  const div = document.createElement('div');
+  let sentTo = '', cooldown = 0, cdTimer = null;
+  const stepEmail = () => {
+    div.innerHTML = `
+      <div class="login-hero">${icon('mail', 'i-lg')}</div>
+      <p class="confirm-msg" style="margin:0 0 14px;text-align:center">Sem senha: informe seu e-mail e enviaremos um link para confirmar. <b>Na primeira vez, sua conta é criada automaticamente.</b></p>
+      <form class="form-stack" data-f="email" novalidate>
+        <div class="field"><label for="lgEmail">E-mail</label><input id="lgEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="voce@exemplo.com" value="${esc(email || sentTo)}"></div>
+        <ul class="pv-msgs" data-msg></ul>
+        <button type="submit" class="btn btn-primary login-btn">${icon('mail', 'i-sm')} Enviar link de acesso</button>
+      </form>
+      <p class="faint login-foot">Seus dados ficam salvos na sua conta e você pode usar o app em qualquer aparelho.</p>`;
+    const f = $('[data-f="email"]', div), inp = $('#lgEmail', div);
+    setTimeout(() => inp.focus(), 60);
+    f.onsubmit = async ev => {
+      ev.preventDefault();
+      const em = inp.value.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { $('[data-msg]', div).innerHTML = `<li class="err">${icon('alertCircle', 'i-sm')}<span>Informe um e-mail válido.</span></li>`; return; }
+      const btn = $('button[type=submit]', f); btn.disabled = true; btn.innerHTML = 'Enviando…';
+      const { error } = await Cloud.sb.auth.signInWithOtp({ email: em, options: { emailRedirectTo: appUrl(), shouldCreateUser: true } });
+      btn.disabled = false; btn.innerHTML = `${icon('mail', 'i-sm')} Enviar link de acesso`;
+      if (error) { $('[data-msg]', div).innerHTML = `<li class="err">${icon('alertCircle', 'i-sm')}<span>${esc(authErrorText(error))}</span></li>`; return; }
+      sentTo = em; cooldown = 60; stepCode();
+    };
+  };
+  const stepCode = () => {
+    div.innerHTML = `
+      <div class="login-hero ok">${icon('checkCircle', 'i-lg')}</div>
+      <p class="confirm-msg" style="margin:0 0 6px;text-align:center"><b>Verifique seu e-mail</b></p>
+      <p class="confirm-msg" style="margin:0 0 16px;text-align:center">Enviamos um link para <b>${esc(sentTo)}</b>. Abra o e-mail <b>neste aparelho</b> e toque no link para entrar.</p>
+      <form class="form-stack" data-f="code" novalidate>
+        <div class="field"><label for="lgCode">Ou digite o código de 6 dígitos do e-mail</label><input id="lgCode" class="num code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"></div>
+        <ul class="pv-msgs" data-msg></ul>
+        <button type="submit" class="btn btn-primary login-btn">${icon('check', 'i-sm')} Entrar com o código</button>
+      </form>
+      <div class="login-links"><button type="button" class="btn btn-ghost btn-sm" data-resend></button><button type="button" class="btn btn-ghost btn-sm" data-other>Usar outro e-mail</button></div>
+      <p class="faint login-foot">Não chegou? Confira a caixa de spam ou promoções.</p>`;
+    const rs = $('[data-resend]', div);
+    const tick = () => { rs.disabled = cooldown > 0; rs.textContent = cooldown > 0 ? `Reenviar em ${cooldown}s` : 'Reenviar e-mail'; };
+    clearInterval(cdTimer); tick();
+    cdTimer = setInterval(() => { if (!div.isConnected) return clearInterval(cdTimer); if (cooldown > 0) { cooldown--; tick(); } }, 1000);
+    rs.onclick = async () => {
+      const { error } = await Cloud.sb.auth.signInWithOtp({ email: sentTo, options: { emailRedirectTo: appUrl(), shouldCreateUser: true } });
+      $('[data-msg]', div).innerHTML = error ? `<li class="err">${icon('alertCircle', 'i-sm')}<span>${esc(authErrorText(error))}</span></li>` : `<li class="info">${icon('checkCircle', 'i-sm')}<span>E-mail reenviado.</span></li>`;
+      if (!error) { cooldown = 60; tick(); }
+    };
+    $('[data-other]', div).onclick = () => { clearInterval(cdTimer); stepEmail(); };
+    const code = $('#lgCode', div);
+    code.oninput = () => { code.value = code.value.replace(/\D/g, '').slice(0, 6); if (code.value.length === 6) $('[data-f="code"]', div).requestSubmit(); };
+    $('[data-f="code"]', div).onsubmit = async ev => {
+      ev.preventDefault();
+      if (code.value.length !== 6) { $('[data-msg]', div).innerHTML = `<li class="err">${icon('alertCircle', 'i-sm')}<span>Digite os 6 números do código.</span></li>`; return; }
+      const btn = $('button[type=submit]', ev.target); btn.disabled = true;
+      const { error } = await Cloud.sb.auth.verifyOtp({ email: sentTo, token: code.value, type: 'email' });
+      btn.disabled = false;
+      if (error) $('[data-msg]', div).innerHTML = `<li class="err">${icon('alertCircle', 'i-sm')}<span>${esc(authErrorText(error))}</span></li>`;
+    };
+  };
+  stepEmail();
+  loginModal = openModal({ title: 'Entrar ou criar conta', content: div, size: 'sm', onClose: () => { loginModal = null; clearInterval(cdTimer); } });
+}
+async function signOutCloud() {
+  const m = Cloud.meta, when = m.syncedAt ? new Date(m.syncedAt) : null;
+  const ok = await confirmDialog({
+    title: 'Sair da conta neste aparelho?',
+    message: `${m.dirty ? '<b>Há alterações ainda não enviadas</b> — vamos tentar enviá-las agora. ' : ''}Seus dados continuam salvos na sua conta${when ? ` (último envio ${when.toLocaleDateString('pt-BR')} às ${when.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })})` : ''}. Este aparelho será limpo e volta para a tela inicial.`,
+    confirmText: 'Sair', danger: true
+  });
+  if (!ok) return;
+  if (Cloud.meta.dirty) { await cloudPush(); if (Cloud.meta.dirty) { const go = await confirmDialog({ title: 'Não foi possível enviar', message: 'As últimas alterações não chegaram à nuvem (sem internet?). Se sair agora, elas serão perdidas.', confirmText: 'Sair mesmo assim', danger: true }); if (!go) return; } }
+  try { await Cloud.sb.auth.signOut(); } catch (e) {}
+  Cloud.user = null; Cloud.meta = {}; saveSyncMeta();
+  try { localStorage.removeItem(SYNC_KEY); localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  const theme = state.theme;
+  state = Core.createState(defaultSetup(today()), theme);
+  firstRun = true;
+  replan('full', true); calMonth = null; lastValues.clear();
+  closeAccountModal();
+  renderAll(); setView('overview');
+  setCloudStatus('signedout');
+  openOnboarding({ mode: 'new' });
+}
+const STATUS_TXT = {
+  loading: ['Conectando…', 't-neutral'], unavailable: ['Sem conexão com o serviço de contas', 't-neutral'], signedout: ['Não conectado', 't-neutral'],
+  syncing: ['Sincronizando…', 't-info'], saving: ['Salvando…', 't-info'], synced: ['Salvo na nuvem', 't-success'],
+  offline: ['Sem internet — enviaremos depois', 't-warning'], error: ['Erro ao sincronizar', 't-danger'], conflict: ['Escolha qual versão manter', 't-warning']
+};
+let accountModal = null;
+function closeAccountModal() { if (accountModal) { const m = accountModal; accountModal = null; m.close(); } }
+function accountBodyHTML() {
+  const m = Cloud.meta, st = STATUS_TXT[Cloud.status] || STATUS_TXT.signedout, when = m.syncedAt ? new Date(m.syncedAt) : null;
+  if (!Cloud.user) return `
+    <div class="acc-row"><span class="acc-ic">${icon('cloud')}</span><div><div class="lt">Salve seus dados na nuvem</div><div class="ld">Crie uma conta com seu e-mail (sem senha) para não perder o progresso e usar em qualquer aparelho.</div></div></div>
+    <button type="button" class="btn btn-primary acc-btn" data-acc="login">${icon('mail', 'i-sm')} Entrar ou criar conta</button>
+    ${Cloud.status === 'unavailable' ? '<p class="faint" style="font-size:12.5px;margin:10px 0 0">O serviço de contas não carregou (sem internet?). Seus dados continuam salvos neste aparelho.</p>' : ''}`;
+  return `
+    <div class="acc-row"><span class="acc-ic on">${icon('user')}</span><div><div class="lt">${esc(Cloud.user.email)}</div><div class="ld"><span class="badge ${st[1]}">${st[0]}</span>${when && Cloud.status === 'synced' ? ` <span class="num">às ${when.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>` : ''}</div></div></div>
+    ${Cloud.status === 'error' && Cloud.lastError ? `<p class="faint" style="font-size:12px;margin:10px 0 0">${esc(Cloud.lastError)}</p>` : ''}
+    <div class="acc-actions"><button type="button" class="btn" data-acc="sync">${icon('refresh', 'i-sm')} Sincronizar agora</button><button type="button" class="btn btn-ghost btn-danger" data-acc="logout">${icon('logout', 'i-sm')} Sair</button></div>`;
+}
+function bindAccount(root) {
+  $$('[data-acc]', root).forEach(b => b.onclick = () => {
+    const a = b.dataset.acc;
+    if (a === 'login') { closeAccountModal(); openLoginModal(); }
+    else if (a === 'sync') { Cloud.meta.dirty ? cloudPush() : cloudPull({ reason: 'manual' }); }
+    else if (a === 'logout') signOutCloud();
+  });
+}
+function openAccountModal() {
+  if (!Cloud.user) return openLoginModal();
+  const div = document.createElement('div');
+  accountModal = openModal({ title: 'Sua conta', content: div, size: 'sm', onClose: () => { accountModal = null; } });
+  renderAccount();
+}
+/** Atualiza o botão do topo, o cartão em Ajustes e o modal da conta. */
+function renderAccount() {
+  const btn = $('#accountBtn');
+  if (btn) {
+    const s = Cloud.status, cls = { synced: 'ok', saving: 'busy', syncing: 'busy', offline: 'warn', error: 'bad', conflict: 'warn' }[s] || '';
+    btn.className = Cloud.user ? `icon-btn acc-top on ${cls}` : 'btn btn-sm acc-top acc-in';
+    btn.innerHTML = Cloud.user ? `${icon('user')}<i class="acc-dot"></i>` : `${icon('cloud', 'i-sm')}<span class="acc-lbl">Entrar</span>`;
+    btn.title = Cloud.user ? `${Cloud.user.email} · ${(STATUS_TXT[s] || [''])[0]}` : 'Entrar ou criar conta';
+    btn.setAttribute('aria-label', btn.title);
+  }
+  const card = $('#accountCard');
+  if (card) { card.innerHTML = `<div class="card-head"><h3 class="card-title">${icon('cloud')} Conta e sincronização</h3></div>${accountBodyHTML()}`; bindAccount(card); }
+  if (accountModal) { accountModal.body.innerHTML = accountBodyHTML(); bindAccount(accountModal.body); }
 }
 
 /* =====================================================================
@@ -4532,6 +4889,7 @@ function init() {
   // Eventos
   $('#newEntryBtn').onclick = () => openEntryModal();
   $('#themeBtn').onclick = () => setTheme(state.theme === 'dark' ? 'light' : 'dark');
+  $('#accountBtn').onclick = () => openAccountModal();
   $$('[data-theme-opt]').forEach(b => b.onclick = () => setTheme(b.dataset.themeOpt));
   $('#recalcBtn').onclick = doRecalc;
   $('#calPrev').onclick = () => shiftMonth(-1);
@@ -4577,6 +4935,7 @@ function init() {
 
   // Sincroniza entre abas abertas
   window.addEventListener('storage', e => {
+    if (e.key === SYNC_KEY) { loadSyncMeta(); renderAccount(); return; }
     if (e.key !== STORAGE_KEY || !e.newValue) return;
     try { const res = Core.sanitizeState(JSON.parse(e.newValue)); if (res.ok) { state = res.state; applyTheme(state.theme); renderAll(); } } catch (err) {}
   });
@@ -4585,7 +4944,10 @@ function init() {
   try { v = sessionStorage.getItem('bancoHoras.view') || 'overview'; } catch (e) {}
   renderAll();
   setView(v, { scroll: false });
-  if (firstRun) openOnboarding({ mode: 'new' });
+  const fromEmailLink = /access_token=|error_description=/.test(location.hash);
+  if (firstRun && !fromEmailLink) openOnboarding({ mode: 'new' });
+  renderAccount();
+  initCloud().catch(() => setCloudStatus('unavailable')).finally(() => { if (firstRun && !ob) openOnboarding({ mode: 'new' }); });
   if (!storageOk) toast({ type: 'danger', title: 'Armazenamento indisponível', msg: 'Os dados não serão mantidos após fechar o navegador. Use o backup JSON.', timeout: 0 });
 }
 
