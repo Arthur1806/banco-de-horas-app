@@ -27,6 +27,18 @@
     if (s && s.theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
   } catch (e) {}
 })();
+/* Área de tela por plataforma (antes da primeira pintura):
+   - iPhone/iPad: mantém viewport-fit=cover (o app ocupa a tela toda e respeita
+     entalhe e barra inferior com env(safe-area-inset-*)).
+   - Android e demais: sem "cover". No Chrome recente, "cover" faz o app desenhar
+     por baixo da barra de navegação do sistema, e alguns aparelhos não informam
+     a altura dela; sem "cover" o sistema mantém o app acima da barra. */
+(function () {
+  var ua = navigator.userAgent || '';
+  var ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  document.documentElement.classList.add(ios ? 'is-ios' : 'not-ios');
+  if (!ios) { var m = document.querySelector('meta[name="viewport"]'); if (m) m.setAttribute('content', 'width=device-width, initial-scale=1'); }
+})();
 </script>
 <style>
 /* =====================================================================
@@ -1246,6 +1258,12 @@ body.ob-open { overflow: hidden; }
   .kpi-value { font-size: 21px; }
   .hero-value { font-size: 34px; }
   .cal-day { min-height: 56px; }
+}
+/* Celulares e tablets (tela de toque) e telas estreitas: sem barras de rolagem visíveis.
+   A rolagem com o dedo continua normal. */
+@media (hover: none) and (pointer: coarse), (max-width: 720px) {
+  html, body, * { scrollbar-width: none !important; -ms-overflow-style: none; }
+  html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; background: transparent; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
@@ -4918,7 +4936,7 @@ function renderAccount() {
      Safari/Chrome, onde a instalação é possível.
    - Preferências só no aparelho (localStorage), independentes do login.
    ===================================================================== */
-const APP_BUILD = '2026.11.23-1';            // aumente a cada publicação: atualiza o service worker e o cache
+const APP_BUILD = '2026.11.23-2';            // aumente a cada publicação: atualiza o service worker e o cache
 const PWA_KEYS = { dismissed: 'pwa_install_dismissed_at', done: 'pwa_install_completed', version: 'pwa_install_prompt_version', session: 'pwa_install_closed_session' };
 const PWA_PROMPT_VERSION = 1;                 // aumente para voltar a convidar todo mundo (ex.: grande novidade)
 const PWA_DISMISS_DAYS = 7;
