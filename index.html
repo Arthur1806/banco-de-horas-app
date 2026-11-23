@@ -4554,7 +4554,7 @@ function finishOnboarding() {
 
 /* =====================================================================
    CONTA E SINCRONIZAÇÃO (Supabase)
-   - Login sem senha: a pessoa informa o e-mail e recebe um link (e um código)
+   - Login sem senha: a pessoa informa o e-mail e recebe um código de 6 dígitos
      de confirmação. Na primeira vez a conta é criada automaticamente.
    - Os dados continuam salvos no aparelho (funciona sem internet) e são
      enviados para a nuvem a cada alteração. Ao voltar para o app, busca o que
@@ -4699,7 +4699,7 @@ async function initCloud() {
   } catch (e) { setCloudStatus('unavailable'); return; }
   if (linkError) {
     history.replaceState(null, '', appUrl());
-    toast({ type: 'danger', title: 'Link de acesso inválido ou expirado', msg: 'Peça um novo link: os links valem por pouco tempo e só podem ser usados uma vez.', timeout: 9000, action: { label: 'Entrar', fn: () => openLoginModal() } });
+    toast({ type: 'danger', title: 'Link de acesso inválido ou expirado', msg: 'Peça um novo código: ele vale por pouco tempo e só pode ser usado uma vez.', timeout: 9000, action: { label: 'Entrar', fn: () => openLoginModal() } });
   }
   Cloud.sb.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN') setTimeout(() => onCloudSession(session, 'signin'), 0);
@@ -4722,7 +4722,7 @@ function authErrorText(err) {
   if (/not authorized|not allowed/i.test(msg)) return 'O envio de e-mails ainda não está liberado para este endereço. Peça ao administrador do app para configurar o envio de e-mails (SMTP) no Supabase.';
   if (/rate limit|only request this after|security purposes/i.test(msg)) { const s = (/after (\d+) seconds?/i.exec(msg) || [])[1]; return s ? `Aguarde ${s} segundos para pedir outro e-mail.` : 'Muitos pedidos em pouco tempo. Aguarde alguns minutos e tente de novo.'; }
   if (/invalid email|unable to validate email/i.test(msg)) return 'E-mail inválido. Confira e tente de novo.';
-  if (/expired|invalid.*(otp|token)|token has expired/i.test(msg)) return 'Código inválido ou expirado. Confira os 6 dígitos ou peça um novo e-mail.';
+  if (/expired|invalid.*(otp|token)|token has expired/i.test(msg)) return 'Código inválido ou expirado. Confira os 6 dígitos ou toque em "Reenviar e-mail".';
   if (/fetch|network|Failed/i.test(msg) || navigator.onLine === false) return 'Sem conexão com a internet. Tente de novo quando estiver on-line.';
   return msg || 'Não foi possível concluir. Tente de novo.';
 }
@@ -4734,11 +4734,11 @@ function openLoginModal({ email = '' } = {}) {
   const stepEmail = () => {
     div.innerHTML = `
       <div class="login-hero">${icon('mail', 'i-lg')}</div>
-      <p class="confirm-msg" style="margin:0 0 14px;text-align:center">Sem senha: informe seu e-mail e enviaremos um link para confirmar. <b>Na primeira vez, sua conta é criada automaticamente.</b></p>
+      <p class="confirm-msg" style="margin:0 0 14px;text-align:center">Sem senha: informe seu e-mail e enviaremos um <b>código de 6 dígitos</b>. Na primeira vez, sua conta é criada automaticamente.</p>
       <form class="form-stack" data-f="email" novalidate>
         <div class="field"><label for="lgEmail">E-mail</label><input id="lgEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="voce@exemplo.com" value="${esc(email || sentTo)}"></div>
         <ul class="pv-msgs" data-msg></ul>
-        <button type="submit" class="btn btn-primary login-btn">${icon('mail', 'i-sm')} Enviar link de acesso</button>
+        <button type="submit" class="btn btn-primary login-btn">${icon('mail', 'i-sm')} Enviar código</button>
       </form>
       <p class="faint login-foot">Seus dados ficam salvos na sua conta e você pode usar o app em qualquer aparelho.</p>`;
     const f = $('[data-f="email"]', div), inp = $('#lgEmail', div);
@@ -4749,7 +4749,7 @@ function openLoginModal({ email = '' } = {}) {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { $('[data-msg]', div).innerHTML = `<li class="err">${icon('alertCircle', 'i-sm')}<span>Informe um e-mail válido.</span></li>`; return; }
       const btn = $('button[type=submit]', f); btn.disabled = true; btn.innerHTML = 'Enviando…';
       const { error } = await Cloud.sb.auth.signInWithOtp({ email: em, options: { emailRedirectTo: appUrl(), shouldCreateUser: true } });
-      btn.disabled = false; btn.innerHTML = `${icon('mail', 'i-sm')} Enviar link de acesso`;
+      btn.disabled = false; btn.innerHTML = `${icon('mail', 'i-sm')} Enviar código`;
       if (error) { $('[data-msg]', div).innerHTML = `<li class="err">${icon('alertCircle', 'i-sm')}<span>${esc(authErrorText(error))}</span></li>`; return; }
       sentTo = em; cooldown = 60; stepCode();
     };
@@ -4758,9 +4758,9 @@ function openLoginModal({ email = '' } = {}) {
     div.innerHTML = `
       <div class="login-hero ok">${icon('checkCircle', 'i-lg')}</div>
       <p class="confirm-msg" style="margin:0 0 6px;text-align:center"><b>Verifique seu e-mail</b></p>
-      <p class="confirm-msg" style="margin:0 0 16px;text-align:center">Enviamos um link para <b>${esc(sentTo)}</b>. Abra o e-mail <b>neste aparelho</b> e toque no link para entrar.</p>
+      <p class="confirm-msg" style="margin:0 0 16px;text-align:center">Enviamos um código de 6 dígitos para <b>${esc(sentTo)}</b>. Digite abaixo — pode abrir o e-mail em qualquer aparelho.</p>
       <form class="form-stack" data-f="code" novalidate>
-        <div class="field"><label for="lgCode">Ou digite o código de 6 dígitos do e-mail</label><input id="lgCode" class="num code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"></div>
+        <div class="field"><label for="lgCode">Código do e-mail</label><input id="lgCode" class="num code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"></div>
         <ul class="pv-msgs" data-msg></ul>
         <button type="submit" class="btn btn-primary login-btn">${icon('check', 'i-sm')} Entrar com o código</button>
       </form>
@@ -4777,6 +4777,7 @@ function openLoginModal({ email = '' } = {}) {
     };
     $('[data-other]', div).onclick = () => { clearInterval(cdTimer); stepEmail(); };
     const code = $('#lgCode', div);
+    setTimeout(() => code.focus(), 60);
     code.oninput = () => { code.value = code.value.replace(/\D/g, '').slice(0, 6); if (code.value.length === 6) $('[data-f="code"]', div).requestSubmit(); };
     $('[data-f="code"]', div).onsubmit = async ev => {
       ev.preventDefault();
